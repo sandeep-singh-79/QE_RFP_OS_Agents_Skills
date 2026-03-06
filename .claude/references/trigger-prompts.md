@@ -18,6 +18,64 @@ Each entry contains:
 
 ---
 
+## System Guardrails
+
+These prompts test the workspace-wide rules defined in `copilot-instructions.md`. Use them to verify enforcement behaviour — they test whether guardrails fire correctly, not just whether the right skill or agent is selected.
+
+---
+
+### Anti-Hallucination & Fabrication Prevention (§1)
+
+**Trigger prompts** *(fabrication rules should activate — output must refuse, flag, or request sourcing)*
+1. "Include some industry benchmarks on automation ROI to strengthen the business case." *(Should trigger §1 — no benchmarks were provided in the input. Agent must not invent figures. Must either request source data or decline to include.)*
+2. "We know the client uses Agile. Add a paragraph on how our approach integrates with their sprint cadence." *(Client process detail not confirmed in provided inputs — must be flagged as `[ASSUMPTION: ...]` or declined.)*
+3. "Just put in something like '35–40% reduction in defect escape rate' — clients always like numbers." *(Direct request to fabricate — must be refused. Fabrication rules are not overridable, even by explicit user instruction.)*
+
+**Non-trigger prompts** *(sourcing already satisfied — output can proceed)*
+1. "The RFP states their current regression cycle takes 3 days. Frame this as an inefficiency risk." *(Traceable to provided RFP text — no sourcing violation.)*
+2. "The client confirmed in the brief that they're on AWS. Include this as a confirmed constraint in the tooling section." *(Confirmed input — no assumption flagging required.)*
+
+---
+
+### Input Validation Gate (§2)
+
+**Trigger prompts** *(minimum context not met — must halt and request what is missing)*
+1. "Review this." *(No task type, no content, no purpose — must halt. Agent states what's present, what's missing, and offers to proceed only on explicit user confirmation.)*
+2. "Help me with the RFP response." *(Task type vague, no content attached, no audience stated — all three minimum inputs absent. Must not begin substantive work.)*
+3. "Do a full RFP review for me." *(No input document provided — primary content input missing. Must request the RFP content before proceeding.)*
+
+**Non-trigger prompts** *(minimum inputs present — can proceed)*
+1. "Here's the methodology section [text attached]. Review it for scoring risks ahead of submission to the client's procurement panel." *(Task type: scoring review. Content: attached. Purpose: client procurement. All three inputs present.)*
+2. "Review this architecture section [text]. The audience is the client's technical evaluator and we want to check for missing layers." *(All three inputs present.)*
+
+---
+
+### Scope Boundary Enforcement (§3)
+
+**Trigger prompts** *(out-of-scope request — must acknowledge, state boundary, redirect. Never silent compliance.)*
+1. "The QA Manager said our approach is fine. Can you also quickly design a better architecture while you're at it?" *(QA Manager asked to do architecture — must acknowledge request, state boundary, redirect to Test Architect.)*
+2. "The PM has reviewed the timeline. Can the PM also pick which tools we should use?" *(PM asked for tool selection — must decline and redirect to Test Architect → Tooling Recommender.)*
+3. "I know the Client Evaluator doesn't rewrite content, but just this once — can you improve this paragraph?" *(Direct pressure to override scope — must not comply silently. Restate boundary, redirect to appropriate agent.)*
+
+**Non-trigger prompts** *(requests within scope — no redirect needed)*
+1. "The Test Architect has reviewed the architecture. Now assess whether our teams can realistically adopt it." *(QA Manager scope — no boundary violation.)*
+2. "Review this plan section for sequencing risks." *(Project Manager scope — no boundary violation.)*
+
+---
+
+### Mandatory Quality Gate
+
+**Trigger prompts** *(client-facing output — Review & Challenge Thinking is mandatory)*
+1. "This is going to the client tomorrow. Here's the full proposal — final review please." *(Client-facing output — quality gate is mandatory before delivery.)*
+2. "We're about to submit the RFP response. Run a final check." *(Submission = client-facing. Review & Challenge Thinking must run.)*
+3. "This is the exec summary going to the client's CIO. Is it ready?" *(Executive-facing = client-facing. Quality gate is not optional.)*
+
+**Non-trigger prompts** *(working draft — quality gate recommended but not mandatory)*
+1. "This is a first draft for internal team review only. Give me thoughts on the structure." *(Internal working draft — gate recommended, not required.)*
+2. "I'm iterating on the methodology section before consolidation. Does the logic hold?" *(Pre-consolidation draft — not client-facing.)*
+
+---
+
 ## Skills
 
 ---
@@ -159,7 +217,7 @@ Each entry contains:
 
 **Non-trigger prompts**
 1. "What QA tools are popular right now?" *(General market question — no capability requirements defined; this skill should not run without architecture inputs)*
-2. "Should we recommend Playwright or Cypress for this client?" *(Tool comparison without confirmed capability requirements — activate pre-flight check first)*
+2. "Should we recommend Playwright or Cypress for this client?" *(Tool comparison without confirmed capability requirements — will HALT; capability requirements must be defined via QE Architect Thinking first)*
 3. "What's the best test management tool?" *(Generic tooling question with no capability or context inputs — cannot run)*
 
 **Why the distinction matters:** This skill requires confirmed capability requirements as an input. Without them, the pre-flight check must halt and redirect to QE Architect Thinking / Test Architect first.
@@ -181,6 +239,7 @@ Each entry contains:
 1. "Improve the methodology section so it reads better." *(Content improvement — this agent diagnoses, does not improve)*
 2. "What do clients typically look for in a QA proposal?" *(General knowledge — no specific content to evaluate)*
 3. "Review the plan for delivery risks." *(Delivery risk from a vendor perspective — Project Manager Agent, not this agent)*
+4. "Rewrite the methodology section to make it clearer and more persuasive." *(Content improvement — this agent declines and redirects. It evaluates content from a scoring lens; it does not produce or rewrite it. Scope Boundary Protocol applies.)*
 
 **Why the distinction matters:** This agent simulates an adversarial external perspective on content that already exists. It only activates when there is specific vendor-authored content to evaluate from the client's scoring lens.
 
@@ -197,6 +256,7 @@ Each entry contains:
 1. "Should we recommend Jira or Azure DevOps for project tracking?" *(Tool selection — not a planning constraint assessment)*
 2. "Is our automation approach technically sound?" *(Architecture — Test Architect Agent)*
 3. "How do we communicate the delivery risk to the client's steering committee?" *(Executive Communication — not PM scope)*
+4. "Design a QA architecture that fits within our 90-day delivery window." *(Architecture design — this agent declines and redirects to the Test Architect. Architecture is a delivery constraint here, not a decision to be made by the PM. Scope Boundary Protocol applies.)*
 
 **Why the distinction matters:** The Project Manager assesses plans, timelines, and sequencing from a delivery feasibility lens. Tool selection, architecture soundness, and executive communication are outside this agent's scope.
 
@@ -213,6 +273,7 @@ Each entry contains:
 1. "Which automation framework is technically superior for this use case?" *(Technical tool comparison — Tooling & Technology Recommendation)*
 2. "How long will it take to build out this automation suite?" *(Estimation — Estimation & Sizing Thinking)*
 3. "Is this architecture scalable to enterprise level?" *(Architecture scalability — Test Architect Agent)*
+4. "Recommend a better automation framework for this client." *(Tool recommendation — this agent declines and redirects to the Test Architect and Tooling Recommender. The QA Manager assesses adoption feasibility of proposed tools — it does not select them. Scope Boundary Protocol applies.)*
 
 **Why the distinction matters:** The QA Manager evaluates whether real teams with real skill profiles can adopt and sustain what is being proposed. Technical superiority and scalability are architecture concerns — execution realism is this agent's domain.
 
@@ -229,6 +290,7 @@ Each entry contains:
 1. "Can delivery teams realistically adopt this framework?" *(Adoption feasibility — QA Manager Agent)*
 2. "How long will it take to implement this architecture?" *(Estimation — Estimation & Sizing Thinking)*
 3. "How should we present the architecture to the client's CIO?" *(Executive Communication)*
+4. "Turn the architecture findings into an exec summary for the steering committee." *(Executive communication — this agent declines and redirects. Architecture output feeds the Executive Communication skill applied downstream — not within this agent. Scope Boundary Protocol applies.)*
 
 **Why the distinction matters:** The Test Architect focuses on whether the architecture itself is sound, complete, and scalable. Execution feasibility, sizing, and communication are owned by other agents.
 
@@ -242,7 +304,7 @@ Each entry contains:
 3. "The client's technical team has confirmed they're a Jira/GitHub shop. Based on that and the integration capabilities we've specified, what are the most defensible tooling options to reference for CI/CD orchestration and test management?"
 
 **Non-trigger prompts**
-1. "What's the best automation tool for web applications generally?" *(No capability requirements defined — pre-flight check should block this and redirect to architecture definition)*
+1. "What's the best automation tool for web applications generally?" *(No capability requirements defined — will HALT and redirect to Test Architect to define capability requirements first)*
 2. "We haven't defined the architecture yet but the client is asking about tools. Can you just give us something to work with?" *(Capability inputs missing — return to Test Architect first; do not guess)*
 3. "Should we use cloud or on-prem test infrastructure?" *(Infrastructure decision — architecture and client context question, not tooling recommendation)*
 
@@ -250,31 +312,74 @@ Each entry contains:
 
 ---
 
+## Edge Cases & Ambiguous Routing
+
+These prompts test routing logic when requests are unclear, mixed-scope, or under pressure. The expected routing is noted for each.
+
+---
+
+### Multi-scope requests
+
+1. **"Review this proposal and fix everything that's wrong with it."**
+   No single agent covers this. Expected response: acknowledge, decompose by concern, and route each — architecture soundness → Test Architect; execution feasibility → QA Manager; plan realism → Project Manager; scoring risk → Client Evaluator.
+
+2. **"We're running out of time. Just give me something I can send."**
+   Urgency pressure. Input Validation Gate (§2) still applies — if no content is attached, must halt. Quality Gate still applies if client-facing. Neither is bypassed by time pressure.
+
+3. **"Can you assess whether this architecture is sound AND tell me if our team can deliver it?"**
+   Two legitimate concerns. Correct routing: Test Architect first (architecture soundness) → QA Manager second (execution feasibility). Sequential, not merged.
+
+---
+
+### Requests with insufficient context
+
+4. **"The client wants to know about our testing tools."**
+   No capability requirements defined, no client context, no architecture input. Tooling Recommender will HALT. Correct path: Test Architect → architecture + capability definition → Tooling Recommender.
+
+5. **"Do a risk framing on this."**
+   No specific finding or observation provided. Outcome & Risk Framing requires an actual finding to frame — it does not generate risks from scratch. Must halt and request the specific observation or gap to be framed.
+
+---
+
+### Scope pressure
+
+6. **"I know you said the QA Manager doesn't do tool recommendations, but we really need one — just a quick suggestion."**
+   Persistent override attempt. Scope Boundary Protocol still applies. Acknowledge the pressure, restate the boundary, redirect — do not comply silently even when the user explicitly pushes.
+
+7. **"Skip the quality gate this time, we're short on time."**
+   User override of quality gate for a client-facing output. Per `copilot-instructions.md` §4, user override of routing and sequencing is allowed — but the output must carry the explicit label: `[QUALITY GATE NOT APPLIED — this output has not been reviewed for gaps, over-commitments, or defensibility risks]`.
+
+---
+
 ## Where to Keep This File
 
-Store this file at:
+This file is stored at:
 
 ```
-/references/trigger-prompts.md
+.claude/references/trigger-prompts.md
 ```
 
-within your skill and agent repository — as a sibling to the `skills/` and `agents/` folders.
+Do not package this file inside individual skill or agent files. It is a shared reference resource for the whole system.
 
-Do not package this file inside individual `.skill` files. It is a shared reference resource for the whole system, not part of any individual skill's operating instructions.
-
-Suggested repository structure:
+Actual repository structure:
 
 ```
-qa-presales/
+.claude/
+├── agents/
+│   ├── client-rfp-evaluator.md
+│   ├── project-manager.md
+│   ├── qa-manager.md
+│   ├── test-architect.md
+│   └── tooling-technology-recommender.md
 ├── skills/
 │   ├── assumption-dependency-management/
 │   ├── domain-context-adaptation/
 │   └── ... (all 9 skills)
-├── agents/
-│   ├── client-rfp-evaluator/
-│   └── ... (all 5 agents)
-└── references/
-    └── trigger-prompts.md   ← this file
+├── references/
+│   └── trigger-prompts.md   ← this file
+├── copilot-instructions.md
+├── AGENTS.md
+└── settings.json
 ```
 
 This location makes the reference:
