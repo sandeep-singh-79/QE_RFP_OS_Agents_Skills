@@ -1,0 +1,22 @@
+{
+    "permissions": {
+        "allow": [
+            "BASH (git add:*)",
+            "BASH (git commit:*)",
+            "BASH (git status:*)",
+            "BASH (git diff:*)",
+            "BASH (git log:*)",
+            "BASH (git branch:*)",
+            "BASH (cat:*)",
+            "BASH (ls:*)",
+            "BASH (pwd:*)",
+            "BASH (mv:*)",
+            "EDIT (.claude/**)",
+            "EDIT (agents/**)",
+            "EDIT (skills/**)",
+            "EDIT (claude-memory/**)",
+            "EDIT (plan.md)",
+            "EDIT (tasks.md)"
+        ]
+    }
+}
