@@ -131,3 +131,24 @@
 | LOW↑ | 1 | 4 | 4 |
 | LOW | 1 | 4 | 4 |
 | **Total** | **3** | **13** | **13** |
+
+---
+
+## Phase 2C — Trigger Prompts Validation Fixes
+
+### Task 11: Fix Three Gaps Found During Live RFP Testing
+**File:** `.claude/references/trigger-prompts.md`  
+**Risk:** Inaccurate or missing test prompts produce false passes during validation, allowing enforcement gaps to go undetected. Found via live testing against the Libro Credit Union RFP (March 2026).
+
+- [x] 11.1 Fix Input Validation Trigger 3 — add condition qualifier: prompt only halts when no document is attached; must not be used as a test when content is present in context
+- [x] 11.2 Add §5 Confidentiality trigger/non-trigger prompts — entire guardrail section had zero test coverage
+- [x] 11.3 Fix Domain Context Adaptation non-triggers — add domain-contradiction test case (user states wrong domain that conflicts with provided document)
+- [x] 11.4 Fix Client Evaluator trigger prompts — add explicit note that a vendor response must be present; prompts implicitly assume it but do not state it
+
+---
+
+## Phase 2C Completion Summary
+
+| Priority | Tasks | Sub-tasks | Completed |
+|----------|-------|-----------|------|
+| Test coverage | 1 | 4 | 4 |

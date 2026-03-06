@@ -57,3 +57,29 @@ Insights and analysis gained during implementation. Distinct from memory (contex
 
 ### On HALT Mechanisms
 **HALT + explicit STOP message is more effective than "Do Not" lists.** "Do Not" lists are passive — they describe what's prohibited but don't interrupt execution. The HALT pattern is active — it stops, names the missing prerequisite, and states what must happen before proceeding. The Tooling skill proved this works. Scaling it to three more skills made the enforcement model consistent across the pipeline's most critical sequencing points.
+
+---
+
+## Phase 2C — Live RFP Test Insights (March 2026)
+
+### Source
+Ten trigger prompts were run against the Libro Credit Union Ovation UX Modernization RFP to validate whether the system guardrails fire correctly with real procurement content.
+
+### Pass/Fail Results
+- 10/10 prompts produced correct guardrail behavior
+- 3 gaps found in the trigger-prompts.md reference file itself (not the guardrails)
+
+### Key Insight 1: Test condition ambiguity is a silent failure mode
+**The Input Validation trigger for "no document attached" fires incorrectly when a document IS in context.** The same prompt produces two opposite correct behaviors depending on whether content is present. Trigger-prompts files must always state the test condition explicitly, not just describe the prompt. "This prompt tests X when Y condition is true" — without the condition, a test that appears to pass may be testing the wrong state.
+
+### Key Insight 2: Input requirements must be stated in trigger entries, not assumed
+**The Client Evaluator trigger prompts implicitly assumed a vendor response was attached.** In testing, the Input Validation Gate (§2) fired before the agent activated — producing correct behavior for the wrong reason. Any trigger prompt for an agent with a mandatory input (vendor response, existing content to evaluate) must explicitly state that input as a precondition. Otherwise test results are unreliable.
+
+### Key Insight 3: Domain contradiction is a live scenario, not an edge case
+**Users copy prompts from prior engagements.** Testing revealed that when a user states a wrong industry domain ("large retail bank") against a document that clearly identifies the client as a credit union, the guardrail correctly detects and flags the contradiction. The trigger-prompts file had no test for this — it only tested missing domain and unconfirmed domain. Domain-contradiction is more common than domain-absence in real workflows.
+
+### Key Insight 4: Guardrail gaps and reference file gaps are different failure types
+**The guardrails themselves (§1–6 in copilot-instructions.md) all performed correctly.** The gaps were in the *test reference* — covering §5 Confidentiality had zero test prompts despite being a live concern with real RFP content. A guardrail that has no test coverage is invisible to validation, even if it works. Test coverage must track guardrail additions.
+
+### Key Insight 5: Real RFP documents surface nuance that synthetic prompts miss
+**The Agile test revealed a vendor-vs-client distinction** that the file's parenthetical didn't capture: the Libro RFP mentions Agile as a vendor evaluation criterion, not as a client operating practice. Attributing Agile to the client would be a sourcing violation. Synthetic prompts constructed without a real document can't expose this kind of contextual nuance.
