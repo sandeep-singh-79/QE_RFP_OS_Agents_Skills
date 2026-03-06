@@ -1,7 +1,7 @@
 # Guardrail Implementation Plan
 
-> **Purpose:** Track implementation of critical and high-priority guardrails for the `.claude/` agent-skill system.  
-> **Status:** COMPLETE  
+> **Purpose:** Track implementation of guardrails for the `.claude/` agent-skill system.  
+> **Status:** Phase 2A complete. Phase 2B complete.  
 > **Last Updated:** 2026-03-06  
 > **Update Policy:** This file is updated after every sub-task completion, context compaction, or re-initialization.
 
@@ -77,7 +77,7 @@
 
 ---
 
-## Completion Summary
+## Phase 2A Completion Summary
 
 | Priority | Tasks | Sub-tasks | Completed |
 |----------|-------|-----------|-----------|
@@ -85,3 +85,49 @@
 | HIGH | 3 | 9 | 9 |
 | Cleanup | 1 | 2 | 2 |
 | **Total** | **6** | **20** | **20** |
+
+---
+
+## Phase 2B — MEDIUM + LOW Priority
+
+### Task 7: Agent-Level Scope Enforcement (Gap #6 — MEDIUM)
+**Files:** `.claude/agents/client-rfp-evaluator.md`, `project-manager.md`, `qa-manager.md`, `test-architect.md`  
+**Risk:** 4 of 5 agents have prohibited skills lists but no defined response when users push them out of scope. Under time pressure or unfamiliarity, users get silent compliance with out-of-scope requests instead of a redirect. `tooling-technology-recommender` already has the correct pattern — scale it.
+
+**Pattern to replicate** (from `tooling-technology-recommender.md`):
+> *"If asked to [prohibited action], decline and redirect to [correct agent] to complete [prerequisite] first."*
+
+- [x] 7.1 Add scope protection + decline-and-redirect protocol to `client-rfp-evaluator.md`
+- [x] 7.2 Add scope protection + decline-and-redirect protocol to `project-manager.md`
+- [x] 7.3 Add scope protection + decline-and-redirect protocol to `qa-manager.md`
+- [x] 7.4 Add scope protection + decline-and-redirect protocol to `test-architect.md`
+- [x] 7.5 Add `copilot-instructions.md` §3 cross-reference to all 5 agents (including tooling-technology-recommender)
+
+### Task 8: Confidentiality & Data Handling Guardrails (Gap #8 — LOW↑)
+**File:** `.claude/copilot-instructions.md` (new section)  
+**Risk:** The system routinely processes client-sensitive RFP content — procurement details, internal processes, team structures, budget constraints. No guardrails exist for how this data is handled, quoted, or retained. For a professional services / consulting tool, this is a credibility and trust gap.
+
+- [x] 8.1 Add Section 5 to `copilot-instructions.md`: Confidentiality & Data Handling
+- [x] 8.2 Define client data treatment rules: quoting, paraphrasing, attribution
+- [x] 8.3 Define output sensitivity awareness: flag when outputs contain client-sensitive content
+- [x] 8.4 Define data scope rules: outputs should not leak content from one RFP into another
+
+### Task 9: Context Budget Management (Gap #9 — LOW)
+**File:** `.claude/copilot-instructions.md` (new section) + agent/skill hygiene  
+**Risk:** Duplicate content across agents and skills burns context window tokens silently. Large agent files with repeated preambles reduce the effective token budget available for actual analysis. Operational inefficiency — not a correctness risk, but degrades output quality as complexity grows.
+
+- [x] 9.1 Add Section 6 to `copilot-instructions.md`: Context Efficiency Principles
+- [x] 9.2 Define duplication avoidance rule: agents/skills reference shared rules by pointer, not repetition
+- [x] 9.3 Define output conciseness guidance: prefer structured findings over verbose prose when context is constrained
+- [x] 9.4 Audit agents for duplicated preamble content and flag candidates for consolidation
+
+---
+
+## Phase 2B Completion Summary
+
+| Priority | Tasks | Sub-tasks | Completed |
+|----------|-------|-----------|-----------|
+| MEDIUM | 1 | 5 | 5 |
+| LOW↑ | 1 | 4 | 4 |
+| LOW | 1 | 4 | 4 |
+| **Total** | **3** | **13** | **13** |

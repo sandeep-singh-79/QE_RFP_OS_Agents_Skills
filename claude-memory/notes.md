@@ -26,7 +26,13 @@ All Phase 1 audit tasks completed. See `tasks.md` for historical record.
 - `AGENTS.md` defines agent coordination. It should answer: "I have an RFP to review — what do I invoke and in what order?"
 - Quality gate scope: "client-facing" = anything going to client, procurement, or executive sponsor. "Working draft" = internal iteration.
 
-### Implementation Complete
-- All tasks done as of 2026-03-06
-- No open questions or blockers
-- System is ready for use
+### Phase 2A Complete (prior session)
+- All 20 sub-tasks done as of 2026-03-06
+
+### Phase 2B Complete (2026-03-06)
+- Task 7 (5 sub-tasks): Scope Boundary Protocol added to all 5 agent files
+- Task 8 (4 sub-tasks): Section 5 Confidentiality added to copilot-instructions.md
+- Task 9 (4 sub-tasks): Section 6 Context Efficiency added to copilot-instructions.md
+- Total: 33/33 sub-tasks complete across all phases
+- All 10 original guardrail gaps now addressed
+- Next: git commit to `guardrails/phase-2-implementation` branch

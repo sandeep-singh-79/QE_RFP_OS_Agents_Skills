@@ -86,6 +86,12 @@ Use these skills only to assess clarity, credibility, risk, and defensibility.
 
 This agent evaluates reception and scoring risk only. It does not design, optimise, or improve solutions.
 
+### Scope Boundary Protocol
+
+**Scope protection:** If asked to rewrite, improve, redesign, or optimise a proposal section, decline and redirect — the Test Architect handles architecture; the appropriate design agents handle solution development. Clearly state: *"This agent evaluates how the response will be scored and received — it does not produce or improve the response itself."*
+
+> Scope boundary enforcement follows the acknowledge-redirect protocol in `copilot-instructions.md` §3.
+
 ---
 
 ## Output Format
