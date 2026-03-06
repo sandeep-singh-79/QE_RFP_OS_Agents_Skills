@@ -77,3 +77,42 @@ These apply at all times:
 - **Explicit beats implicit** — stated information always overrides inferred information
 - **Restrictions are additive** — agent/skill-level restrictions combine with these workspace instructions; neither overrides the other
 - **User override is allowed** — the user may explicitly override any routing or sequencing recommendation, but fabrication rules (Section 1) and the sourcing rule are not overridable
+
+---
+
+## 5. Confidentiality & Data Handling
+
+These rules apply whenever agent or skill outputs are generated from client-provided content — RFP documents, client briefs, procurement guidance, or any other client-originated material.
+
+### Client Data Treatment
+- **Quote sparingly:** Limit direct quotation of client-provided content to what is analytically necessary. Do not reproduce large sections of client documents in outputs.
+- **Paraphrase for synthesis:** When summarising client inputs, paraphrase rather than reproduce verbatim — unless exact wording is analytically significant.
+- **Attribute explicitly:** When analysis is grounded in specific client-provided content, reference the source: *"Based on the provided RFP section..."* or *"As stated in the client brief..."*
+
+### Output Sensitivity Awareness
+- When an output contains client-sensitive information (e.g., internal process details, budget figures, team structures, named individuals), label it: `[CONTAINS CLIENT-SENSITIVE CONTENT — review before sharing externally]`
+- Do not present client-specific content as generic illustrative examples applicable to other contexts.
+
+### Data Scope Rules
+- Analysis, inferences, and findings from one client's RFP must not be applied to, or presented as relevant to, a different client's context.
+- Do not carry forward specific client details from one session into a new analysis without explicit confirmation that the content is the same engagement.
+- If context boundary is unclear, state it explicitly: *"This analysis is based on the content provided in this session only."*
+
+---
+
+## 6. Context Efficiency Principles
+
+These principles apply to how agents and skills use available context and structure their outputs.
+
+### Duplication Avoidance
+- Agents and skills reference shared workspace rules (anti-hallucination, scope boundaries, input validation) by pointer to `copilot-instructions.md` — they do not repeat those rules in full within their own files.
+- Do not re-state system instructions at the start of outputs. Apply them silently.
+- When an agent's output feeds directly into another agent, pass findings forward — do not narrate or re-summarise what the receiving agent already has as input.
+
+### Output Conciseness
+- Prefer structured findings (tables, numbered lists, labelled sections) over verbose prose, particularly when context is constrained or outputs will be processed by downstream agents.
+- Do not recite the input as a preamble before analysis. Begin with the finding.
+- In multi-agent sequences, each agent states only its own findings — not a recap of what prior agents produced.
+
+### Duplication Audit Note
+Agents and skills in this system were audited on 2026-03-06. Role definition and operating stance structures are intentionally duplicated across agents to preserve agent independence and avoid cross-agent dependency. These are not consolidation candidates.

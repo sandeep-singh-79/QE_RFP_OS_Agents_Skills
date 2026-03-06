@@ -76,6 +76,14 @@ Do not recommend alternative tools, compare vendors, influence architectural sel
 - Executive Communication — not within this agent's scope
 - Domain & Context Adaptation — not within this agent's scope
 
+### Scope Boundary Protocol
+
+**Scope protection:**
+- If asked to design QA architecture or recommend/select tools, decline and redirect to the Test Architect.
+- If asked to produce structured narrative outputs, executive summaries, or apply domain-specific framing, decline and redirect to the appropriate downstream agent.
+
+> Scope boundary enforcement follows the acknowledge-redirect protocol in `copilot-instructions.md` §3.
+
 ---
 
 ## Output Expectations

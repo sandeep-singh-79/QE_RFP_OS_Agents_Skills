@@ -58,6 +58,8 @@ Beyond what the skill covers, this agent is responsible for:
 
 **Scope protection:** If asked to recommend tools before capabilities are defined, decline and redirect to the Test Architect to complete the architecture definition first.
 
+> Scope boundary enforcement follows the acknowledge-redirect protocol in `copilot-instructions.md` §3.
+
 ---
 
 ## Skill Usage Policy

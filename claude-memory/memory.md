@@ -80,4 +80,21 @@ The three pointer/stub files above reference the canonical files — they never 
 - `CLAUDE.md` — Claude Code entry point (`@import` of both canonical files)
 - `AGENTS.md` — Codex/OpenCode entry point (pointer stub)
 - `.github/copilot-instructions.md` — GitHub Copilot entry point (pointer stub)
-- `plan.md` — implementation plan, fully complete (20/20 sub-tasks)
+- `plan.md` — implementation plan, Phase 2A + 2B fully complete (33/33 sub-tasks)
+
+---
+
+## Phase 2B — Completed 2026-03-06
+
+### What Was Built
+
+**Task 7 — Agent-Level Scope Enforcement (Gap #6 completion):**
+- Added `### Scope Boundary Protocol` section with agent-specific `**Scope protection:**` decline-and-redirect rules to `client-rfp-evaluator.md`, `project-manager.md`, `qa-manager.md`, `test-architect.md`
+- Added `copilot-instructions.md §3` cross-reference to all 5 agents (including `tooling-technology-recommender.md` which already had the prototype pattern)
+- Pattern: explicit redirect to named destination agent + cross-reference to system-level acknowledge-redirect protocol
+
+**Task 8 — Confidentiality & Data Handling (Gap #8):**
+- Added Section 5 to `copilot-instructions.md`: client data treatment (quote sparingly, paraphrase, attribute), output sensitivity labelling (`[CONTAINS CLIENT-SENSITIVE CONTENT]`), data scope rules (no cross-RFP leakage)
+
+**Task 9 — Context Efficiency Principles (Gap #9):**
+- Added Section 6 to `copilot-instructions.md`: duplication avoidance (pointer-not-repetition rule), output conciseness (structured findings over prose), duplication audit note (role definitions are intentionally duplicated for agent independence)

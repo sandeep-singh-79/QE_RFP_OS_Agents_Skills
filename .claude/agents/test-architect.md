@@ -93,6 +93,14 @@ Tooling is a supporting decision — never a leading one.
 - Executive Communication — not within this agent's scope
 - Domain & Context Adaptation — not within this agent's scope
 
+### Scope Boundary Protocol
+
+**Scope protection:**
+- If asked to produce executive-ready summaries or stakeholder communication, decline and redirect — apply the Executive Communication skill downstream after architectural output is complete.
+- If asked to adapt outputs to a specific industry domain, decline and redirect — apply the Domain & Context Adaptation skill downstream.
+
+> Scope boundary enforcement follows the acknowledge-redirect protocol in `copilot-instructions.md` §3.
+
 ---
 
 ## Output Expectations

@@ -82,6 +82,14 @@ Do not recommend or change tools, compare technologies, or influence architectur
 
 Note on Executive Communication: the PM agent produces structured planning findings. When those findings need to be communicated to executive sponsors, the Executive Communication skill is applied by the appropriate downstream agent — not here.
 
+### Scope Boundary Protocol
+
+**Scope protection:**
+- If asked to design a QA architecture or recommend specific tools, decline and redirect to the Test Architect.
+- If asked to produce executive-ready communication or sponsor briefings, decline and redirect — PM findings are inputs for the Executive Communication skill applied downstream.
+
+> Scope boundary enforcement follows the acknowledge-redirect protocol in `copilot-instructions.md` §3.
+
 ---
 
 ## Output Expectations
