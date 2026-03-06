@@ -36,3 +36,15 @@ All Phase 1 audit tasks completed. See `tasks.md` for historical record.
 - Total: 33/33 sub-tasks complete across all phases
 - All 10 original guardrail gaps now addressed
 - Next: git commit to `guardrails/phase-2-implementation` branch
+
+### Phase 2C Complete (2026-03-06)
+- Trigger-prompts evaluated as agentic AI evaluator — 5 structural issues identified
+- 10 prompts run live against Libro Credit Union RFP — 10/10 guardrails passed
+- 3 gaps found in trigger-prompts.md reference file (not in guardrails themselves)
+- Task 11 (4 sub-tasks): fixes applied to trigger-prompts.md
+  - 11.1: Input Validation Trigger 3 — added test condition qualifier
+  - 11.2: Section 5 Confidentiality — added trigger/non-trigger prompts (zero coverage before)
+  - 11.3: Domain contradiction case added to Domain Context Adaptation non-triggers
+  - 11.4: Client Evaluator triggers — added vendor response precondition note
+- Insights logged to insights.md (5 findings from live test)
+- Total across all phases: 37/37 sub-tasks
