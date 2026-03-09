@@ -44,6 +44,7 @@ User calls always take precedence over routing recommendations.
 | `evidence-extraction` | Stage 1 — extract and normalize evidence from artifacts |
 | `capability-coverage` | Stage 3.5 — evaluate QE capability coverage against baseline |
 | `evidence-reconciliation` | Stage 8 — reconcile all findings before output generation |
+| `question-capability-mapping` | Optional — when RFP questions exist and capability coverage is complete; invoked by Test Architect before Solution Design |
 
 ### Skill Interaction Rules
 
@@ -52,6 +53,7 @@ User calls always take precedence over routing recommendations.
 | `evidence-extraction` | Feeds `assumption-dependency-management` — extracted findings inform assumption and dependency analysis |
 | `capability-coverage` | Supports `qe-architect-thinking` — coverage gaps inform architecture layer decisions |
 | `evidence-reconciliation` | Works with `review-challenge-thinking` — reconciliation report is an input to the quality gate challenge |
+| `question-capability-mapping` | Optional skill applied when RFP questions exist; informs Test Architect solution design — maps RFP question wording to underlying capability expectations |
 
 ---
 
@@ -259,10 +261,12 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
   Checkpoint: All eight domains assessed; Missing and Partial domains documented
   Output:     Capability coverage table — Capability / Status / Recommendation
 
+> **Optional — Question → Capability Mapping:** If RFP questions exist in artifacts and Stage 3.5 is complete, the Test Architect may invoke the `question-capability-mapping` skill before Stage 4. Activation requires: (1) RFP questions present in artifacts, (2) Stage 4 not yet started, (3) Stage 3.5 complete. The skill maps question wording to underlying capability expectations and writes results to `notes.md`. See `.claude/skills/question-capability-mapping/SKILL.md` for HALT conditions.
+
 ### Stage 4 — Solution Design (Architecture Review)
   Agent:      Test Architect
   Skill:      QE Architect Thinking (mandatory first)
-  Input:      `memory.md` findings + gap coverage report
+  Input:      `memory.md` findings + gap coverage report + capability coverage output (Stage 3.5) + question capability mapping output (if available)
   Checkpoint: Architecture layer completeness confirmed before tooling validation
   Output:     Architecture findings, layer gaps, tooling readiness
 
@@ -293,6 +297,7 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
     1. **Evidence Reconciliation** — verify all High-confidence findings from `memory.md` are addressed in the solution or explicitly acknowledged as out of scope
     2. **Decision-Centric HITL check** — assess whether any decisions exceed the risk threshold requiring human approval
     3. **Proposal Quality Rules** — verify output meets quality standards
+    4. **Evidence Validation** — verify every architectural recommendation references at least one of: a Finding ID, a capability domain from `qe-capability-map.md`, or an explicit declared assumption. Recommendations that fail must be marked `⚠ EVIDENCE GAP` before output is cleared
   Checkpoint: All governance checks pass, or human approval obtained for exceptions
   Output:     Governance clearance or list of items requiring human decision
 
@@ -310,6 +315,7 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
     2. Identify reasoning weaknesses in agent or skill outputs
     3. Identify workflow inefficiencies or sequencing problems
     4. Generate improvement proposals for the QE OS
+    5. **Evidence gap monitoring** — identify conclusions delivered in the output that lacked evidence traceability (no Finding ID, capability baseline, or declared assumption); record each as an improvement proposal in `improvements.md` with Root Cause = "Reasoning without evidence source". If more than 3 evidence gap proposals accumulate, flag for human review before the next engagement.
   Output:     Improvement proposals recorded in `improvements.md`
   Rule:       Agents propose improvements only — they do not directly modify system files
 
@@ -414,6 +420,43 @@ Findings written to `memory.md` by one agent must not be modified or deleted by 
 
 Conflicting findings are resolved at Stage 8 by the Evidence Reconciliation skill. They must not be silently resolved by the agent that raised them.
 
+### Evidence-First Reasoning Rule
+Every major conclusion must trace back to one of three sources:
+- **Evidence** — a sourced Finding ID from `memory.md`
+- **Capability Baseline** — a named domain from `.claude/references/qe-capability-map.md`
+- **Explicit Assumption** — declared per the `assumption-dependency-management` skill
+
+**Major conclusions** subject to this rule include: architectural recommendations, capability gap identifications, risk ratings, and delivery feasibility assessments.
+
+**Rejection rule:** If a conclusion cannot be traced to one of the three sources, it must be rejected. The agent must state which source is missing and flag the conclusion with `⚠ EVIDENCE GAP`.
+
+**Why this rule exists:** Without it, agent systems gradually shift from evidence-based reasoning to inference and pattern guessing — producing hallucinated assumptions, missing capability gaps, and confidence drift that degrades output quality over time.
+
+**`⚠ EVIDENCE GAP` format:**
+```
+⚠ EVIDENCE GAP
+Recommendation: [what was recommended]
+Missing Source: Finding ID / Capability Baseline / Explicit Assumption
+Action Required: Provide traceability or reclassify as assumption
+```
+
+**Recommendation traceability format** (required in Stage 4 — Solution Design output):
+```
+Recommendation: [what is being recommended]
+Evidence: F[ID] — [brief description of finding]
+Capability Baseline: [domain name] domain — [brief reason]
+Assumption: [if no finding or baseline applies, declare the assumption explicitly]
+```
+
+At least one of the three sources must be present. Recommendations with none are invalid and must not appear in client-facing output. When multiple sources apply, list all.
+
+**Example:**
+```
+Recommendation: Introduce CI/CD QA gates
+Evidence: F14 — pipeline lacks QA validation checkpoints
+Capability Baseline: CI/CD Integration domain — automated quality enforcement not present
+```
+
 ---
 
 ## Review Checkpoints
@@ -431,8 +474,8 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 5 — Architecture Validation | Adoption risks classified and surfaced | Feasibility not assessed |
 | 6 — Delivery Validation | All delivery dependencies identified | Dependencies unclassified |
 | 7 — Client Perspective | Scoring risks and defensibility gaps surfaced | No evaluator review performed |
-| 8 — Governance Validation | All governance checks pass or human-approved | Unresolved governance items |
-| 9 — Output Generation | Quality gate passed (Review & Challenge) | Output not challenged |
+| 8 — Governance Validation | All governance checks pass or human-approved | Unresolved governance items or recommendations lacking evidence traceability |
+| 9 — Output Generation | Quality gate passed (Review & Challenge) + evidence-first compliance verified at Stage 8 | Output not challenged or evidence gaps not cleared |
 | 10 — System Learning | Improvement proposals recorded | No retrospective performed |
 
 Checkpoint enforcement is at the **conductor level** — violations are flagged but do not hard-block unless a skill-level HALT applies.
@@ -506,6 +549,7 @@ These rules govern skill sequencing across all workflows. They reinforce skill-l
 4. `domain-context-adaptation` always runs after substantive analysis is complete — never before
 5. `review-challenge-thinking` always runs last, before final output delivery
 6. `tooling-technology-recommendation` only runs after `qe-architect-thinking` has defined required capabilities
+7. Evidence-first validation always runs during Stage 8 — no architectural recommendation may be delivered without a traceable source (Finding ID, capability baseline, or declared assumption)
 
 These rules are enforced at two levels:
 - **Skill level (hard):** Skills with prerequisite checks (executive-communication, domain-context-adaptation, structuring-consulting-thinking) will HALT and state what is missing. Skill-level rules take precedence.
