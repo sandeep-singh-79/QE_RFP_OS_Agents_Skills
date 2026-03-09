@@ -1045,3 +1045,239 @@ If the implementing agent finds the file exceeding 400 lines, prioritize cutting
 | P2 Task 9 — Gap Coverage Storage | 4 | 4 | Complete |
 | P2 Task 10 — Improvement Backlog | 5 | 5 | Complete |
 | **Phase 2 Total** | **47** | **47** | **Complete** |
+
+---
+
+## Phase 3 — Optional Question → Capability Mapping Skill
+
+> **Execution order:** This phase executes **after** Phase 2 (Architecture Hardening) completes.  
+> **Purpose:** Implement the optional `question-capability-mapping` skill, which interprets RFP questions to determine which QE capabilities the client is evaluating — ensuring solution design addresses evaluation intent, not only literal question wording.  
+> **Principles:**
+> - Additive only — do not modify existing workflow stage numbering
+> - Lightweight and optional — this is a skill invoked conditionally, not a mandatory workflow stage
+> - Only the Test Architect agent invokes it
+> - Context scope is strictly constrained
+> - Must not run if activation conditions are not met
+
+### P3 Task 1 — Create Skill Folder and SKILL.md
+
+- [x] P3-1.1 — Create folder `.claude/skills/question-capability-mapping/`
+- [x] P3-1.2 — Create `.claude/skills/question-capability-mapping/SKILL.md` with full skill definition
+- [x] P3-1.3 — Verify folder is under `.claude/skills/` (not agents, not references)
+- [x] P3-1.4 — Verify file is named `SKILL.md` (not the skill name)
+
+### P3 Task 2 — Skill Purpose and Context Scope
+
+- [x] P3-2.1 — Define skill purpose: interpret RFP questions to identify which capability domains are being evaluated, ensuring responses address evaluation intent
+- [x] P3-2.2 — Define context scope (load only): RFP question text, `memory.md`, `.claude/references/qe-capability-map.md`, `notes.md`
+- [x] P3-2.3 — Add explicit rule: skill must not load full artifact documents unnecessarily
+- [x] P3-2.4 — Add explicit rule: skill must not load `insights.md`, `decisions.md`, `improvements.md`, or agent files
+
+### P3 Task 3 — Activation Conditions (Guardrail)
+
+- [x] P3-3.1 — Define three required activation conditions: (1) RFP questions exist in artifacts, (2) Solution design has not yet started, (3) Capability coverage has already been evaluated
+- [x] P3-3.2 — Add HALT rule: if any activation condition is not met, the skill must not run and must state which condition failed
+- [x] P3-3.3 — Define how condition (1) is verified: check `artifacts.md` for artifact type containing questions, or check `notes.md` for extracted question inventory
+- [x] P3-3.4 — Define how condition (3) is verified: check `memory.md` for a Capability Coverage section or `notes.md` for Stage 3.5 output
+- [x] P3-3.5 — Verify activation conditions do not conflict with the Stage 3.5 Capability Coverage Check in AGENTS.md workflow
+
+### P3 Task 4 — Skill Responsibilities
+
+- [x] P3-4.1 — Define responsibility 1: parse each RFP question and identify the capability domains it evaluates
+- [x] P3-4.2 — Define responsibility 2: determine the evaluation intent behind each question (what is the client actually assessing?)
+- [x] P3-4.3 — Define responsibility 3: map each question to one or more capability domains from `qe-capability-map.md`
+- [x] P3-4.4 — Define responsibility 4: identify the evaluation dimension(s) per question (Architecture maturity / Execution scalability / Tooling maturity / Governance discipline)
+- [x] P3-4.5 — Define responsibility 5: produce the structured capability mapping output and evaluation dimension statement
+
+### P3 Task 5 — Capability Mapping Output Format
+
+- [x] P3-5.1 — Define mandatory output section header: `### Question Capability Mapping`
+- [x] P3-5.2 — Define per-question output format: full question text, then a table with columns: Capability Domain / Capability / Why This Applies
+- [x] P3-5.3 — Define evaluation dimension output: freeform label per question (e.g., Architecture maturity, Execution scalability, Tooling maturity, Governance discipline)
+- [x] P3-5.4 — Add example output block to SKILL.md showing a complete mapping for one question with table + evaluation dimension
+- [x] P3-5.5 — Verify output format is consistent with the column structure used in `qe-capability-map.md`
+
+### P3 Task 6 — Skill Guardrails
+
+- [x] P3-6.1 — Add guardrail: skill must not assume capabilities without traceable reasoning — every mapped capability must cite a phrase or element from the question that supports it
+- [x] P3-6.2 — Add guardrail: skill must not infer domain expectations not supported by question wording
+- [x] P3-6.3 — Add guardrail: skill must not override or contradict evidence extracted from artifacts in `memory.md`
+- [x] P3-6.4 — Add guardrail: if a question cannot be mapped to any capability domain in `qe-capability-map.md`, record it as unmapped and note the reason — do not force a mapping
+- [x] P3-6.5 — Verify all four guardrails are explicitly named in the SKILL.md (not implied)
+
+### P3 Task 7 — Memory Integration
+
+- [x] P3-7.1 — Define storage target: mapping results written to `notes.md` under heading `## Question Capability Mapping`
+- [x] P3-7.2 — Define storage format: one line per question in shorthand notation `Q[n] → [Domain] + [Domain]` (e.g., `Q1 → Automation Strategy + CI/CD Integration`)
+- [x] P3-7.3 — Add rule: if `## Question Capability Mapping` section already exists in `notes.md`, append to it — do not overwrite
+- [x] P3-7.4 — Add rule: full structured table is written to `notes.md` below the shorthand index for downstream agent reference
+- [x] P3-7.5 — Verify storage rule does not conflict with Memory Integrity Rule added in Phase 2 Task 1
+
+### P3 Task 8 — Handoff Rule
+
+- [x] P3-8.1 — Define handoff: after mapping, execution continues with Stage 4 — Solution Design
+- [x] P3-8.2 — Add rule: the Test Architect must consider both Capability Coverage output (Stage 3.5) AND Question Capability Mapping output when designing the solution
+- [x] P3-8.3 — Add rule: if Question Capability Mapping reveals a capability domain not surfaced in Stage 3.5, it must be added to the solution scope — not silently ignored
+- [x] P3-8.4 — Verify handoff rule does not create a circular dependency with Stage 3.5 or Stage 4 definitions in AGENTS.md
+
+### P3 Task 9 — Register Skill in AGENTS.md Skill Roster
+
+- [x] P3-9.1 — Add `question-capability-mapping` to AGENTS.md Skill Roster table with activation condition: `Optional — when RFP questions exist and capability coverage is complete`
+- [x] P3-9.2 — Add skill interaction rule in Skill Interaction Rules table: `question-capability-mapping | Optional skill applied when RFP questions exist; informs Test Architect solution design`
+- [x] P3-9.3 — Add activation note in the Canonical Multi-Agent Workflow, between Stage 3.5 and Stage 4: `If RFP questions exist, the Test Architect may invoke Question → Capability Mapping before Solution Design.`
+- [x] P3-9.4 — Verify Skill Roster count updates to 13
+- [x] P3-9.5 — Verify existing Skill Interaction Rules rows are unchanged
+
+### Phase 3 — Implementation Order
+
+| Order | Task | Depends On | Files Modified |
+|---|---|---|---|
+| 1 | P3 Task 1: Create Skill Folder + SKILL.md | None | `.claude/skills/question-capability-mapping/SKILL.md` (new) |
+| 2 | P3 Task 2: Purpose + Context Scope | P3 Task 1 | SKILL.md |
+| 3 | P3 Task 3: Activation Conditions | P3 Task 1 | SKILL.md |
+| 4 | P3 Task 4: Skill Responsibilities | P3 Task 1 | SKILL.md |
+| 5 | P3 Task 5: Output Format | P3 Task 4 | SKILL.md |
+| 6 | P3 Task 6: Guardrails | P3 Task 5 | SKILL.md |
+| 7 | P3 Task 7: Memory Integration | P3 Task 6 | SKILL.md |
+| 8 | P3 Task 8: Handoff Rule | P3 Task 7 | SKILL.md |
+| 9 | P3 Task 9: Register in AGENTS.md | P3 Tasks 1–8 | `.claude/AGENTS.md` |
+
+### Phase 3 — Validation Checklist
+
+- [x] `.claude/skills/question-capability-mapping/SKILL.md` exists
+- [x] Skill purpose statement is present and correct
+- [x] Context scope defined — only 4 permitted file types
+- [x] All three activation conditions are defined with HALT rule
+- [x] All five responsibilities are explicitly defined
+- [x] Output format includes per-question table + evaluation dimension
+- [x] All four guardrails are explicitly named
+- [x] Memory integration defined — written to `notes.md ## Question Capability Mapping`
+- [x] Handoff rule links to Stage 4 and references both Stage 3.5 + mapping outputs
+- [x] `question-capability-mapping` added to Skill Roster (count = 13)
+- [x] Skill Interaction Rule added
+- [x] Activation note added in workflow between Stage 3.5 and Stage 4
+
+### Phase 3 — Summary
+
+| Task | Sub-Tasks | Completed | Status |
+|---|---|---|---|
+| P3 Task 1 — Skill Folder + SKILL.md | 4 | 4 | Complete |
+| P3 Task 2 — Purpose + Context Scope | 4 | 4 | Complete |
+| P3 Task 3 — Activation Conditions | 5 | 5 | Complete |
+| P3 Task 4 — Skill Responsibilities | 5 | 5 | Complete |
+| P3 Task 5 — Output Format | 5 | 5 | Complete |
+| P3 Task 6 — Guardrails | 5 | 5 | Complete |
+| P3 Task 7 — Memory Integration | 5 | 5 | Complete |
+| P3 Task 8 — Handoff Rule | 4 | 4 | Complete |
+| P3 Task 9 — Register in AGENTS.md | 5 | 5 | Complete |
+| **Phase 3 Total** | **42** | **42** | **Complete** |
+
+---
+
+## Ongoing — Evidence-First Reasoning Enforcement
+
+> **Execution order:** Begins after Phase 2 completes. Runs continuously across all future workflow executions.  
+> **Purpose:** Prevent the QE OS from degrading over time by requiring every major conclusion to trace back to evidence, a capability baseline, or an explicit assumption. Without this rule, agent systems gradually shift from evidence-based reasoning to pattern guessing and inference drift.  
+> **Principle:** This is not a one-time implementation. It is a standing enforcement rule that must be embedded in governance, workflow, and skill behaviour.
+
+### EF Task 1 — Define the Evidence-First Reasoning Rule
+
+- [x] EF-1.1 — Define the rule: every major conclusion must trace back to one of three sources — Evidence (Finding ID), Capability Baseline (domain from `qe-capability-map.md`), or Explicit Assumption (declared per `assumption-dependency-management` skill)
+- [x] EF-1.2 — Define what constitutes a "major conclusion" for enforcement purposes: any architectural recommendation, capability gap identification, risk rating, or delivery feasibility assessment
+- [x] EF-1.3 — Define the rejection rule: if a conclusion cannot be traced to one of the three sources, it must be rejected and the agent must state which source is missing
+- [x] EF-1.4 — Define the three degradation patterns this rule prevents: (1) hallucinated assumptions, (2) missing capability gaps, (3) confidence drift
+
+### EF Task 2 — Add Evidence Validation Step to Stage 8
+
+- [x] EF-2.1 — Identify insertion point: within Stage 8 — Governance Validation in AGENTS.md, add a fourth governance action after the existing three (Evidence Reconciliation, HITL check, Proposal Quality Rules)
+- [x] EF-2.2 — Add action 4: Evidence Validation — every architectural recommendation in the output must reference at least one of: a Finding ID, a capability domain from `qe-capability-map.md`, or an explicit declared assumption
+- [x] EF-2.3 — Define the non-compliance format: recommendations that fail evidence validation must be flagged with a `⚠ EVIDENCE GAP` marker before the output is cleared
+- [x] EF-2.4 — Define the `⚠ EVIDENCE GAP` block format:
+  ```
+  ⚠ EVIDENCE GAP
+  Recommendation: [what was recommended]
+  Missing Source: Finding ID / Capability Baseline / Explicit Assumption
+  Action Required: Provide traceability or reclassify as assumption
+  ```
+- [x] EF-2.5 — Verify that EF-2.2 does not duplicate or conflict with the existing Evidence Reconciliation action already in Stage 8
+
+### EF Task 3 — Add Evidence-First Rule to AGENTS.md Governance Layer
+
+- [x] EF-3.1 — Add a new governance subsection `### Evidence-First Reasoning Rule` under the Governance Layer in AGENTS.md
+- [x] EF-3.2 — State the three permitted reasoning sources: Evidence (sourced Finding ID), Capability Baseline (domain reference), Explicit Assumption (declared)
+- [x] EF-3.3 — State the rejection rule with the `⚠ EVIDENCE GAP` marker reference
+- [x] EF-3.4 — Add the degradation warning: inference + pattern guessing without evidence leads to hallucinated assumptions, missing capability gaps, and confidence drift
+- [x] EF-3.5 — Verify new subsection is placed after Memory Integrity Rule and before the Review Checkpoints section
+
+### EF Task 4 — Define Traceability Format for Recommendations
+
+- [x] EF-4.1 — Define the mandatory recommendation format for Stage 4 (Solution Design) output:
+  ```
+  Recommendation: [what is being recommended]
+  Evidence: F[ID] — [brief description of finding]
+  Capability Baseline: [domain name] domain — [brief reason]
+  Assumption: [if no finding or baseline applies, declare the assumption explicitly]
+  ```
+- [x] EF-4.2 — Add rule: at least one of the three sources must be present — recommendations with none are invalid and must not appear in client-facing output
+- [x] EF-4.3 — Add rule: when multiple sources apply, list all — traceability is additive, not exclusive
+- [x] EF-4.4 — Add example to AGENTS.md showing a complete recommendation block (e.g., Introduce CI/CD QA gates → F14 + CI/CD Integration domain)
+- [x] EF-4.5 — Verify format is consistent with Evidence Traceability Rule added in Phase 2 Task 7
+
+### EF Task 5 — Add Review Checkpoint for Evidence-First Compliance
+
+- [x] EF-5.1 — Add a check to the Stage 8 row in the Review Checkpoints table: Blocks If: `Architectural recommendations lack Finding ID, capability baseline, or declared assumption`
+- [x] EF-5.2 — Update Stage 9 checkpoint to confirm evidence-first compliance was verified during Stage 8 before output delivery
+- [x] EF-5.3 — Verify checkpoint update does not break the existing table formatting in AGENTS.md
+
+### EF Task 6 — Add Evidence-First Rule as Sequencing Constraint
+
+- [x] EF-6.1 — Add rule 7 to the Sequencing Rules section in AGENTS.md: `evidence-first validation always runs during Stage 8 — no architectural recommendation may be delivered without traceable source`
+- [x] EF-6.2 — Verify new sequencing rule follows the existing 6 rules and is numbered 7
+- [x] EF-6.3 — Verify new rule is consistent with the Stage 8 governance action added in EF Task 2
+
+### EF Task 7 — Continuous Compliance Monitoring (Ongoing Behaviour)
+
+- [x] EF-7.1 — Add a Stage 10 responsibility: after output generation, identify any conclusions delivered in the output that lacked evidence traceability and record them as improvement proposals in `improvements.md`
+- [x] EF-7.2 — Define the improvement proposal format for evidence gaps: use existing `improvements.md` schema with Root Cause = "Reasoning without evidence source" and Suggested Change = "Add Finding ID or capability baseline reference"
+- [x] EF-7.3 — Add rule: if more than 3 evidence gap proposals accumulate in `improvements.md`, this signals a systemic reasoning quality problem requiring human review before the next engagement
+- [x] EF-7.4 — Verify EF-7.1 integrates with the Stage 10 responsibilities already defined in AGENTS.md without modifying existing responsibilities 1–4
+
+### Ongoing — Implementation Order
+
+| Order | Task | Depends On | Files Modified |
+|---|---|---|---|
+| 1 | EF Task 1: Define the Rule | None | `.claude/AGENTS.md` |
+| 2 | EF Task 2: Stage 8 Evidence Validation Step | EF Task 1 | `.claude/AGENTS.md` |
+| 3 | EF Task 3: Governance Layer Section | EF Task 1 | `.claude/AGENTS.md` |
+| 4 | EF Task 4: Recommendation Traceability Format | EF Tasks 1–3 | `.claude/AGENTS.md` |
+| 5 | EF Task 5: Review Checkpoint Update | EF Tasks 2–4 | `.claude/AGENTS.md` |
+| 6 | EF Task 6: Sequencing Rule 7 | EF Tasks 2–3 | `.claude/AGENTS.md` |
+| 7 | EF Task 7: Continuous Compliance (Stage 10) | EF Tasks 1–6 | `.claude/AGENTS.md` |
+
+### Ongoing — Validation Checklist
+
+- [x] Evidence-First Reasoning Rule defined with three permitted sources
+- [x] Definition of "major conclusion" stated
+- [x] Rejection rule with `⚠ EVIDENCE GAP` marker defined
+- [x] `⚠ EVIDENCE GAP` block format defined
+- [x] Stage 8 governance action 4 (Evidence Validation) added
+- [x] `### Evidence-First Reasoning Rule` section added to Governance Layer
+- [x] Recommendation traceability format defined with example
+- [x] Stage 8 Review Checkpoint updated
+- [x] Stage 9 checkpoint references evidence-first verification
+- [x] Sequencing Rule 7 added
+- [x] Stage 10 responsibility for evidence gap monitoring added
+- [x] Systemic quality threshold (3 gaps = human review trigger) defined
+
+### Ongoing — Summary
+
+| Task | Sub-Tasks | Completed | Status |
+|---|---|---|---|
+| EF Task 1 — Define the Rule | 4 | 4 | Complete |
+| EF Task 2 — Stage 8 Evidence Validation | 5 | 5 | Complete |
+| EF Task 3 — Governance Layer Section | 5 | 5 | Complete |
+| EF Task 4 — Recommendation Traceability Format | 5 | 5 | Complete |
+| EF Task 5 — Review Checkpoint Update | 3 | 3 | Complete |
+| EF Task 6 — Sequencing Rule 7 | 3 | 3 | Complete |
+| EF Task 7 — Continuous Compliance Monitoring | 4 | 4 | Complete |
+| **Ongoing Total** | **29** | **29** | **Complete** |
