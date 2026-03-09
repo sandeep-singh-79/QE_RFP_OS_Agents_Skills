@@ -240,6 +240,70 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 
 ---
 
+### evidence-extraction
+
+**Trigger prompts**
+1. "We've registered the RFP and two supporting documents in the artifact index. Extract all findings now — I want `memory.md` populated before we start any agent work." *(Stage 1: explicitly invoking evidence extraction before agent analysis begins)*
+2. "Run Stage 1 on this document. Pull out every requirement, gap, risk, and constraint you can find and format them as findings with confidence levels." *(Direct invocation of the extraction stage)*
+3. "Before we move to solution design, make sure we've extracted everything from the RFP. I don't want any gaps silently dropped when we get to Stage 3." *(Pre-Stage 3 extraction confirmation request)*
+
+**Non-trigger prompts**
+1. "What are the biggest risks in this RFP?" *(Risk analysis — this requires human interpretive judgment after extraction; evidence extraction populates findings, it does not prioritise or frame them)*
+2. "Summarise the key requirements from this RFP." *(Summarisation — this is an agent-level output task that occurs after extraction, not extraction itself)*
+3. "What QA gaps does the client have?" *(Gap analysis — this is the work of the Test Architect using extracted findings; the extraction skill itself does not perform gap analysis)*
+
+**Why the distinction matters:** Evidence extraction is a mechanical, structured process — classify, format, and store findings with source and confidence. Interpretation, framing, and gap analysis are downstream agent responsibilities. The skill populates `memory.md`; it does not draw conclusions.
+
+---
+
+### capability-coverage
+
+**Trigger prompts**
+1. "Stage 3 is done. Now run Stage 3.5 — I want to know which of the eight QE capability domains are addressed, which are partially addressed, and which have no evidence at all." *(Direct invocation of the capability coverage stage)*
+2. "Before solution design, check the capability coverage across all domains — don't just look at what the RFP mentioned. I want to know if there are gaps the client hasn't explicitly raised." *(Explicit request for baseline-driven coverage rather than artifact-driven gap coverage alone)*
+3. "Give me a capability coverage table: for each of the eight QE domains, tell me the status — Present, Partial, or Missing — and what we should recommend." *(Request for the canonical Stage 3.5 output structure)*
+
+**Non-trigger prompts**
+1. "What QA capabilities should we include in our proposal?" *(Content generation — the coverage check assesses existing evidence against a baseline; it does not generate proposal content from scratch)*
+2. "What capabilities does the client have?" *(This rephrases the question as client-side assessment — capability coverage checks what the proposed solution covers, not what the client already has)*
+3. "Review the architecture section for completeness." *(Architecture review — Test Architect with QE Architect Thinking; capability coverage operates on `memory.md` findings, not on a draft proposal text)*
+
+**Why the distinction matters:** Capability coverage runs against the evidence baseline in `memory.md` and `qe-capability-map.md` — it does not read proposal text. It is a pre-Stage 4 completeness gate, not a proposal review or architecture critique.
+
+---
+
+### evidence-reconciliation
+
+**Trigger prompts**
+1. "Before we generate the final output, run evidence reconciliation. I want confirmation that every High-confidence finding in `memory.md` is either addressed in the solution or explicitly called out as out of scope." *(Stage 8 governance check — explicit invocation before output)*
+2. "We're about to submit. Check that nothing has been dropped — every finding we extracted should map to something in the output or be acknowledged as unresolved." *(Pre-submission quality check; maps to evidence reconciliation's core purpose)*
+3. "Produce the reconciliation report — I want to see which findings are addressed, which are out of scope with stated rationale, and which are unresolved." *(Request for the canonical reconciliation output)*
+
+**Non-trigger prompts**
+1. "Review this proposal section for quality." *(Proposal quality review — Review & Challenge Thinking; evidence reconciliation checks finding coverage, not prose quality or argument strength)*
+2. "Have we missed anything important?" *(Too vague — this could invoke any number of checking processes. Evidence reconciliation is specifically about `memory.md` finding resolution, not general completeness sensing)*
+3. "Run the quality gate." *(Quality gate = Review & Challenge Thinking skill at Stage 9; evidence reconciliation is a Stage 8 governance action that precedes the quality gate)*
+
+**Why the distinction matters:** Evidence reconciliation is a traceability enforcement step — it checks the resolution status of every High-confidence finding against the solution output. It does not assess prose quality, challenge argument strength, or simulate a client evaluator. Those are the jobs of Review & Challenge Thinking and the Client Evaluator agent.
+
+---
+
+### question-capability-mapping
+
+**Trigger prompts**
+1. "The RFP has 12 questions. Before the Test Architect designs the solution, I want to know what each question is really evaluating — which capability domains is the client assessing through these questions?" *(Explicit activation: RFP questions exist, Stage 3.5 complete, Stage 4 not yet started — all three conditions met)*
+2. "Map each RFP question to the QE capabilities it tests. I want to make sure our response addresses the evaluation intent, not just the literal wording." *(Direct invocation of the skill's core purpose)*
+3. "Some of these questions look strategic and some look operational. Before we write the Solution Design, give me a mapping of what each question is probing — architecture maturity, tooling maturity, governance, or execution scalability." *(Request for evaluation dimension analysis — the second output the skill produces)*
+
+**Non-trigger prompts**
+1. "Answer these RFP questions." *(Content generation — the mapping skill interprets questions, it does not write answers; question answering is a Stage 4 output task for the Test Architect)*
+2. "What QA capabilities should this response demonstrate?" *(This asks for general guidance — the mapping skill requires actual question text to map from; without specific questions it cannot activate)*
+3. "Run capability coverage." *(Capability coverage — Stage 3.5; question mapping is optional and runs after Stage 3.5 completes. Capability coverage checks evidence against the domain baseline; question mapping interprets question wording to identify what the client is probing)*
+
+**Why the distinction matters:** This skill has three activation conditions that must all be true: RFP questions exist in artifacts, Stage 4 has not started, and Stage 3.5 is complete. It maps question wording to capability evaluation intent — it does not write answers, generate coverage analysis, or duplicate Stage 3.5. If the conditions are not met, it halts and states which condition failed.
+
+---
+
 ## Agents
 
 ---
@@ -389,10 +453,21 @@ Actual repository structure:
 │   └── tooling-technology-recommender.md
 ├── skills/
 │   ├── assumption-dependency-management/
+│   ├── capability-coverage/
 │   ├── domain-context-adaptation/
-│   └── ... (all 9 skills)
+│   ├── estimation-sizing-thinking/
+│   ├── evidence-extraction/
+│   ├── evidence-reconciliation/
+│   ├── executive-communication/
+│   ├── outcome-risk-framing/
+│   ├── qa-architect-thinking/
+│   ├── question-capability-mapping/
+│   ├── review-challenge-thinking/
+│   ├── structuring-consulting-thinking/
+│   └── tooling-technology-recommendation/
 ├── references/
-│   └── trigger-prompts.md   ← this file
+│   ├── trigger-prompts.md   ← this file
+│   └── qe-capability-map.md
 ├── copilot-instructions.md
 ├── AGENTS.md
 └── settings.json
