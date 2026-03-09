@@ -1,0 +1,149 @@
+---
+name: evidence-reconciliation
+description: Ensure all findings extracted during evidence extraction are addressed before final outputs are produced. Powers Stage 8 — Governance Validation in the canonical workflow. Activates when solution output is produced and governance validation begins. Checks every finding in memory.md for resolution, surfaces unresolved and conflicting findings, and enforces traceability by requiring Finding ID references on all addressed findings. Does not mark findings resolved without evidence. Does not perform orchestration.
+---
+
+# Skill: Evidence Reconciliation Thinking
+
+## Purpose
+
+Ensure all findings extracted during evidence extraction are addressed before final outputs are produced.
+
+This skill powers **Stage 8 — Governance Validation** in the canonical workflow. It acts as the evidence closure gate — verifying that nothing extracted during Stage 1 has been silently dropped between extraction and output. Without this skill, Stage 8 relies entirely on governance rules without structured checking of finding-by-finding resolution status.
+
+---
+
+## Activation Conditions
+
+This skill activates when **any** of the following are true:
+
+1. Solution output has been produced by agent stages (Stages 4–7) and governance validation is beginning
+2. Stage 8 — Governance Validation is reached in the canonical workflow
+3. The user explicitly requests evidence reconciliation or governance validation
+
+---
+
+## Context Scope
+
+This skill may load **only**:
+
+- `memory.md` — the complete set of extracted findings to reconcile against
+- The solution output produced by Stages 4–7 — the content to check for finding resolution
+- `notes.md` — specifically the gap report section, if present
+
+It must not load `insights.md`, `improvements.md`, `decisions.md`, or artifacts unless a specific finding cannot be traced without them. Context must remain minimal.
+
+---
+
+## Responsibilities
+
+When activated, this skill must:
+
+1. **Load all findings from `memory.md`** — retrieve every entry with a Finding ID (F1, F2, ...) regardless of confidence level
+2. **Check if each finding is addressed** — review the solution output for explicit or traceable resolution of each finding
+3. **Identify unresolved findings** — findings present in `memory.md` with no corresponding resolution in the solution output
+4. **Detect conflicting findings** — findings flagged as `⚠ CONFLICTING FINDING` that have not been resolved or acknowledged
+5. **Enforce traceability** — all resolutions in the solution output must reference the Finding ID they address
+
+---
+
+## Traceability Rule
+
+Every addressed finding in the solution output must reference its Finding ID. The reference must appear in the output content itself — not only in this reconciliation report.
+
+**Required format:**
+
+```
+Resolution: F[ID]
+[Description of how this finding is addressed in the solution.]
+```
+
+**Example:**
+
+```
+Resolution: F14
+Introduce CI/CD pipeline QA gates at the build and release stages to address the missing pipeline validation capability.
+```
+
+If a finding is addressed but the resolution does not reference the Finding ID, it is treated as **unresolved** until the ID reference is added.
+
+Multiple findings may reference the same resolution if a single architectural change addresses them.
+
+```
+Example:
+Resolution: F12, F14, F21
+Introduce centralized CI/CD pipeline quality gates covering UI, API, and performance validation.
+```
+
+---
+
+## Output Structure
+
+The reconciliation output must always contain four sections. Sections with no items must still appear with an explicit "None" statement.
+
+### Resolved Findings
+
+List all findings from `memory.md` that have a traceable resolution with a Finding ID reference in the solution output.
+
+```
+| Finding ID | Description | Resolution Reference |
+|---|---|---|
+| F[ID] | [Short description] | [Section or quote from solution output] |
+```
+
+### Unresolved Findings
+
+List all findings from `memory.md` that have no traceable resolution in the solution output.
+
+```
+| Finding ID | Confidence | Description | Action Required |
+|---|---|---|---|
+| F[ID] | High / Medium / Low | [Short description] | Address in solution or explicitly acknowledge as out of scope |
+```
+
+### Conflicting Findings
+
+List all findings flagged as `⚠ CONFLICTING FINDING` in `memory.md` that have not been resolved or acknowledged.
+
+```
+| Original Finding ID | Conflicting Source | Resolution Status |
+|---|---|---|
+| F[ID] | [Artifact name] | Unresolved — requires human review |
+```
+
+### Medium-confidence Findings
+
+List all Medium-confidence findings separately. These do not require full reconciliation but must remain visible.
+
+```
+| Finding ID | Description | Visibility Status |
+|---|---|---|
+| F[ID] | [Short description] | Visible — carried forward to "Unresolved or Unverified Findings" section |
+```
+
+Medium-confidence findings must appear in a section titled **"Unresolved or Unverified Findings"** in any client-facing output. They must not be silently dropped.
+
+---
+
+## Guardrails
+
+This skill must not:
+
+- Mark a finding as **Resolved** without a traceable Finding ID reference in the solution output
+- Delete any finding from `memory.md` — findings are append-only
+- Ignore Medium-confidence findings — they must appear in the output even if reconciliation is not required
+- Treat a conflicting finding as resolved unless a human has explicitly approved the resolution
+
+If a finding ID referenced in the solution output does not exist in `memory.md`, flag it as a **phantom reference** and require correction before output is delivered.
+
+---
+
+## Handoff
+
+After completion, the workflow proceeds to:
+
+**Stage 9 — Output Generation (Quality Gate)**
+
+The reconciliation report is part of the governance clearance package. Stage 9 (Review & Challenge Thinking quality gate) must have access to this report when evaluating the final output.
+
+If unresolved High-confidence findings remain, a HITL pause is triggered before Stage 9 proceeds.
