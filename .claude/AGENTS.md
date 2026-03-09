@@ -195,9 +195,36 @@ Use this table to select the right agent for a given request type.
 
 ---
 
+## Agent Context Scope
+Agents must load only the memory and workspace files relevant to their role. Loading unnecessary files wastes context budget and may introduce irrelevant findings into analysis.
+
+| Agent | Required Context |
+|---|---|
+| Test Architect | `memory.md`, `artifacts.md`, `notes.md` |
+| QA Manager | `memory.md`, `notes.md` |
+| Project Manager | `memory.md`, `notes.md`, `decisions.md` |
+| Client / RFP Evaluator | `memory.md`, `notes.md` |
+| Tooling Recommender | `memory.md` (capability sections only), `notes.md` |
+
+**Rule:** Agents must not load unrelated memory files — load only what is listed in the scope table above. If a file in the table does not exist, skip it without error.
+
+---
+
 ## Canonical Multi-Agent Workflow (Full RFP Review)
 
 When a full RFP response or proposal needs comprehensive review, use this sequence. Each stage builds on the previous. Each stage includes a mandatory review checkpoint. Do not skip or reorder unless the user explicitly instructs otherwise.
+
+### System Stage Executors
+Stages 0–3 are conductor-managed. Agents begin execution at Stage 4.
+
+| Stage | Executor |
+|---|---|
+| Stage 0 — Artifact Discovery | Conductor |
+| Stage 1 — Evidence Extraction | Conductor (using `evidence-extraction` skill) |
+| Stage 2 — Memory Initialization | Conductor |
+| Stage 3 — Gap Coverage Enforcement | Conductor |
+
+Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages 0–3) before any agent begins analysis.
 
 ### Stage 0 — Artifact Discovery
   Purpose:    Identify and index all available knowledge sources
@@ -222,6 +249,15 @@ When a full RFP response or proposal needs comprehensive review, use this sequen
   Action:     Cross-reference `memory.md` against known requirements from artifacts
   Checkpoint: Every High-confidence finding is either addressed or explicitly acknowledged as out of scope. No known gap may disappear silently.
   Output:     Gap coverage report — addressed / out-of-scope / unresolved
+  Storage:    Write gap coverage report to `memory.md` under heading `## Gap Coverage`
+              Format: | Finding ID | Status (Addressed / Out-of-Scope / Unresolved) | Resolution |
+
+### Stage 3.5 — Capability Coverage Check
+  Skill:      Capability Coverage Thinking (mandatory)
+  Purpose:    Evaluate QE capability coverage against the baseline — independent of what was raised in artifacts
+  Action:     Compare `memory.md` findings against all eight QE capability domains in `qe-capability-map.md`
+  Checkpoint: All eight domains assessed; Missing and Partial domains documented
+  Output:     Capability coverage table — Capability / Status / Recommendation
 
 ### Stage 4 — Solution Design (Architecture Review)
   Agent:      Test Architect
@@ -316,11 +352,32 @@ Governance rules are system-level policies enforced during workflow execution. T
 - No known gap may disappear silently between evidence extraction and output generation
 - Gap coverage is checked at Stage 3 (before agent analysis) and again at Stage 8 (before output)
 
+### Medium-Confidence Findings (Stage 3 + Stage 8)
+Medium-confidence findings do not require full reconciliation but must remain visible in all client-facing outputs. They must not be silently dropped.
+
+- Medium-confidence findings must appear in a dedicated section titled **"Unresolved or Unverified Findings"** in any client-facing output
+- Agents must not treat a medium-confidence finding as resolved unless it is explicitly addressed or acknowledged in the solution output
+- The Evidence Reconciliation skill enforces medium-confidence visibility at Stage 8
+
 ### Evidence Reconciliation (Stage 8)
 Before producing final outputs, verify:
 - Every High-confidence finding from `memory.md` has a traceable resolution
 - Findings that were present in evidence but absent from the solution are flagged
 - Unresolved findings are surfaced under *"Unresolved Findings — Decision Required"*
+
+### Evidence Traceability (Stage 8)
+All outputs that address extracted findings must reference the corresponding Finding ID. Resolution without a Finding ID reference is not considered traceable.
+
+**Required format in solution output:**
+```
+Resolution: F[ID]
+[Description of how this finding is addressed.]
+```
+
+**Enforcement rules:**
+- A finding addressed without a Finding ID reference is treated as unresolved until the reference is added
+- Finding IDs referenced in the output but absent from `memory.md` are flagged as phantom references
+- The Evidence Reconciliation skill checks all resolutions for Finding ID references at Stage 8
 
 ### Proposal Quality Rules
 Outputs intended for client submission must:
@@ -340,6 +397,23 @@ Agents must **never directly modify** system files:
 
 Instead, agents record proposed changes in `improvements.md`. System file updates occur **only after explicit human approval**.
 
+### Memory Integrity Rule
+Findings written to `memory.md` by one agent must not be modified or deleted by another agent.
+
+- Agents must only **append** new findings — never overwrite or delete existing entries
+- If a new finding contradicts an existing finding, record it as a conflicting finding:
+
+```
+⚠ CONFLICTING FINDING
+- Original Finding ID: F[ID]
+- Source: [Artifact or agent that produced the original]
+- New Finding: [what the new evidence states]
+- Explanation: [why this conflicts]
+- Resolution Status: Unresolved — requires human review
+```
+
+Conflicting findings are resolved at Stage 8 by the Evidence Reconciliation skill. They must not be silently resolved by the agent that raised them.
+
 ---
 
 ## Review Checkpoints
@@ -352,6 +426,7 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 1 — Evidence Extraction | All artifacts have extraction status | Artifacts stuck in Pending Review |
 | 2 — Memory Initialization | Minimum context available for downstream agents | Memory files empty or uninitialized |
 | 3 — Gap Coverage | All High-confidence findings accounted for | Findings neither addressed nor acknowledged |
+| 3.5 — Capability Coverage | All eight QE capability domains assessed | Missing or Partial domains not documented |
 | 4 — Solution Design | Architecture layer completeness confirmed | Missing layers not identified |
 | 5 — Architecture Validation | Adoption risks classified and surfaced | Feasibility not assessed |
 | 6 — Delivery Validation | All delivery dependencies identified | Dependencies unclassified |
@@ -461,7 +536,14 @@ Each improvement proposal must follow this format:
 - **Suggested Change:** [specific change to agent, skill, or workflow]
 - **Impact:** High / Medium / Low
 - **Status:** Proposed / Approved / Implemented / Rejected
+- **Priority:** High / Medium / Low
 ```
+
+### Backlog Governance
+- Maximum **10 active proposals** may exist at one time (Status: Proposed or Approved)
+- When the limit is reached, new proposals must replace a lower-priority active proposal or wait until one is resolved
+- Resolved and rejected proposals must be moved to an `## Archive` section within `improvements.md` — they must not be deleted
+- The archive preserves institutional learning without inflating active context
 
 ### System File Protection
 See Governance Layer — System File Protection. Agents propose changes in `improvements.md` only.
