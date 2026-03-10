@@ -1,5 +1,7 @@
 # QE OS Architecture Upgrade — Implementation Plan
 
+> **Protection Policy:** This is a permanent system history file. Do NOT delete or clear this file. It records the full implementation history of the QE RFP Operating System — architecture decisions, task tracking, and resolved issues. It is not engagement-specific and must survive engagement resets.
+
 > **Purpose:** Detailed plan for upgrading `AGENTS.md` from a system conductor into a full QE RFP Operating System harness.  
 > **Target file:** `.claude/AGENTS.md`  
 > **Supporting files:** `.claude/copilot-instructions.md`, `claude-memory/*`, new workspace files  
