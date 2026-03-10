@@ -48,10 +48,6 @@ Decision Owner: [Team / Program / Leadership]
 
 Apply the full template to High-priority findings. For Medium, include impact and urgency only. For Low, a brief impact summary is sufficient.
 
-**Instruction:** Do not skip or reorder checklist items. This structure is mandatory for all High-priority findings, recommended for Medium, and a brief impact summary is sufficient for Low.
-
-Apply the full template to High-priority findings. For Medium, include impact and urgency only. For Low, a brief impact summary is sufficient.
-
 ---
 
 ## Assign Priority

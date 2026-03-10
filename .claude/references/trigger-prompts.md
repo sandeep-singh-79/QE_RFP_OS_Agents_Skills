@@ -265,7 +265,7 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 
 **Non-trigger prompts**
 1. "What QA capabilities should we include in our proposal?" *(Content generation — the coverage check assesses existing evidence against a baseline; it does not generate proposal content from scratch)*
-2. "What capabilities does the client have?" *(This rephrases the question as client-side assessment — capability coverage checks what the proposed solution covers, not what the client already has)*
+2. "What capabilities does the client have?" *(This rephrases the question as client-side assessment — capability coverage compares client evidence in `memory.md` against the capability baseline; it does not assess what the client currently has in the abstract, and it does not generate content about what the solution should cover)*
 3. "Review the architecture section for completeness." *(Architecture review — Test Architect with QE Architect Thinking; capability coverage operates on `memory.md` findings, not on a draft proposal text)*
 
 **Why the distinction matters:** Capability coverage runs against the evidence baseline in `memory.md` and `qe-capability-map.md` — it does not read proposal text. It is a pre-Stage 4 completeness gate, not a proposal review or architecture critique.
@@ -460,7 +460,7 @@ Actual repository structure:
 │   ├── evidence-reconciliation/
 │   ├── executive-communication/
 │   ├── outcome-risk-framing/
-│   ├── qa-architect-thinking/
+│   ├── qe-architect-thinking/
 │   ├── question-capability-mapping/
 │   ├── review-challenge-thinking/
 │   ├── structuring-consulting-thinking/

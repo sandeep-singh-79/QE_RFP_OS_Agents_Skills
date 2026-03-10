@@ -34,6 +34,7 @@ This skill may load **only**:
 - The artifact files referenced in `artifacts.md` — the actual content to extract from
 - `memory.md` — to check for existing findings before writing (avoid overwriting)
 - `notes.md` — to check for in-progress context from earlier stages
+- `.claude/references/domain-regulatory-map.md` — for implicit domain detection (Step 10 of Responsibilities)
 
 It must **not** load other memory files (`insights.md`, `decisions.md`, `improvements.md`) unless a specific extraction task requires them. Context must be minimal and purposeful.
 

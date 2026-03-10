@@ -26,8 +26,9 @@ This skill may load only the following:
 | `memory.md` | Existing findings — to avoid contradicting extracted evidence |
 | `.claude/references/qe-capability-map.md` | Capability domain baseline for mapping |
 | `notes.md` | Stage 3.5 capability coverage output and working context |
+| `artifacts.md` | To verify whether RFP questions exist in registered artifacts (Activation Condition 1) |
 
-**Rule:** This skill must not load full artifact documents, `insights.md`, `decisions.md`, `improvements.md`, or any agent file. Context scope is strictly limited to the four sources above.
+**Rule:** This skill must not load full artifact documents, `insights.md`, `decisions.md`, `improvements.md`, or any agent file. Context scope is strictly limited to the five sources above.
 
 ---
 
