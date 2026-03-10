@@ -24,6 +24,12 @@ If this skill is not applied to a client-facing output:
 
 **For working drafts** (internal team review only): this skill is recommended but not required.
 
+### Output Type Classification Default
+
+If the content being reviewed does not include an `Output Type:` header, classify it as `Client Facing` by default.
+
+**Rationale:** The conservative default prevents working-draft content from accidentally bypassing the quality gate review. If the submitter intended a working draft classification, they must state it explicitly. This skill must not assume lighter-weight treatment without explicit confirmation.
+
 ---
 
 ## Apply All Four Lenses — Do Not Skip Any

@@ -136,6 +136,27 @@ This skill must not:
 
 If a finding ID referenced in the solution output does not exist in `memory.md`, flag it as a **phantom reference** and require correction before output is delivered.
 
+## Regulatory Validation Check
+
+During reconciliation, also verify regulatory framing correctness:
+
+1. Check the `Regulatory Context` field in `memory.md` (`Explicit`, `Implicit`, or `Unknown`)
+2. Check the solution output for any references to named regulations (e.g., GDPR, PCI DSS, HIPAA)
+3. If the output references a named regulation **not present in `memory.md`** as a Compliance Requirement finding, flag with:
+
+```
+⚠ REGULATORY EVIDENCE GAP
+Output references: [regulation name]
+Evidence found: None in memory.md Compliance Requirement findings
+Regulatory Context in memory.md: [Explicit / Implicit / Unknown]
+Action Required: Remove the regulation reference or provide the artifact source that justifies it
+```
+
+4. If `Regulatory Context = Unknown` and any regulatory framing appears in the output, flag with `⚠ REGULATORY EVIDENCE GAP`
+5. If `Regulatory Context = Implicit` and the output uses a named regulation (not generic phrasing), flag with `⚠ REGULATORY EVIDENCE GAP`
+
+This check does not block Stage 9 if the regulatory context is `Implicit` and generic phrasing is used correctly.
+
 ---
 
 ## Handoff
