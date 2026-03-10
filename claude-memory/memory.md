@@ -65,7 +65,7 @@ The guardrails in `.claude/` are not automatically read by all agentic systems. 
 
 | File | System | Mechanism |
 |---|---|---|
-| `CLAUDE.md` (root) | Claude Code | Native `@path` include — hard loads `.claude/copilot-instructions.md` and `.claude/AGENTS.md` |
+| `CLAUDE.md` (root) | Claude Code | Native `@<path>` include — hard loads `.claude/copilot-instructions.md` and `.claude/AGENTS.md` |
 | `AGENTS.md` (root) | Codex, OpenCode | Pointer stub — instructs agent to read canonical files |
 | `.github/copilot-instructions.md` | GitHub Copilot | Pointer stub — instructs Copilot to read canonical files |
 
@@ -76,7 +76,7 @@ The three pointer/stub files above reference the canonical files — they never 
 ### Current State of All Files
 - `.claude/copilot-instructions.md` — canonical guardrails (anti-hallucination, input validation, scope enforcement, system principles)
 - `.claude/AGENTS.md` — canonical conductor (routing, workflow, quality gate, conflict resolution, sequencing rules)
-- `CLAUDE.md` — Claude Code entry point (`@import` of both canonical files)
+- `CLAUDE.md` — Claude Code entry point (`@<path>` include of both canonical files)
 - `AGENTS.md` — Codex/OpenCode entry point (pointer stub)
 - `.github/copilot-instructions.md` — GitHub Copilot entry point (pointer stub)
 - `plan.md` — implementation plan, Phase 2A + 2B fully complete (33/33 sub-tasks)

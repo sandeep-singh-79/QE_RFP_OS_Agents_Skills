@@ -1,6 +1,6 @@
 # QE OS — Scenario Evaluations
 
-This document evaluates 15 test scenarios across three categories: full end-to-end workflow, individual agent and skill invocations, and complex multi-component combinations. Each scenario is evaluated for what should activate, what guardrails should fire, where HITL pauses occur, and where the system is most likely to degrade or fail.
+This document evaluates 15 test scenarios across four categories: full end-to-end workflow, individual agent scenarios, individual skill scenarios, and complex multi-component combinations. Each scenario is evaluated for what should activate, what guardrails should fire, where HITL pauses occur, and where the system is most likely to degrade or fail.
 
 Scenarios are numbered for reference. They are not sequential — each is independent unless stated otherwise.
 
