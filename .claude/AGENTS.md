@@ -101,6 +101,8 @@ Every agent must, before beginning substantive analysis:
 3. Load `insights.md` — check for relevant patterns from prior engagements
 4. Load `notes.md` — check for in-progress analysis or context from earlier stages
 
+**Scope constraint:** `memory.md` (item 1) is required for all agents. Items 2–4 (`artifacts.md`, `insights.md`, `notes.md`) are loaded only if they appear in the agent's row in the Agent Context Scope table. Agents must not load files outside their defined scope.
+
 ### No-Memory Disclosure Rule
 If `memory.md` does not exist at the time of invocation, the agent must state the following at the start of its output before any analysis:
 
@@ -449,7 +451,7 @@ Output Type: [Working Draft / Client Facing / Internal Analysis]
 Agents must **never directly modify** system files:
 - `.claude/AGENTS.md`
 - `.claude/copilot-instructions.md`
-- `.claude/CLAUDE.md`
+- `CLAUDE.md`
 - Any file in `.claude/skills/`
 - Any file in `.claude/agents/`
 - `.claude/settings.json`

@@ -29,7 +29,8 @@ This skill may load **only**:
 
 - `memory.md` — to compare extracted findings against the capability baseline
 - `.claude/references/qe-capability-map.md` — the QE capability baseline reference
-- Architecture artifacts if referenced in `artifacts.md` and directly relevant to a specific capability domain
+- `artifacts.md` — to identify architecture artifacts relevant to a specific capability domain (conditional; only when a domain-specific artifact reference is needed)
+- Architecture artifacts referenced in `artifacts.md` that are directly relevant to a specific capability domain
 
 It must **not** load unnecessary files. If `qe-capability-map.md` does not yet exist, the skill must use the eight capability domains defined in this file as the baseline and note the absence.
 
