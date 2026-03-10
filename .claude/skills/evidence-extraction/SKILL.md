@@ -52,6 +52,9 @@ When activated, this skill must:
 6. **Detect contradictions** — identify findings that conflict with existing entries in `memory.md`; do not overwrite — record as a conflicting finding
 7. **Normalize findings** — apply the standard finding structure (see below) to all extracted findings
 8. **Write results to `memory.md`** — append all findings; never overwrite existing content
+9. **Detect explicit regulations** — scan artifacts for named regulatory frameworks (e.g., GDPR, PCI DSS, HIPAA, SOC 2, ISO 27001). If found, set `Regulatory Context = Explicit` in `memory.md` and record each regulatory reference as a finding with Evidence Type `Compliance Requirement`.
+10. **Detect implicit regulatory domains** — if no explicit regulation is detected, check for domain terms indicating strongly regulated industries (see `.claude/references/domain-regulatory-map.md`). If a regulated domain is confirmed, set `Regulatory Context = Implicit`. Do not override `Explicit` once set.
+11. **Record client domain** — when domain terms appear in artifacts (e.g., digital banking platform, card payment processing, patient data platform, energy grid system), record `Client Domain: [Domain]` in `memory.md`. Domain labels must be drawn from artifact content — never inferred without textual evidence.
 
 ---
 
@@ -64,14 +67,32 @@ All findings written to `memory.md` must follow this structure:
 
 **Source Artifact:** [Artifact ID + name]
 **Extracted:** [timestamp or stage reference]
-**Evidence Type:** Gap / Capability / Risk / Constraint / Requirement / Opportunity
+**Evidence Type:** Gap / Capability / Risk / Constraint / Requirement / Opportunity / Compliance Requirement
 **Confidence:** High / Medium / Low
+**Binding Status:** Mandatory / Advisory / Unknown
 
 **Description:**
 [Clear explanation of the finding as stated in or directly supported by the source artifact.]
 
 **Implication:**
 [Impact on QA architecture, delivery planning, or solution design if this finding is not addressed.]
+```
+
+**Example — Compliance Requirement finding:**
+```md
+### Finding F15
+
+**Source Artifact:** A1 — RFP Document
+**Extracted:** Stage 1
+**Evidence Type:** Compliance Requirement
+**Confidence:** High
+**Binding Status:** Mandatory
+
+**Description:**
+GDPR compliance requirement stated in RFP Section 6.
+
+**Implication:**
+Solution must address data protection obligations; output framing may reference GDPR by name.
 ```
 
 ### Confidence Level Guidance
@@ -81,6 +102,98 @@ All findings written to `memory.md` must follow this structure:
 | High | Explicitly stated in the artifact with clear intent |
 | Medium | Implied or partially stated — requires interpretation |
 | Low | Inferred from context, not directly stated |
+
+### Binding Status Guidance
+
+| Status | Meaning |
+|---|---|
+| Mandatory | Requirement is contractually binding — non-compliance is a proposal disqualifier or delivery failure |
+| Advisory | Requirement is non-binding — described with language such as "should", "consider", or "where applicable" |
+| Unknown | Binding status cannot be determined from artifact language alone — requires client clarification |
+
+**Combined use example — Confidence: High + Binding Status: Advisory:**
+```md
+### Finding F8
+
+**Source Artifact:** A1 — RFP Document
+**Extracted:** Stage 1
+**Evidence Type:** Opportunity
+**Confidence:** High
+**Binding Status:** Advisory
+
+**Description:**
+"The vendor should consider the use of BDD frameworks where applicable." (RFP Section 5.2)
+
+**Implication:**
+BDD adoption may strengthen the response but is not contractually required. Treat as an enhancement opportunity, not a compliance obligation.
+```
+
+---
+
+## RFP Question Extraction
+
+### Rule: Individual Question Extraction
+
+RFP questions must be extracted as **individual findings** — one finding per question. Grouping multiple questions into a single finding is not permitted.
+
+### Mandatory Per-Question Finding Format
+
+Each extracted RFP question must follow this structure:
+
+```md
+### Finding F[ID]
+
+**Source Artifact:** [Artifact ID + name], Section [reference]
+**Extracted:** Stage 1
+**Evidence Type:** Requirement
+**Confidence:** High
+**Binding Status:** Mandatory
+
+**Description:**
+Question — [full question text as stated in the RFP]
+
+**Implication:**
+[What capability, approach, or evidence is likely required to answer this question satisfactorily.]
+```
+
+**Rationale:** Formally posed questions in an RFP are always High confidence — they are explicit evaluation criteria. Their Binding Status is Mandatory — they require a response as part of the submission.
+
+**Compatibility note:** Individual question extraction ensures each question is available as a discrete finding for the `question-capability-mapping` skill, which maps question wording to underlying capability expectations. Grouped questions cannot be individually mapped.
+
+---
+
+## Missing Evidence Structure
+
+Missing evidence is evidence that is **referenced or implied** by artifacts but not provided. It is not the same as a finding — it does not receive a Finding ID. Instead, it is recorded under a dedicated `## Missing Evidence` heading in `memory.md`.
+
+### Rule: Record All Missing Evidence
+
+If an artifact references something relevant to the solution but not provided (e.g., a pipeline description mentioned but not included, a test inventory referenced but absent), record it as a missing evidence block.
+
+### Missing Evidence Block Format
+
+```md
+## Missing Evidence
+
+### Missing: [short label]
+
+**Expected Evidence:** [what should have been provided]
+**Source Reference:** [Artifact ID + section where the reference appears]
+**Implication:** [what cannot be assessed or validated without this evidence]
+```
+
+**Example:**
+```md
+## Missing Evidence
+
+### Missing: CI/CD Pipeline Description
+
+**Expected Evidence:** Description of the client's CI/CD toolchain and pipeline structure
+**Source Reference:** A1 — RFP Document, Section 7.4 (footnote references "current CI/CD toolchain")
+**Implication:** CI/CD integration cannot be validated. Stage 4 architecture design for pipeline quality gates will require a declared assumption about CI/CD toolchain type.
+```
+
+**Rule:** Missing evidence blocks must **not** be assigned a Finding ID. They are not findings — they are absences. Their purpose is to flag gaps in artifact coverage so downstream agents can treat dependent conclusions as assumptions rather than evidence-based claims.
 
 ---
 
@@ -126,6 +239,8 @@ The handoff artifact is `memory.md`, which must contain at minimum:
 - One entry per extracted finding with a valid Finding ID
 - Confidence level on every finding
 - Source artifact reference on every finding
+- `Client Domain` field (if detectable from artifacts, otherwise omit)
+- `Regulatory Context` field set to `Explicit`, `Implicit`, or `Unknown`
 
 Downstream agents (Starting at Stage 4) must not begin analysis until Stage 2 confirms memory readiness.
 

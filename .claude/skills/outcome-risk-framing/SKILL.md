@@ -22,7 +22,7 @@ A risk that cannot be explained in business terms will not be acted on. This ski
 5. **Scalability Risk** — impact as applications, platforms, or transaction volumes grow
 
 ### Conditional Dimension
-6. **Compliance / Regulatory Risk** — apply only in confirmed regulated environments (BFSI, Insurance, Healthcare, Government). Includes audit readiness, traceability gaps, evidence availability, regulatory exposure. Never assume this dimension applies — it must be explicitly confirmed.
+6. **Compliance / Regulatory Risk** — applies based on the `Regulatory Context` stored in `memory.md`. See Regulatory Framing Rules below. Never invent regulatory context not supported by artifacts.
 
 ---
 
@@ -108,6 +108,30 @@ Decision levels:
 - **Team** — delivery or QE team can resolve
 - **Program** — cross-team or release-level alignment needed
 - **Leadership** — executive or management decision required
+
+---
+
+## Regulatory Framing Rules
+
+Regulatory framing behaviour depends on the `Regulatory Context` field in `memory.md`. Check this field before applying the Compliance / Regulatory Risk dimension.
+
+### Rule 1 — Explicit Context
+If `Regulatory Context = Explicit`: A named regulation appears in the artifacts. The skill **may reference the named regulation** in output framing.
+
+Example: *"This creates GDPR exposure for personal data processed in test environments."*
+
+### Rule 2 — Implicit Context
+If `Regulatory Context = Implicit`: The client domain implies regulatory oversight but no specific regulation is named. The skill **must use generic regulatory exposure phrasing only**.
+
+Approved generic phrases:
+- *exposure under applicable data protection obligations*
+- *compliance exposure under financial data governance rules*
+- *audit risk related to regulated data handling*
+
+### Rule 3 — Unknown Context
+If `Regulatory Context = Unknown` or the field is absent: No regulatory signals were detected. The skill **must not apply regulatory framing**. Omit the Compliance / Regulatory Risk dimension entirely.
+
+**Hard prohibition:** Do not invent specific regulatory frameworks (e.g., GDPR, SOC 2, PCI DSS) unless they appear in the artifacts and `memory.md` records `Regulatory Context = Explicit`.
 
 ---
 

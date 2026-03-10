@@ -126,6 +126,22 @@ If any answer is "no", revise before delivering.
 
 ---
 
+## Assumption Preservation Guardrail
+
+`[ASSUMPTION: ...]` labels declared in input content must **never** be removed during this skill's execution.
+
+**Allowed transformations:**
+- Reordering assumption statements within the output structure
+- Summarising surrounding content to improve clarity or length
+- Polishing language of non-assumption content
+
+**Prohibited transformation:**
+- Removing or omitting `[ASSUMPTION: ...]` labels — regardless of context, length constraints, or editorial judgment
+
+Assumption markers are governance signals, not stylistic elements. Removing them breaks traceability enforced at Stage 8 and may cause assumptions to slip into client-facing outputs without declaration.
+
+---
+
 ## Do Not
 
 - Change priorities or risk levels set by other skills
