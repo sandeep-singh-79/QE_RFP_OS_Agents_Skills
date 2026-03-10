@@ -47,11 +47,11 @@ Insights and analysis gained during implementation. Distinct from memory (contex
 
 ### On Cross-System Instruction Architecture
 **No universal "always loaded" mechanism exists across agentic systems.** Each system has its own instruction file convention and ignores others' files entirely:
-- Claude Code: `CLAUDE.md` with `@import` is the only native include mechanism in this space
+- Claude Code: `CLAUDE.md` with `@<path>` is the only native include mechanism in this space
 - Codex/OpenCode: `AGENTS.md` at root is a pointer — relies on the agent following the reference
 - GitHub Copilot: `.github/copilot-instructions.md` is the standard location
 
-**The pointer stub pattern works but is trust-based for non-Claude systems.** Claude Code's `@import` is a hard load. For Codex and Copilot, the stub is an instruction to the agent — it will be followed almost always, but it is not mechanically guaranteed. The only truly reliable mechanism is file duplication, which is maintainability-hostile.
+**The pointer stub pattern works but is trust-based for non-Claude systems.** Claude Code's `@<path>` is a hard load. For Codex and Copilot, the stub is an instruction to the agent — it will be followed almost always, but it is not mechanically guaranteed. The only truly reliable mechanism is file duplication, which is maintainability-hostile.
 
 **Thin stubs are the right trade-off for a single-developer workspace.** File duplication creates drift as a certainty; pointer stubs create a theoretical gap as a possibility. For a local dev context, stubs win.
 

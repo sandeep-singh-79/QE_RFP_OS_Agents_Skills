@@ -70,7 +70,7 @@
 ## Cleanup
 
 ### Task 6: Minor Fixes
-**Files:** `.claude/agents/project-managerr.md`, `.claude/settings.json`
+**Files:** `.claude/agents/project-manager.md`, `.claude/settings.json`
 
 - [x] 6.1 Rename `project-managerr.md` → `project-manager.md`
 - [x] 6.2 Review and update `settings.json` permissions to match actual workspace structure
