@@ -101,6 +101,18 @@ Every agent must, before beginning substantive analysis:
 3. Load `insights.md` — check for relevant patterns from prior engagements
 4. Load `notes.md` — check for in-progress analysis or context from earlier stages
 
+### No-Memory Disclosure Rule
+If `memory.md` does not exist at the time of invocation, the agent must state the following at the start of its output before any analysis:
+
+> "No prior engagement findings have been loaded. This output is based solely on the provided input. Prior findings from earlier workflow stages, if any exist, have not been considered."
+
+This applies to all agents in all invocation modes — including spot-task (single-input) scenarios where no full workflow has been run. The agent must not silently proceed as if the absence of `memory.md` has no effect on output scope or confidence.
+
+**What the agent must not do:**
+- Proceed without the disclosure when `memory.md` is absent
+- Imply that findings are complete or engagement-aware when operating without prior context
+- Fabricate prior findings or infer what a `memory.md` might have contained
+
 ### After Completing Work
 Every agent must, after completing its analysis:
 1. Write significant findings to `memory.md` with source, timestamp, and confidence level
