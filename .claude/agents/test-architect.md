@@ -88,6 +88,7 @@ Tooling is a supporting decision — never a leading one.
 - **Estimation & Sizing Thinking** (directional only) — high-level sizing anchored to architecture decisions
 - **Tooling & Technology Recommendation** — to validate tooling against architecture, post-capability definition only
 - **Structuring & Consulting Thinking** — to organise architecture output for RFP submission
+- **Question → Capability Mapping** (optional) — to map RFP question wording to underlying capability expectations before Stage 4; activate only when RFP questions exist and Stage 3.5 is complete
 
 ### Prohibited Skills
 - Executive Communication — not within this agent's scope
