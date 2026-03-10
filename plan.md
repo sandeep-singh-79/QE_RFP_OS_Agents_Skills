@@ -91,7 +91,7 @@
 ## Phase 2B — MEDIUM + LOW Priority
 
 ### Task 7: Agent-Level Scope Enforcement (Gap #6 — MEDIUM)
-**Files:** `.claude/agents/client-rfp-evaluator.md`, `project-manager.md`, `qa-manager.md`, `test-architect.md`  
+**Files:** `.claude/agents/client-rfp-evaluator.md`, `.claude/agents/project-manager.md`, `.claude/agents/qa-manager.md`, `.claude/agents/test-architect.md`  
 **Risk:** 4 of 5 agents have prohibited skills lists but no defined response when users push them out of scope. Under time pressure or unfamiliarity, users get silent compliance with out-of-scope requests instead of a redirect. `tooling-technology-recommender` already has the correct pattern — scale it.
 
 **Pattern to replicate** (from `tooling-technology-recommender.md`):

@@ -21,10 +21,9 @@ Implementing critical and high-priority guardrails for the `.claude/` agent-skil
 `plan.md` — source of truth for all tasks, sub-tasks, and status.
 
 ### System Architecture
-- **Workspace:** `c:\Data\Projects\Agents & Skills`
 - **Agent-skill system:** `.claude/` folder
   - `agents/` — 5 agent files (client-rfp-evaluator, project-manager, qa-manager, test-architect, tooling-technology-recommender)
-  - `skills/` — 9 skill folders, each with `SKILL.md`
+  - `skills/` — skill folders, each with `SKILL.md`
   - `settings.json` — permissions config
   - `references/` — contains trigger-prompts.md
 - **Memory system:** `claude-memory/` (this folder)
@@ -66,7 +65,7 @@ The guardrails in `.claude/` are not automatically read by all agentic systems. 
 
 | File | System | Mechanism |
 |---|---|---|
-| `CLAUDE.md` (root) | Claude Code | Native `@import` — hard loads `.claude/copilot-instructions.md` and `.claude/AGENTS.md` |
+| `CLAUDE.md` (root) | Claude Code | Native `@path` include — hard loads `.claude/copilot-instructions.md` and `.claude/AGENTS.md` |
 | `AGENTS.md` (root) | Codex, OpenCode | Pointer stub — instructs agent to read canonical files |
 | `.github/copilot-instructions.md` | GitHub Copilot | Pointer stub — instructs Copilot to read canonical files |
 
