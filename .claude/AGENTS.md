@@ -169,7 +169,7 @@ Evidence Extraction is a **mandatory system stage** (Stage 1 in the execution wo
 ### Responsibilities
 1. Identify all artifacts from `artifacts.md`
 2. Scan each artifact for structured findings
-3. Classify findings by type (requirement, constraint, risk, gap, opportunity)
+3. Classify findings by Evidence Type (Requirement / Constraint / Risk / Gap / Capability / Opportunity / Compliance Requirement)
 4. Extract structured findings into `memory.md` with: source artifact, extraction timestamp, confidence level
 5. Identify missing evidence — requirements referenced but not substantiated
 6. Flag artifacts that have not yet been reviewed

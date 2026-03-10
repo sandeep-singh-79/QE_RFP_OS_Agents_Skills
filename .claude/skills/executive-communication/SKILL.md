@@ -105,7 +105,7 @@ Avoid softening language unless context explicitly requires it.
 - Maximum 1–2 lines per bullet
 - No paragraphs in executive sections
 
-If content cannot fit within these limits, restructure — do not expand.
+If content cannot fit within these limits, condense or defer content to an appendix — do not expand the format limits.
 
 ---
 
@@ -145,6 +145,6 @@ Assumption markers are governance signals, not stylistic elements. Removing them
 ## Do Not
 
 - Change priorities or risk levels set by other skills
-- Restructure the logical argument, reorder findings, or alter the analytical conclusions — format restructuring to meet length limits (see Length Rules) is permitted, but content logic must not change
+- Restructure content, alter the analytical logic, or reorder findings
 - Introduce domain assumptions
 - Modify decisions made by other agents or skills
