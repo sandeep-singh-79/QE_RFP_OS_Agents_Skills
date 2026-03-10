@@ -145,6 +145,6 @@ Assumption markers are governance signals, not stylistic elements. Removing them
 ## Do Not
 
 - Change priorities or risk levels set by other skills
-- Restructure information or alter logic
+- Restructure the logical argument, reorder findings, or alter the analytical conclusions — format restructuring to meet length limits (see Length Rules) is permitted, but content logic must not change
 - Introduce domain assumptions
 - Modify decisions made by other agents or skills
