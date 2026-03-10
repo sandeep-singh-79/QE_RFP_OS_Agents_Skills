@@ -12,8 +12,6 @@
             "BASH (pwd:*)",
             "BASH (mv:*)",
             "EDIT (.claude/**)",
-            "EDIT (agents/**)",
-            "EDIT (skills/**)",
             "EDIT (claude-memory/**)",
             "EDIT (plan.md)",
             "EDIT (tasks.md)"

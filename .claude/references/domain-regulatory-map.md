@@ -17,12 +17,12 @@
 | Domain                    | Regulatory Context | Basis for Implicit Classification |
 | ------------------------- | ------------------ | ----------------------------------- |
 | Banking                   | Implicit           | Heavily regulated sector (capital adequacy, data governance, consumer protection) |
-| Payments / Card Processing | Implicit          | PCI DSS scope likely; financial data governance rules apply |
+| Payments                  | Implicit           | PCI DSS scope likely; financial data governance rules apply |
 | Healthcare                | Implicit           | Patient data obligations, clinical systems governance, data protection requirements |
 | Insurance                 | Implicit           | Financial services regulation, solvency and data governance obligations |
 | Telecommunications        | Implicit           | Consumer data and communications regulation in most jurisdictions |
 | Energy Infrastructure     | Implicit           | Critical national infrastructure — operational and data protection obligations |
-| Government / Public Sector | Implicit          | Data protection legislation, public sector governance requirements |
+| Government                | Implicit           | Data protection legislation, public sector governance requirements |
 | Retail                    | Unknown            | No inherent regulatory driver — depends on specific data scope |
 | Generic SaaS              | Unknown            | No inherent regulatory driver — depends on client data classification |
 | Internal Tooling          | Unknown            | No inherent regulatory driver unless handling regulated data |

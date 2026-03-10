@@ -1,3 +1,8 @@
+---
+name: question-capability-mapping
+description: Map RFP questions to QE capability domains and evaluation dimensions — surfacing what the client is actually assessing behind question wording. Optional skill applied between Stage 3.5 and Stage 4. Activates only when all three conditions are met: RFP questions exist in artifacts, Stage 3.5 is complete, Stage 4 has not started. Outputs a per-question capability mapping table with evaluation dimension analysis. Does not write answers, assess coverage, or duplicate Stage 3.5 output.
+---
+
 # Question → Capability Mapping Skill
 
 > Skill Version: 1.0
