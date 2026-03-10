@@ -11,7 +11,6 @@
             "BASH (ls:*)",
             "BASH (pwd:*)",
             "BASH (mv:*)",
-            "EDIT (.claude/**)",
             "EDIT (claude-memory/**)",
             "EDIT (plan.md)"
         ]
