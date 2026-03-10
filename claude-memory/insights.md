@@ -25,6 +25,22 @@ These patterns were derived from building and testing the QE OS. They inform how
 
 ---
 
+## Cross-System Instruction Architecture
+
+**No universal "always loaded" mechanism exists across agentic systems.** Each system has its own instruction file convention:
+
+| System | File | Mechanism |
+|---|---|---|
+| Claude Code | `CLAUDE.md` (root) | Native `@<path>` include — hard loads canonical files |
+| Codex / OpenCode | `AGENTS.md` (root) | Pointer stub — instructs agent to read canonical files |
+| GitHub Copilot | `.github/copilot-instructions.md` | Pointer stub — instructs Copilot to read canonical files |
+
+**Thin stubs are the right trade-off for a single-developer workspace.** File duplication creates drift as a certainty; pointer stubs create a theoretical gap as a possibility. Claude Code's `@<path>` is a mechanically guaranteed hard load. For Codex and Copilot, the stub is an instruction — followed almost always but not mechanically enforced.
+
+**Rule:** Only ever edit `.claude/copilot-instructions.md` and `.claude/AGENTS.md`. The three pointer/stub files reference the canonical files and never need to change unless canonical file paths change.
+
+---
+
 ## Live RFP Test Insights (March 2026 — Libro Credit Union Ovation UX Modernization RFP)
 
 10/10 guardrail prompts passed. 3 gaps found in `trigger-prompts.md` (reference file), not in the guardrails themselves.
