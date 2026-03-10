@@ -149,15 +149,26 @@ The system will pause and request your decision when a conclusion touches:
 - Data sensitivity (PII, financial data)
 - Release risk (cutover strategy, rollback)
 
-The pause format is:
+Two pause types exist:
+
+**Governance HITL** — triggered at governance-layer decision points:
 ```
-⚠ HITL PAUSE — Decision Requires Human Approval
+⚠ GOVERNANCE HITL — Decision Requires Human Approval
 Decision: [what is being decided]
 Risk Category: [which category]
+Why: [why this exceeds the threshold]
 Required: [what confirmation is needed to proceed]
 ```
 
-You must respond explicitly. The system does not assume approval.
+**Blocking HITL** — triggered mid-workflow when stage advancement cannot continue:
+```
+⚠ BLOCKING HITL — Stage Advancement Blocked
+Issue: [what is conflicting or unresolvable]
+Impact: [what cannot proceed and why]
+Required Decision: [the specific human decision needed to unblock]
+```
+
+You must respond explicitly to either type. The system does not assume approval.
 
 ---
 

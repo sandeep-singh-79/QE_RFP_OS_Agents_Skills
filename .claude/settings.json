@@ -13,8 +13,7 @@
             "BASH (mv:*)",
             "EDIT (.claude/**)",
             "EDIT (claude-memory/**)",
-            "EDIT (plan.md)",
-            "EDIT (tasks.md)"
+            "EDIT (plan.md)"
         ]
     }
 }
