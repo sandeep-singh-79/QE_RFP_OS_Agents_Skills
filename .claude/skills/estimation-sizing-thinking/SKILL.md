@@ -129,4 +129,3 @@ Every estimate must include:
 5. Flagged high-maintenance or high-risk scenarios
 6. Scale caveats where pilot differs from enterprise scope
 7. KPI targets and baseline state (use `kpi-baseline` output when metrics are in scope)
-7. KPI targets and baseline state (use `kpi-baseline` output when metrics are in scope)

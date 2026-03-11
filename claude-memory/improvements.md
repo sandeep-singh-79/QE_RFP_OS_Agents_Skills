@@ -17,16 +17,6 @@
 
 ---
 
-### Improvement Proposal: IP-P3-02
-- **Observation:** The Value Claim Trace block (Task 3) adds ~5 lines per quantified claim in `memory.md`. A claim-heavy RFP (15–20 quantified benefit claims) could add 75–100 lines to `memory.md`, accelerating how quickly the 250-line summarisation threshold is reached and potentially triggering premature summarisation before all agents have used the full findings.
-- **Root Cause:** Value Claim Trace blocks are appended inline with findings rather than in a separate section of `memory.md`. High-claim engagements will inflate the primary findings section of memory.md disproportionately.
-- **Suggested Change:** Consider adding a dedicated `## Value Claim Traces` section to the `memory.md` schema, so that quantified claim validation blocks are stored separately from the primary finding list. This keeps the primary findings section compact while preserving full traceability. Evaluate in the first live engagement where Value Claim Trace is triggered.
-- **Impact:** Medium
-- **Status:** Implemented
-- **Priority:** Medium
-
----
-
 ### Improvement Proposal: IP-P3-03
 - **Observation:** `evidence-extraction/SKILL.md` is 301 lines — the largest skill file in the system. It is loaded in full at Stage 1 and carries significant structural detail: finding formats, RFP question extraction rules, missing evidence format, Value Claim Trace block, contradiction handling, guardrails, and handoff.
 - **Root Cause:** Evidence extraction is a multi-responsibility task by nature — it must handle multiple artifact types, multiple finding categories, and multiple output formats. However, the file is approaching a size where further additions would meaningfully inflate Stage 1 context loading.
@@ -34,6 +24,18 @@
 - **Impact:** Low
 - **Status:** Proposed
 - **Priority:** Low
+
+---
+
+## Archive
+
+### Improvement Proposal: IP-P3-02
+- **Observation:** The Value Claim Trace block (Task 3) adds ~5 lines per quantified claim in `memory.md`. A claim-heavy RFP (15–20 quantified benefit claims) could add 75–100 lines to `memory.md`, accelerating how quickly the 250-line summarisation threshold is reached and potentially triggering premature summarisation before all agents have used the full findings.
+- **Root Cause:** Value Claim Trace blocks are appended inline with findings rather than in a separate section of `memory.md`. High-claim engagements will inflate the primary findings section of memory.md disproportionately.
+- **Suggested Change:** Consider adding a dedicated `## Value Claim Traces` section to the `memory.md` schema, so that quantified claim validation blocks are stored separately from the primary finding list. This keeps the primary findings section compact while preserving full traceability. Evaluate in the first live engagement where Value Claim Trace is triggered.
+- **Impact:** Medium
+- **Status:** Implemented
+- **Priority:** Medium
 
 ---
 
@@ -84,9 +86,3 @@
 - **Impact:** Low
 - **Status:** Implemented
 - **Priority:** Low
-
----
-
-## Archive
-
-*(No archived proposals yet)*

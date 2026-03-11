@@ -29,11 +29,11 @@ This skill activates when **any** of the following are true:
 
 This skill may load **only**:
 
-- `memory.md` — to scan for RFP-extracted findings containing KPI targets, quality thresholds, or success criteria
-- `notes.md` — for any prior scoping or measurement decisions
-- `artifacts.md` — to identify which artifacts may contain KPI or measurement requirements
+- `claude-memory/memory.md` — to scan for RFP-extracted findings containing KPI targets, quality thresholds, or success criteria
+- `claude-memory/notes.md` — for any prior scoping or measurement decisions
+- `claude-memory/artifacts.md` — to identify which artifacts may contain KPI or measurement requirements
 
-It must **not** load `insights.md`, `decisions.md`, or `improvements.md` unless a specific KPI task requires prior engagement patterns.
+It must **not** load `claude-memory/insights.md`, `claude-memory/decisions.md`, or `claude-memory/improvements.md` unless a specific KPI task requires prior engagement patterns.
 
 ---
 
@@ -41,7 +41,7 @@ It must **not** load `insights.md`, `decisions.md`, or `improvements.md` unless 
 
 ### Step 1 — Scan for Client-Specified KPI Targets
 
-Before recommending any KPI, scan `memory.md` for findings with any of the following properties:
+Before recommending any KPI, scan `claude-memory/memory.md` for findings with any of the following properties:
 - Evidence Type = `Requirement` or `Constraint`
 - Description contains terms: target, threshold, coverage, rate, percentage, SLA, benchmark, metric, KPI, quality gate, acceptance criterion
 
@@ -55,7 +55,7 @@ If Step 1 finds no client-specified KPI targets, output the following flag **bef
 
 ```
 ⚠ NO CLIENT KPI TARGETS FOUND
-Scan of memory.md found no client-specified KPI targets, thresholds, or quality metrics in the RFP artifacts.
+Scan of claude-memory/memory.md found no client-specified KPI targets, thresholds, or quality metrics in the RFP artifacts.
 Action: Industry benchmark KPIs applied below. Recommend confirming KPI targets with the client before finalising proposal commitments.
 ```
 
@@ -129,7 +129,7 @@ Do not use industry benchmarks as proxies for missing baselines. Missing baselin
 Every KPI & Baseline output must include all four components:
 
 ### 1. Client-Specified KPI Summary
-List all client-specified KPI targets found in `memory.md`, each with its Finding ID. If none found, display the `⚠ NO CLIENT KPI TARGETS FOUND` flag.
+List all client-specified KPI targets found in `claude-memory/memory.md`, each with its Finding ID. If none found, display the `⚠ NO CLIENT KPI TARGETS FOUND` flag.
 
 ### 2. KPI Recommendations (with sources and confidence)
 

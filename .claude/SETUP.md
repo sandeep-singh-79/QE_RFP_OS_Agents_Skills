@@ -1,5 +1,7 @@
 # SETUP.md — Workspace Initialization
 
+**Load this file:** During workspace initialization only, before Stages 0–3 begin. Not required during agent execution (Stages 4+) unless file templates or initialization order need to be consulted.
+
 Workspace initialization procedures for the QE RFP Operating System. Load this file when setting up a new engagement workspace or when file templates are needed for initialization.
 
 ---
@@ -16,8 +18,41 @@ If required workspace files or folders do not exist, the system may create them 
 
 ### File Templates (for creation on first use)
 
-**decisions.md** — Header: `# Decisions Log` + `> Tracks major decisions made during engagement analysis.`
+**claude-memory/decisions.md** — Header: `# Decisions Log` + `> Tracks major decisions made during engagement analysis.`
 
-**artifacts.md** — Header: `# Artifact Index` + `> Registers all knowledge source artifacts entering the system.` + table with columns: ID, Name, Type, Source, Date Received, Status
+**claude-memory/artifacts.md** — Header: `# Artifact Index` + `> Registers all knowledge source artifacts entering the system.` + table with columns: ID, Name, Type, Source, Date Received, Status
 
-**improvements.md** — Header: `# QE OS Improvement Proposals` + `> Records proposed improvements to the QE RFP Operating System.` + `> Agents propose changes here. System updates require human approval.`
+**claude-memory/improvements.md** — Header: `# QE OS Improvement Proposals` + `> Records proposed improvements to the QE RFP Operating System.` + `> Agents propose changes here. System updates require human approval.`
+
+**plan.md** (at workspace root) — Use the following structure:
+
+```md
+# Engagement Plan
+
+| Field | Value |
+|---|---|
+| Client | [client name from artifacts] |
+| RFP / Document | [document name or reference] |
+| Engagement Started | [date] |
+| Discovery Maturity | [Constrained / Moderate / Deep] |
+| Current Stage | [Stage N — Name] |
+
+## Stage Status
+
+| Stage | Status | Notes |
+|---|---|---|
+| Stage 0 — Artifact Discovery | Not Started | |
+| Stage 1 — Evidence Extraction | Not Started | |
+| Stage 2 — Memory Initialization | Not Started | |
+| Stage 3 — Gap Coverage | Not Started | |
+| Stage 3.5 — Capability Coverage | Not Started | |
+| Stage 4 — Solution Design | Not Started | |
+| Stage 5 — Architecture Validation | Not Started | |
+| Stage 6 — Delivery Validation | Not Started | |
+| Stage 7 — Client Perspective Review | Not Started | |
+| Stage 8 — Governance Validation | Not Started | |
+| Stage 9 — Output Generation | Not Started | |
+| Stage 10 — System Learning | Not Started | |
+```
+
+Update `Current Stage` in the header and the corresponding row in Stage Status after each stage completes.

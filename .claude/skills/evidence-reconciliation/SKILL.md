@@ -27,9 +27,9 @@ This skill activates when **any** of the following are true:
 
 This skill may load **only**:
 
-- `memory.md` — the complete set of extracted findings to reconcile against
+- `claude-memory/memory.md` — the complete set of extracted findings to reconcile against
 - The solution output produced by Stages 4–7 — the content to check for finding resolution
-- `notes.md` — specifically the gap report section, if present
+- `claude-memory/notes.md` — specifically the gap report section, if present
 
 It must not load `insights.md`, `improvements.md`, `decisions.md`, or artifacts unless a specific finding cannot be traced without them. Context must remain minimal.
 
@@ -138,7 +138,11 @@ If a finding ID referenced in the solution output does not exist in `memory.md`,
 
 ## Deferred to Transition — Validation Gate
 
-When a finding in `memory.md` carries the status `Deferred to Transition — Explicitly Declared`, this skill must verify that all three required fields are present before accepting it as resolved:
+**This skill MUST read deferral status from `claude-memory/notes.md` (`## Gap Coverage`) for each Finding ID. Do not assume a `status` field exists in `memory.md` — the canonical finding schema does not define one.**
+
+**Discovery Maturity read:** Before validating any deferred findings, read the `Discovery Maturity:` header line from the `## Gap Coverage` section in `notes.md` (written by the conductor at Stage 3). When Discovery Maturity = `Constrained`, expected gaps are candidates for deferral — but the three required fields are still mandatory and must still be verified. If the `Discovery Maturity:` line is absent from the notes, treat as `Moderate`.
+
+When a finding in `memory.md` has a corresponding entry in `claude-memory/notes.md` under the `## Gap Coverage` section whose status is `Deferred to Transition — Explicitly Declared`, this skill must verify that all three required fields are present before accepting it as resolved:
 
 1. `Discovery Limitation` — what access or evidence was not available pre-award
 2. `Pre-award constraint rationale` — why validation was not possible before award

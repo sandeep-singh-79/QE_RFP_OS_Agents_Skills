@@ -29,11 +29,11 @@ This skill activates when **any** of the following are true:
 
 This skill may load **only**:
 
-- `memory.md` — for findings relevant to scope, scale, test complexity, and platform count
-- `notes.md` — for any sizing context or scoping decisions from earlier stages
-- Artifacts referenced in `artifacts.md` that contain sizing-relevant information (e.g., test inventory, application count, CI/CD pipeline description)
+- `claude-memory/memory.md` — for findings relevant to scope, scale, test complexity, and platform count
+- `claude-memory/notes.md` — for any sizing context or scoping decisions from earlier stages
+- Artifacts referenced in `claude-memory/artifacts.md` that contain sizing-relevant information (e.g., test inventory, application count, CI/CD pipeline description)
 
-It must **not** load `insights.md`, `decisions.md`, or `improvements.md` unless a specific sizing task requires prior engagement patterns.
+It must **not** load `claude-memory/insights.md`, `claude-memory/decisions.md`, or `claude-memory/improvements.md` unless a specific sizing task requires prior engagement patterns.
 
 ---
 
@@ -168,7 +168,7 @@ Assumption 2: ...
 
 | Qualifier | Basis |
 |---|---|
-| `High` | All three PERT inputs supported by evidence in `memory.md`; scope well-defined |
+| `High` | All three PERT inputs supported by evidence in `claude-memory/memory.md`; scope well-defined |
 | `Medium` | One or more inputs estimated rather than evidence-based; scope mostly defined |
 | `Low` | Multiple inputs estimated; scope unclear or Constrained Discovery applies |
 
