@@ -113,9 +113,33 @@ Example row:
 
 | Status | Meaning |
 |---|---|
-| `Present` | Evidence in `memory.md` clearly confirms this capability is addressed |
-| `Partial` | Some evidence exists but coverage is incomplete or surface-level only |
+| `Present` | Evidence in `memory.md` clearly confirms this capability is addressed **and all four depth criteria are satisfied** (see Depth Criteria below) |
+| `Partial` | Some evidence exists but one or more depth criteria are not satisfied, or coverage is surface-level only |
 | `Missing` | No evidence in `memory.md` supports this capability being addressed |
+
+**Classification rule:** A capability may not be classified `Present` on the basis of narrative breadth alone. All four depth criteria must be satisfied before `Present` may be assigned. A finding that mentions a capability area without providing strategy, ownership, metrics, and execution mechanism details must be classified `Partial`.
+
+---
+
+## Depth Criteria
+
+For a capability to be classified `Present`, evidence in `memory.md` must demonstrate all four of the following:
+
+| Criterion | Definition | What "satisfied" looks like |
+|---|---|---|
+| **Strategy** | A defined approach for how this capability will be delivered | A named methodology, testing approach, or framework is stated |
+| **Ownership** | A named role, team, or function is accountable for this capability | Explicit role assignment (e.g., "QA Lead", "Test Architect", "vendor team") |
+| **Metrics** | At least one measurable outcome or success criterion is stated | KPI, coverage target, threshold, or quality gate referenced |
+| **Execution Mechanism** | A concrete delivery mechanism or tooling approach is described | A process, pipeline integration, framework, or toolset is named |
+
+If only some criteria are satisfied, classify as `Partial` and state which criteria are missing in the Recommendation column.
+
+**Domain-specific depth callouts:**
+
+| Domain | Additional depth requirement |
+|---|---|
+| **Observability** | Must include telemetry or monitoring integration (not just a statement that observability is important). Production monitoring or test observability tooling must be referenced. |
+| **Non-functional Testing** | Must name at least one NFR type in scope (performance, security, accessibility) with a stated approach. A generic "we do NFR testing" statement is insufficient for `Present`. |
 
 ---
 

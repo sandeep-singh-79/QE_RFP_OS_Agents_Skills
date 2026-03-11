@@ -45,6 +45,8 @@ User calls always take precedence over routing recommendations.
 | `capability-coverage` | Stage 3.5 — evaluate QE capability coverage against baseline |
 | `evidence-reconciliation` | Stage 8 — reconcile all findings before output generation |
 | `question-capability-mapping` | Optional — when RFP questions exist and capability coverage is complete; invoked by Test Architect before Solution Design |
+| `pert-estimation` | When sizing or effort estimation is in scope and test case categorisation or phase-based effort breakdown is required |
+| `kpi-baseline` | After solution design when KPIs, success metrics, or baseline establishment are in scope; always when estimation outputs are being finalised for client submission |
 
 ### Skill Interaction Rules
 
@@ -54,6 +56,8 @@ User calls always take precedence over routing recommendations.
 | `capability-coverage` | Supports `qe-architect-thinking` — coverage gaps inform architecture layer decisions |
 | `evidence-reconciliation` | Works with `review-challenge-thinking` — reconciliation report is an input to the quality gate challenge |
 | `question-capability-mapping` | Optional skill applied when RFP questions exist; informs Test Architect solution design — maps RFP question wording to underlying capability expectations |
+| `pert-estimation` | Invoked by `estimation-sizing-thinking` — composable sub-skill for PERT formula, test case categorisation, and phase-based effort breakdown. Does not invoke other agents or perform orchestration. |
+| `kpi-baseline` | Invoked by `estimation-sizing-thinking` — composable sub-skill for KPI extraction, industry benchmarks, and baseline capture. Does not invoke other agents or perform orchestration. |
 
 ---
 
@@ -192,6 +196,15 @@ Each finding in `memory.md` must follow the canonical format defined in `.claude
 
 **Implication:**
 [Impact on QA architecture, delivery planning, or solution design if this finding is not addressed.]
+
+**Value Claim Trace:** *(mandatory if the Description or Implication contains a quantified claim — %, $, × times, days, or hours)*
+- Claim: [the stated outcome or benefit]
+- Baseline: [current-state measure this claim improves from]
+- Formula: [how the improvement figure is calculated]
+- Measurement Source: [what data source or artifact supports this]
+- Confidence: High / Medium / Low
+
+*If a quantified claim is present but this block is absent, record a Missing Evidence entry automatically.*
 ```
 
 The Finding ID (`F[N]`) is mandatory — all downstream traceability rules (Stage 8 evidence reconciliation, evidence-first reasoning) depend on it.
@@ -257,11 +270,47 @@ Stages 0–3 are conductor-managed. Agents begin execution at Stage 4.
 
 Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages 0–3) before any agent begins analysis.
 
+### Conductor Responsibilities
+
+The conductor manages Stages 0–3 and oversees workflow sequencing. In addition to launching stages and enforcing checkpoints, the conductor must:
+
+1. **Update `plan.md` after each stage:** Set the stage status to `Complete` and record brief notes on what was produced. During a stage, set status to `In Progress`. Do not leave stages at `Not Started` once they have begun.
+2. **Populate `plan.md` Engagement Details at Stage 0** — see Stage 0 definition below.
+3. **Enforce checkpoint conditions** — do not advance to the next stage if the checkpoint condition is not met.
+4. **Surface HITL conditions** — when a Blocking HITL is raised by any agent, halt stage advancement and surface the decision requirement to the user.
+
 ### Stage 0 — Artifact Discovery
   Purpose:    Identify and index all available knowledge sources
   Action:     Register artifacts in `artifacts.md` with type classification. Identify missing artifact categories (e.g., architecture diagrams, CI/CD pipeline description, test inventory) and record them in notes.md under "Missing Artifacts".
   Checkpoint: Confirm artifact inventory is complete before proceeding
   Output:     Populated `artifacts.md`
+
+  **Engagement Details — populate `plan.md` at Stage 0:**
+  Complete the Engagement Details block in `plan.md` before advancing to Stage 1:
+  - Client: [client name from artifacts]
+  - RFP / Document: [document name or reference]
+  - Engagement Started: [date]
+  - Discovery Maturity: [Constrained / Moderate / Deep — see below]
+  - Current Stage: Stage 0 — Artifact Discovery
+
+  **Discovery Maturity Classification:**
+  Assess and record the Discovery Maturity level based on the depth of artifact access available. Record in `plan.md` Engagement Details and append to the `artifacts.md` header block.
+
+  | Level | Definition | Implication for Downstream Stages |
+  |---|---|---|
+  | `Constrained` | Client explicitly limited pre-award access, or stated that deeper discovery is post-award. Only high-level briefs or RFP documents available. | Missing evidence at Stage 0 is expected — not a system failure. Gap classification at Stages 3 and 8 must account for this before escalating findings to Unresolved. |
+  | `Moderate` | Standard artifact set available (RFP + some clarifications or supporting documents) but no deep technical access (architecture, CI/CD, test inventory). **Default if not otherwise determinable.** | Some gaps are expected. Flag as expected where clearly pre-award constraints apply. |
+  | `Deep` | Full artifact set including architecture diagrams, CI/CD pipeline descriptions, test inventories, and/or direct access to technical teams. | Gaps have less justification — missing evidence is a genuine gap unless explicitly explained. |
+
+  **Determination criteria:**
+  - `Constrained`: Explicit client language limiting pre-award access; or stated model where full discovery is a post-award transition activity; or only an RFP document is available with no supporting technical artifacts.
+  - `Deep`: Architecture diagrams, CI/CD pipeline descriptions, test inventories, KEDB, or call transcripts with technical detail are all present.
+  - `Moderate`: Everything in between — some but not all supporting artifacts present.
+
+  **Downstream stage behaviour when Discovery Maturity = `Constrained`:**
+  - Stages 3 and 8: Classify expected gaps as `Deferred to Transition — Explicitly Declared` (see Stage 3) rather than `Unresolved`, provided all three required fields are declared.
+  - Do not escalate missing evidence to HITL unless the missing evidence was explicitly required by the RFP itself.
+  - Record the Constrained classification in `notes.md` so all downstream agents are aware.
 
 ### Stage 1 — Evidence Extraction
   Purpose:    Extract structured findings from all registered artifacts
@@ -287,11 +336,26 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
 ### Stage 3 — Gap Coverage Enforcement
   Purpose:    Ensure all High-confidence findings have been accounted for
   Action:     Cross-reference `memory.md` against known requirements from artifacts
-  Checkpoint: Every High-confidence finding is either addressed or explicitly acknowledged as out of scope. No known gap may disappear silently.
-  Output:     Gap coverage report — addressed / out-of-scope / unresolved
+  Checkpoint: Every High-confidence finding is either addressed, explicitly acknowledged as out of scope, or formally deferred with all required fields declared. No known gap may disappear silently.
+  Output:     Gap coverage report — addressed / out-of-scope / unresolved / deferred
   Storage:    Write gap coverage report to `memory.md` under heading `## Gap Coverage`
-              Format: | Finding ID | Confidence | Status (Addressed / Out-of-Scope / Unresolved) | Resolution |
+              Format: | Finding ID | Confidence | Status | Resolution |
+              Valid Status values:
+              - `Addressed` — finding is covered in the solution output
+              - `Out-of-Scope` — finding is explicitly acknowledged as out of scope with stated rationale
+              - `Unresolved` — finding has no resolution; requires escalation or HITL
+              - `Deferred to Transition — Explicitly Declared` — finding cannot be validated pre-award; valid only when all three required fields are declared (see below)
               Example row: `| F12 | High | Unresolved | CI/CD integration undefined |`
+
+  **Deferred to Transition — Required Fields:**
+  A finding may use `Deferred to Transition — Explicitly Declared` status only when all three of the following are declared in the Resolution column or as a sub-block in `memory.md`:
+  1. `Discovery Limitation` — what access or evidence was not available pre-award
+  2. `Pre-award constraint rationale` — why validation was not possible before award
+  3. `Transition validation deliverable` — what will be produced post-award to close this gap
+
+  If any field is missing, status must revert to `Unresolved`. The evidence-reconciliation skill enforces this at Stage 8 with marker `⚠ INCOMPLETE DEFERRAL`.
+
+  **Constrained Discovery note:** When Discovery Maturity = `Constrained` (set at Stage 0), expected gaps may use `Deferred to Transition — Explicitly Declared` where the missing evidence is a direct consequence of the constrained access model, provided all three required fields are declared.
 
 ### Stage 3.5 — Capability Coverage Check
   Skill:      Capability Coverage Thinking (mandatory)
@@ -339,19 +403,36 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
 ### Stage 8 — Governance Validation
   Purpose:    Enforce governance rules before output generation
   Actions:
-    1. **Evidence Reconciliation** — verify all High-confidence findings from `memory.md` are addressed in the solution or explicitly acknowledged as out of scope
+    1. **Evidence Reconciliation** — verify all High-confidence findings from `memory.md` are addressed in the solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
     2. **Decision-Centric HITL check** — assess whether any decisions exceed the risk threshold requiring human approval
     3. **Proposal Quality Rules** — verify output meets quality standards
     4. **Evidence Validation** — verify every architectural recommendation references at least one of: a Finding ID, a capability domain from `qe-capability-map.md`, or an explicit declared assumption. Recommendations that fail must be marked `⚠ EVIDENCE GAP` before output is cleared
+    5. **Regulatory Control Mapping sub-check** — if any finding in `memory.md` has Evidence Type = `Compliance Requirement` AND Regulatory Context = `Explicit`, a Control Mapping Table is required before Stage 9 is cleared. If absent, flag `⚠ REGULATORY TRACE GAP` and require Governance HITL before proceeding.
   Checkpoint: All governance checks pass, or human approval obtained for exceptions
   Output:     Governance clearance or list of items requiring human decision
+
+  **Control Mapping Table format** (required when Action 5 triggers):
+  | Regulation / Framework | Control Objective | Proposal Mechanism | Evidence Source | Gap / Confirmed |
 
 ### Stage 9 — Output Generation (Quality Gate)
   Skill:      Review & Challenge Thinking (MANDATORY)
   Input:      Full output from all prior stages + governance clearance
-  Checkpoint: Gap classification complete, submission readiness confirmed
+  Checkpoint: Gap classification complete, section-level completeness check passed, submission readiness confirmed
   Output:     Challenged, reviewed output ready for delivery
   Post-gate:  Executive Communication skill (if executive-facing output required)
+
+  **Self-validation loop — required before the quality gate clears:**
+  Before the Review & Challenge quality gate passes, the conductor must run the completeness checklist against each major output section. Flag any section that fails as `⚠ INCOMPLETE SECTION` before passing to the Review & Challenge skill:
+
+  | Section | Minimum Completeness Criteria |
+  |---|---|
+  | Strategy | Governance model present + metrics framework stated |
+  | Estimation | Effort figures present + assumptions declared |
+  | KPIs | Client targets addressed, OR absence explicitly flagged with `⚠ NO CLIENT KPI TARGETS FOUND` |
+  | Risk | Risk register entries or risk narrative present |
+  | Assumptions | All assumptions surfaced with owner and resolution path |
+
+  Any `⚠ INCOMPLETE SECTION` flag must be resolved or explicitly acknowledged before Stage 9 clearance is granted.
 
 ### Stage 10 — System Learning
   Purpose:    Improve the QE OS based on engagement experience
@@ -361,7 +442,9 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
     3. Identify workflow inefficiencies or sequencing problems
     4. Generate improvement proposals for the QE OS
     5. **Evidence gap monitoring** — identify conclusions delivered in the output that lacked evidence traceability (no Finding ID, capability baseline, or declared assumption); record each as an improvement proposal in `improvements.md` with Root Cause = "Reasoning without evidence source". If more than 3 evidence gap proposals accumulate, flag for human review before the next engagement.
-  Output:     Improvement proposals recorded in `improvements.md`
+    6. **Engagement pattern promotion** — identify any finding, behaviour, or pattern from this engagement that is likely to recur across multiple future bids. Promote to `claude-memory/insights.md` as a named insight with a carry-forward rule. Examples: how clients frame constrained-discovery bids, evidence types that are consistently missing, common proposal defensibility failures.
+    7. **Distinguish insights from improvements** — `insights.md` receives recurring engagement *patterns* (how clients behave, how proposals fail, what evidence is typically missing). `improvements.md` receives *system fixes* (schema changes, new workflow checks, new rules). The same observation may generate entries in both files if it is both a pattern worth preserving AND a system gap that needs fixing. Do not conflate the two.
+  Output:     Improvement proposals recorded in `improvements.md`; reusable patterns promoted to `insights.md`
   Rule:       Agents propose improvements only — they do not directly modify system files
 
 **This workflow is a recommendation, not a lock.** Explicit user instructions override any stage or sequence.

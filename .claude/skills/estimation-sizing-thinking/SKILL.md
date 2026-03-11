@@ -103,12 +103,30 @@ Follow these principles and exclusions to ensure estimates are defensible and re
 
 ---
 
+## Composable Sub-Skills
+
+When detailed sizing or measurement content is required, invoke the following sub-skills before producing the final estimate output. These skills are composable — they do not perform orchestration or invoke agents.
+
+### `pert-estimation`
+**When to invoke:** When test case categorisation by tier and complexity, PERT variance calculation, or project phase effort breakdown is required.
+**What it produces:** PERT summary table (tier × complexity × phase), variance ranges (E ± σ), tier-level effort multipliers, and phase effort allocation.
+**Rule:** Invoke before producing effort figures — do not estimate test case effort without PERT categorisation when detailed sizing is in scope.
+
+### `kpi-baseline`
+**When to invoke:** When KPIs, success metrics, or baseline measurements need to be included in the estimation or proposal output.
+**What it produces:** Client-specified KPI targets (from `memory.md`), `⚠ NO CLIENT KPI TARGETS FOUND` flag if absent, sourced industry benchmark KPIs with confidence scores, and pre-project baseline capture.
+**Rule:** Always invoke before finalising any estimation output that will contain KPI or quality targets for client submission. Never insert KPI figures without first checking client-specified targets.
+
+---
+
 ## Output Structure
 
 Every estimate must include:
 1. Enablement vs execution split
-2. Complexity distribution summary across test groups
+2. Complexity distribution summary across test groups (use `pert-estimation` output when detailed sizing is in scope)
 3. Key assumptions and unresolved dependencies
 4. Confidence qualifier — High / Medium / Low with rationale
 5. Flagged high-maintenance or high-risk scenarios
 6. Scale caveats where pilot differs from enterprise scope
+7. KPI targets and baseline state (use `kpi-baseline` output when metrics are in scope)
+7. KPI targets and baseline state (use `kpi-baseline` output when metrics are in scope)
