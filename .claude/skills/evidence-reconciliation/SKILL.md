@@ -136,6 +136,29 @@ This skill must not:
 
 If a finding ID referenced in the solution output does not exist in `memory.md`, flag it as a **phantom reference** and require correction before output is delivered.
 
+## Deferred to Transition — Validation Gate
+
+When a finding in `memory.md` carries the status `Deferred to Transition — Explicitly Declared`, this skill must verify that all three required fields are present before accepting it as resolved:
+
+1. `Discovery Limitation` — what access or evidence was not available pre-award
+2. `Pre-award constraint rationale` — why validation was not possible before award
+3. `Transition validation deliverable` — what will be produced post-award to close this gap
+
+**If all three fields are declared:** Accept as resolved. List in the Resolved Findings section with status note `Deferred — all required fields declared`.
+
+**If any field is missing:** Do not accept as resolved. Mark with:
+
+```
+⚠ INCOMPLETE DEFERRAL
+Finding ID: F[ID]
+Missing field(s): [Discovery Limitation / Pre-award constraint rationale / Transition validation deliverable]
+Action Required: Declare all three fields or reclassify as Unresolved
+```
+
+An `⚠ INCOMPLETE DEFERRAL` triggers Governance HITL — the finding is treated as Unresolved until resolved by the human.
+
+---
+
 ## Regulatory Validation Check
 
 During reconciliation, also verify regulatory framing correctness:
@@ -156,6 +179,32 @@ Action Required: Remove the regulation reference or provide the artifact source 
 5. If `Regulatory Context = Implicit` and the output uses a named regulation (not generic phrasing), flag with `⚠ REGULATORY EVIDENCE GAP`
 
 This check does not block Stage 9 if the regulatory context is `Implicit` and generic phrasing is used correctly.
+
+---
+
+## Regulatory Control Mapping Check
+
+This check runs in addition to the Regulatory Validation Check above.
+
+If **any** finding in `memory.md` meets **both** of these conditions:
+- Evidence Type = `Compliance Requirement`
+- The `Regulatory Context` field in `memory.md` = `Explicit`
+
+...then a **Control Mapping Table** is required before Stage 9 is cleared.
+
+**If the Control Mapping Table is present in the solution output:** Validate that each named regulation or framework in the Compliance Requirement findings has at least one row in the table.
+
+**If the Control Mapping Table is absent:** Flag with:
+
+```
+⚠ REGULATORY TRACE GAP
+Trigger: [N] Compliance Requirement finding(s) with Regulatory Context = Explicit found in memory.md
+Required: Control Mapping Table in solution output
+Format required: | Regulation / Framework | Control Objective | Proposal Mechanism | Evidence Source | Gap / Confirmed |
+Action Required: Add Control Mapping Table to solution output, or reclassify Regulatory Context as Implicit with rationale
+```
+
+An `⚠ REGULATORY TRACE GAP` blocks Stage 9 clearance. Governance HITL is required before output is released.
 
 ---
 

@@ -124,3 +124,45 @@ Do not rewrite content unless explicitly asked. Diagnosis is the output, not cor
 - Reprioritise strategy
 - Rewrite or restructure content
 - Change tone, domain framing, or risk levels
+
+---
+
+## Output Confidence Scoring
+
+Before the quality gate clears, declare a confidence level for each major output section reviewed. Confidence reflects how well the section can withstand scrutiny — not how well it was written.
+
+| Confidence | Meaning |
+|---|---|
+| `High` | All four lenses applied; no Strategic or Execution gaps found; evidence-backed throughout |
+| `Medium` | Minor gaps found (Presentation or Evidence type); addressed or explicitly accepted by the team |
+| `Low` | One or more Strategic or Execution gaps found; submission risk remains until resolved |
+
+**Format:**
+```
+Section Confidence Scores:
+- Strategy: [High / Medium / Low] — [one-line rationale]
+- Estimation: [High / Medium / Low] — [one-line rationale]
+- KPIs: [High / Medium / Low] — [one-line rationale]
+- Risk: [High / Medium / Low] — [one-line rationale]
+- Assumptions: [High / Medium / Low] — [one-line rationale]
+```
+
+If any section is not present in the output, declare: `[Section]: Not Present — ⚠ INCOMPLETE SECTION`.
+
+If any section scores `Low`, the output must not be classified as submission-ready until the finding is resolved or explicitly accepted.
+
+---
+
+## Completeness Checklist
+
+Run this checklist before declaring the quality gate passed. Any criterion not met must be flagged `⚠ INCOMPLETE SECTION`:
+
+| Section | Minimum Completeness Criteria | Pass / ⚠ INCOMPLETE SECTION |
+|---|---|---|
+| Strategy | Governance model present AND metrics framework stated | |
+| Estimation | Effort figures present AND assumptions declared | |
+| KPIs | Client targets addressed OR `⚠ NO CLIENT KPI TARGETS FOUND` flag explicitly present | |
+| Risk | Risk register entries present OR risk narrative with named risks present | |
+| Assumptions | All assumptions surfaced AND each has an owner and resolution path | |
+
+**Rule:** Do not mark the checklist as passed speculatively. Each criterion must be verified in the actual output content before being marked Pass.

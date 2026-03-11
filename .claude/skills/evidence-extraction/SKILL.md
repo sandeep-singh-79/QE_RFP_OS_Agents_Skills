@@ -96,7 +96,34 @@ GDPR compliance requirement stated in RFP Section 6.
 Solution must address data protection obligations; output framing may reference GDPR by name.
 ```
 
-### Confidence Level Guidance
+## Value Claim Trace Block
+
+If the Description or Implication of a finding contains a quantified claim (%, $, × times, days, or hours), a Value Claim Trace block is **mandatory**. Append it as a trailing block after the Implication field:
+
+```md
+**Value Claim Trace:**
+- Claim: [the stated outcome or improvement benefit]
+- Baseline: [current-state measure this claim improves from]
+- Formula: [how the improvement figure is calculated]
+- Measurement Source: [data source or artifact section that supports this]
+- Confidence: High / Medium / Low
+```
+
+If a quantified claim is present and this block is absent or incomplete, record a Missing Evidence entry automatically:
+
+```md
+## Missing Evidence
+
+### Missing: Value Claim Trace for Finding F[ID]
+
+**Expected Evidence:** Baseline measure, calculation formula, and data source for the quantified claim in F[ID]
+**Source Reference:** [Artifact ID + section]
+**Implication:** The quantified benefit claim in F[ID] cannot be validated or defended without this trace. It must not appear in client-facing output without this evidence.
+```
+
+---
+
+## Confidence Level Guidance
 
 | Level | Meaning |
 |---|---|
@@ -242,6 +269,22 @@ The handoff artifact is `memory.md`, which must contain at minimum:
 - Source artifact reference on every finding
 - `Client Domain` field (if detectable from artifacts, otherwise omit)
 - `Regulatory Context` field set to `Explicit`, `Implicit`, or `Unknown`
+
+**Extraction Completeness Declaration:**
+Append the following statement to `memory.md` before handoff. Downstream agents must not treat the memory as complete if this statement is absent.
+
+```md
+## Extraction Completeness
+
+- Artifacts processed: [N]
+- Artifacts skipped (Not Applicable or failed to load): [N, with reason if any]
+- Findings extracted: [N]
+- Value Claim Trace blocks created: [N]
+- Missing Evidence entries recorded: [N]
+- Extraction status: Complete / Partial (reason: [...])
+```
+
+If Extraction status = `Partial`, Stage 2 must flag minimum context as incomplete and note which artifacts were not processed.
 
 Downstream agents (Starting at Stage 4) must not begin analysis until Stage 2 confirms memory readiness.
 
