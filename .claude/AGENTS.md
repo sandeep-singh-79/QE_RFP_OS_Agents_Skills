@@ -4,10 +4,9 @@ This file is the execution harness for the QE RFP Operating System (QE OS). It g
 - System purpose and scope
 - Available agents and skills
 - Execution workflow (Stages 0–10)
-- Governance enforcement rules
+- Governance rules pointer (see `.claude/governance.md`)
 - Memory usage and context loading rules
 - Review checkpoints
-- Decision-centric human-in-the-loop controls
 - Continuous learning feedback loop
 
 System guardrails (anti-hallucination, input validation, scope boundaries, confidentiality, context efficiency) are defined in `copilot-instructions.md` and apply at all times. They are not repeated here.
@@ -45,8 +44,8 @@ User calls always take precedence over routing recommendations.
 | `capability-coverage` | Stage 3.5 — evaluate QE capability coverage against baseline |
 | `evidence-reconciliation` | Stage 8 — reconcile all findings before output generation |
 | `question-capability-mapping` | Optional — when RFP questions exist and capability coverage is complete; invoked by Test Architect before Solution Design |
-| `pert-estimation` | When sizing or effort estimation is in scope and test case categorisation or phase-based effort breakdown is required |
-| `kpi-baseline` | After solution design when KPIs, success metrics, or baseline establishment are in scope; always when estimation outputs are being finalised for client submission |
+| `pert-estimation` | When sizing or effort estimation is in scope and test case categorisation or phase-based effort breakdown is required — **on-demand load only** |
+| `kpi-baseline` | After solution design when KPIs, success metrics, or baseline establishment are in scope; always when estimation outputs are being finalised for client submission — **on-demand load only** |
 
 ### Skill Interaction Rules
 
@@ -138,12 +137,14 @@ When context budget is constrained, load files in this priority order:
 
 ### Context Summarization
 
-If `claude-memory/memory.md` grows beyond approximately 250 lines:
+If `claude-memory/memory.md` grows beyond approximately 200 lines:
 
 1. Summarize findings from completed workflow stages.
 2. Move summarized findings to `claude-memory/insights.md`.
 3. Retain only active or unresolved findings in `claude-memory/memory.md`.
 4. Preserve all Finding IDs for traceability.
+
+*Rationale: Each finding entry is ~13 lines. A 20-finding engagement reaches ~260 lines before Stage 4 begins. The 200-line threshold triggers summarisation after ~15 findings — aligning with the natural pre-award to analysis transition point.*
 
 This prevents context growth from degrading reasoning quality during large engagements.
 
@@ -197,15 +198,12 @@ Each finding in `memory.md` must follow the canonical format defined in `.claude
 **Implication:**
 [Impact on QA architecture, delivery planning, or solution design if this finding is not addressed.]
 
-**Value Claim Trace:** *(mandatory if the Description or Implication contains a quantified claim — %, $, × times, days, or hours)*
-- Claim: [the stated outcome or benefit]
-- Baseline: [current-state measure this claim improves from]
-- Formula: [how the improvement figure is calculated]
-- Measurement Source: [what data source or artifact supports this]
-- Confidence: High / Medium / Low
+**Value Claim Trace:** Ref → ## Value Claim Traces — F[ID]
 
-*If a quantified claim is present but this block is absent, record a Missing Evidence entry automatically.*
+*If a quantified claim (%, $, × times, days, or hours) is present in the Description or Implication and no trace reference is present, record a Missing Evidence entry automatically.*
 ```
+
+Value Claim Trace blocks are written to a **separate** `## Value Claim Traces` section at the bottom of `memory.md` — not inline with the finding. The finding block carries only a reference line pointing to that section.
 
 The Finding ID (`F[N]`) is mandatory — all downstream traceability rules (Stage 8 evidence reconciliation, evidence-first reasoning) depend on it.
 
@@ -242,13 +240,15 @@ Use this table to select the right agent for a given request type.
 ## Agent Context Scope
 Agents must load only the memory and workspace files relevant to their role. Loading unnecessary files wastes context budget and may introduce irrelevant findings into analysis.
 
-| Agent | Required Context |
-|---|---|
-| Test Architect | `memory.md`, `artifacts.md`, `insights.md`, `notes.md` |
-| QA Manager | `memory.md`, `insights.md`, `notes.md` |
-| Project Manager | `memory.md`, `insights.md`, `notes.md`, `decisions.md` |
-| Client / RFP Evaluator | `memory.md`, `insights.md`, `notes.md` |
-| Tooling Recommender | `memory.md` (capability sections only), `notes.md` |
+| Agent | Required Context | Skill Files |
+|---|---|---|
+| Conductor (Stages 0–3) | `memory.md`, `artifacts.md`, `insights.md`, `notes.md` | `evidence-extraction` |
+| Conductor (Stage 8) | `memory.md`, `notes.md` | `evidence-reconciliation`, `.claude/governance.md` |
+| Test Architect | `memory.md`, `artifacts.md`, `insights.md`, `notes.md` | `qe-architect-thinking`, `capability-coverage` |
+| QA Manager | `memory.md`, `insights.md`, `notes.md` | `assumption-dependency-management` |
+| Project Manager | `memory.md`, `insights.md`, `notes.md`, `decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand |
+| Client / RFP Evaluator | `memory.md`, `insights.md`, `notes.md` | `review-challenge-thinking` |
+| Tooling Recommender | `memory.md` (capability sections only), `notes.md` | `tooling-technology-recommendation` |
 
 **Rule:** Agents must not load unrelated memory files — load only what is listed in the scope table above. If a file in the table does not exist, skip it without error.
 
@@ -338,7 +338,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Action:     Cross-reference `memory.md` against known requirements from artifacts
   Checkpoint: Every High-confidence finding is either addressed, explicitly acknowledged as out of scope, or formally deferred with all required fields declared. No known gap may disappear silently.
   Output:     Gap coverage report — addressed / out-of-scope / unresolved / deferred
-  Storage:    Write gap coverage report to `memory.md` under heading `## Gap Coverage`
+  Storage:    Write gap coverage report to `notes.md` under heading `## Gap Coverage`
               Format: | Finding ID | Confidence | Status | Resolution |
               Valid Status values:
               - `Addressed` — finding is covered in the solution output
@@ -369,7 +369,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 4 — Solution Design (Architecture Review)
   Agent:      Test Architect
   Skill:      QE Architect Thinking (mandatory first)
-  Input:      `memory.md` findings + gap coverage report + capability coverage output (Stage 3.5) + question capability mapping output (if available)
+  Input:      `memory.md` findings + gap coverage report (from `notes.md` — `## Gap Coverage`) + capability coverage output (Stage 3.5) + question capability mapping output (if available)
   Checkpoint: Architecture layer completeness confirmed before tooling validation
   Output:     Architecture findings, layer gaps, tooling readiness
 
@@ -403,7 +403,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 8 — Governance Validation
   Purpose:    Enforce governance rules before output generation
   Actions:
-    1. **Evidence Reconciliation** — verify all High-confidence findings from `memory.md` are addressed in the solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
+    1. **Evidence Reconciliation** — read gap coverage report from `notes.md` (`## Gap Coverage`) and verify all High-confidence findings from `memory.md` are addressed in the solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
     2. **Decision-Centric HITL check** — assess whether any decisions exceed the risk threshold requiring human approval
     3. **Proposal Quality Rules** — verify output meets quality standards
     4. **Evidence Validation** — verify every architectural recommendation references at least one of: a Finding ID, a capability domain from `qe-capability-map.md`, or an explicit declared assumption. Recommendations that fail must be marked `⚠ EVIDENCE GAP` before output is cleared
@@ -422,15 +422,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Post-gate:  Executive Communication skill (if executive-facing output required)
 
   **Self-validation loop — required before the quality gate clears:**
-  Before the Review & Challenge quality gate passes, the conductor must run the completeness checklist against each major output section. Flag any section that fails as `⚠ INCOMPLETE SECTION` before passing to the Review & Challenge skill:
-
-  | Section | Minimum Completeness Criteria |
-  |---|---|
-  | Strategy | Governance model present + metrics framework stated |
-  | Estimation | Effort figures present + assumptions declared |
-  | KPIs | Client targets addressed, OR absence explicitly flagged with `⚠ NO CLIENT KPI TARGETS FOUND` |
-  | Risk | Risk register entries or risk narrative present |
-  | Assumptions | All assumptions surfaced with owner and resolution path |
+  Before the Review & Challenge quality gate passes, the conductor must run the completeness checklist defined in `.claude/skills/review-challenge-thinking/SKILL.md` against each major output section and flag any failing section as `⚠ INCOMPLETE SECTION` before passing to the skill.
 
   Any `⚠ INCOMPLETE SECTION` flag must be resolved or explicitly acknowledged before Stage 9 clearance is granted.
 
@@ -477,143 +469,10 @@ An output is a working draft if it is:
 
 ## Governance Layer
 
-Governance rules are system-level policies enforced during workflow execution. They supplement (not replace) the guardrails in `copilot-instructions.md`.
+Governance rules are defined in `.claude/governance.md`. Load this file at Stage 8 and whenever governance enforcement, HITL decisions, evidence traceability, conflict resolution, or sequencing rules need to be applied.
 
-### Gap Coverage Enforcement (Stage 3 + Stage 8)
-- All High-confidence findings in `memory.md` must be either:
-  - **Addressed** in the solution design, or
-  - **Explicitly acknowledged** as out of scope with stated rationale
-- No known gap may disappear silently between evidence extraction and output generation
-- Gap coverage is checked at Stage 3 (before agent analysis) and again at Stage 8 (before output)
+> **Stage 8 Load Rule:** `.claude/governance.md` must be loaded at the start of Stage 8 (Governance Validation). It is not required for Stages 0–7 unless a Blocking HITL condition is triggered.
 
-### Medium-Confidence Findings (Stage 3 + Stage 8)
-Medium-confidence findings do not require full reconciliation but must remain visible in all client-facing outputs. They must not be silently dropped.
-
-- Medium-confidence findings must appear in a dedicated section titled **"Unresolved or Unverified Findings"** in any client-facing output
-- Agents must not treat a medium-confidence finding as resolved unless it is explicitly addressed or acknowledged in the solution output
-- The Evidence Reconciliation skill enforces medium-confidence visibility at Stage 8
-
-### Evidence Reconciliation (Stage 8)
-Before producing final outputs, verify:
-- Every High-confidence finding from `memory.md` has a traceable resolution
-- Findings that were present in evidence but absent from the solution are flagged
-- Unresolved findings are surfaced under *"Unresolved Findings — Decision Required"*
-
-### Evidence Traceability (Stage 8)
-All outputs that address extracted findings must reference the corresponding Finding ID. Resolution without a Finding ID reference is not considered traceable.
-
-**Required format in solution output:**
-```
-Resolution: F[ID]
-[Description of how this finding is addressed.]
-```
-
-**Enforcement rules:**
-- A finding addressed without a Finding ID reference is treated as unresolved until the reference is added
-- Finding IDs referenced in the output but absent from `memory.md` are flagged as phantom references
-- The Evidence Reconciliation skill checks all resolutions for Finding ID references at Stage 8
-
-### Proposal Quality Rules
-Outputs intended for client submission must:
-- Pass the Review & Challenge Thinking quality gate (Stage 9)
-- Have all assumptions declared per `copilot-instructions.md` §1
-- Have all dependencies surfaced per Assumption & Dependency Management skill
-- Have all client-sensitive content labelled per `copilot-instructions.md` §5
-
-### Output Type Classification
-
-Every agent output must declare its output type as a header at the start of the output.
-
-**Permitted output type values:**
-
-| Output Type | Definition |
-|---|---|
-| `Working Draft` | Internal iteration shared only within the delivery or QA team; not for client submission |
-| `Client Facing` | Submitted to a client, presented in a review, or included in any external document |
-| `Internal Analysis` | Analytical output for internal use — supports decisions but is not presented directly |
-
-**Output type header format:**
-```
-Output Type: [Working Draft / Client Facing / Internal Analysis]
-```
-
-**Rule:** Output type declaration is a governance-enforced requirement, not optional. An output submitted without an Output Type header is treated as `Client Facing` by default — the conservative classification. The Review & Challenge Thinking skill enforces this default.
-
-### System File Protection
-Agents must **never directly modify** system files:
-- `.claude/AGENTS.md`
-- `.claude/copilot-instructions.md`
-- `CLAUDE.md`
-- Any file in `.claude/skills/`
-- Any file in `.claude/agents/`
-- `.claude/settings.json`
-
-Instead, agents record proposed changes in `improvements.md`. System file updates occur **only after explicit human approval**.
-
-### Memory Integrity Rule
-Findings written to `memory.md` by one agent must not be modified or deleted by another agent.
-
-- Agents must only **append** new findings — never overwrite or delete existing entries
-- If a new finding contradicts an existing finding, record it as a conflicting finding:
-
-```
-⚠ CONFLICTING FINDING
-- Original Finding ID: F[ID]
-- Source: [Artifact or agent that produced the original]
-- New Finding: [what the new evidence states]
-- Explanation: [why this conflicts]
-- Resolution Status: Unresolved — requires human review
-```
-
-Conflicting findings are resolved at Stage 8 by the Evidence Reconciliation skill. They must not be silently resolved by the agent that raised them.
-
-### Evidence-First Reasoning Rule
-Every major conclusion must trace back to one of three sources:
-- **Evidence** — a sourced Finding ID from `memory.md`
-- **Capability Baseline** — a named domain from `.claude/references/qe-capability-map.md`
-- **Explicit Assumption** — declared per the `assumption-dependency-management` skill
-
-**Major conclusions** subject to this rule include: architectural recommendations, capability gap identifications, risk ratings, and delivery feasibility assessments.
-
-**Rejection rule:** If a conclusion cannot be traced to one of the three sources, it must be rejected. The agent must state which source is missing and flag the conclusion with `⚠ EVIDENCE GAP`.
-
-**Why this rule exists:** Without it, agent systems gradually shift from evidence-based reasoning to inference and pattern guessing — producing hallucinated assumptions, missing capability gaps, and confidence drift that degrades output quality over time.
-
-**`⚠ EVIDENCE GAP` format:**
-```
-⚠ EVIDENCE GAP
-Recommendation: [what was recommended]
-Missing Source: Finding ID / Capability Baseline / Explicit Assumption
-Action Required: Provide traceability or reclassify as assumption
-```
-
-### Regulatory Context Consistency Check
-Regulatory framing in outputs must align with the `Regulatory Context` stored in `memory.md`.
-
-| Regulatory Context | Permitted Output Framing |
-| ------------------ | ------------------------ |
-| Explicit           | Named regulations allowed (e.g., GDPR, PCI DSS) |
-| Implicit           | Generic regulatory exposure phrasing only (no named regulations) |
-| Unknown            | Regulatory framing prohibited — omit Compliance / Regulatory Risk dimension |
-
-**Enforcement:** The Evidence Reconciliation skill checks for violations at Stage 8 using the `⚠ REGULATORY EVIDENCE GAP` marker. Any output referencing a named regulation not present as a Compliance Requirement finding in `memory.md` is flagged before Stage 9 proceeds.
-
-**Recommendation traceability format** (required in Stage 4 — Solution Design output):
-```
-Recommendation: [what is being recommended]
-Evidence: F[ID] — [brief description of finding]
-Capability Baseline: [domain name] domain — [brief reason]
-Assumption: [if no finding or baseline applies, declare the assumption explicitly]
-```
-
-At least one of the three sources must be present. Recommendations with none are invalid and must not appear in client-facing output. When multiple sources apply, list all.
-
-**Example:**
-```
-Recommendation: Introduce CI/CD QA gates
-Evidence: F14 — pipeline lacks QA validation checkpoints
-Capability Baseline: CI/CD Integration domain — automated quality enforcement not present
-```
 
 ---
 
@@ -637,128 +496,6 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 10 — System Learning | Improvement proposals recorded | No retrospective performed |
 
 Checkpoint enforcement is at the **conductor level** — violations are flagged but do not hard-block unless a skill-level HALT applies.
-
----
-
-## Decision-Centric Human-in-the-Loop (HITL) Model
-
-Human intervention is triggered based on **decision risk**, not workflow position. Any agent at any stage may trigger a HITL pause.
-
-### Decision Risk Categories
-
-| Category | Description | Example |
-|---|---|---|
-| Business Logic Impact | Decision changes how business rules are interpreted or applied | Recommending a different teller transaction limit structure |
-| Compliance Exposure | Decision touches regulatory, audit, or legal territory | Assuming PCI DSS compliance scope without client confirmation |
-| Coverage Reduction | Decision reduces test coverage or removes a testing layer | Recommending removal of manual regression in favour of automation-only |
-| Behavioral Change | Decision alters user-facing behavior or workflow | Proposing a different approval chain for teller overrides |
-| Release Risk | Decision affects release timing, rollback capability, or deployment | Recommending a big-bang cutover vs. phased rollout |
-| Data Sensitivity | Decision involves handling of PII, financial data, or credentials | Proposing test data strategies that use production data |
-| Traceability Impact | Decision breaks or weakens audit trail or requirement traceability | Removing traceability links between requirements and test cases |
-
-### HITL Rule
-If a decision touches **any** of the above categories and the agent cannot confirm from provided inputs that the decision is safe, the system must:
-
-1. **Pause** — do not proceed with the decision
-2. **State the decision** — what is being decided
-3. **State the risk category** — which category applies
-4. **State what is needed** — what confirmation or approval is required
-5. **Wait** — do not assume approval; require explicit human confirmation
-
-Format:
-```
-⚠ GOVERNANCE HITL — Decision Requires Human Approval
-
-Decision: [what is being decided]
-Risk Category: [which category]
-Why: [why this exceeds the threshold]
-Required: [what confirmation is needed to proceed]
-```
-
-### HITL Scope
-- HITL pauses apply during Stages 4–8 of the workflow (agent analysis and governance)
-- HITL does not apply to memory operations (Stages 0–3) or system learning (Stage 10)
-- User may explicitly waive HITL for specific decisions, but this must be logged in `decisions.md`
-
-### HITL Trigger Types
-
-Two types of HITL pause exist. Both require human resolution before the affected work can proceed.
-
-**Type 1 — Blocking HITL**
-Occurs when the workflow cannot continue due to conflicting or unresolvable information. Prevents stage advancement until a human decision is provided.
-
-Triggers:
-- Conflicting architectural findings that cannot be resolved by evidence alone
-- Undefined delivery dependency that blocks planning
-- Contradictory constraints in the source artifacts
-
-**Type 2 — Governance HITL**
-Occurs at Stage 8 when governance validation identifies a condition requiring human approval before output can be released.
-
-Triggers:
-- Unresolved high-confidence findings not addressed in the solution
-- Evidence gaps on recommendations going to client-facing output
-- Compliance conflicts requiring explicit human sign-off
-
-**Relationship:** Blocking HITL is a harder stop than Governance HITL — it prevents stage advancement entirely. Governance HITL permits output to proceed only after explicit human approval at Stage 8. The existing 5-step HITL pause protocol (pause, state decision, state risk category, state what is needed, wait) applies to both types.
-
-### Blocking HITL Format
-
-When a Blocking HITL condition is detected, the system must output the following format and halt stage advancement:
-
-```
-⚠ BLOCKING HITL — Stage Advancement Blocked
-
-Issue: [what is conflicting or unresolvable]
-Impact: [what cannot proceed and why]
-Required Decision: [the specific human decision needed to unblock]
-```
-
-**Example:**
-```
-⚠ BLOCKING HITL — Stage Advancement Blocked
-
-Issue: Conflicting findings between F04 (Stage 4 automation sprint 1) and F07 (6-week change governance constraint) cannot be resolved by evidence alone.
-Impact: Stage 6 delivery planning cannot proceed — any timeline produced would be built on an unresolved conflict.
-Required Decision: Confirm whether change governance applies to QA tooling. If yes, automation start must be deferred to Week 7 or later.
-```
-
-**Rule:** Blocking HITL must halt all stage advancement until the human provides an explicit decision. The system must not assume a default resolution.
-
----
-
-## Inter-Agent Conflict Resolution
-
-When two agents produce findings that appear to contradict each other, apply this priority hierarchy:
-
-| Conflict | Resolution |
-|---|---|
-| Architecture soundness (Test Architect) vs. execution feasibility (QA Manager) | **QA Manager takes precedence** — a technically sound architecture that teams cannot execute is not a viable solution |
-| Delivery timeline (Project Manager) vs. architecture scope (Test Architect) | **Project Manager takes precedence** — timeline is a hard constraint; scope must adapt |
-| Execution realism (QA Manager) vs. client scoring expectations (Client Evaluator) | **Surface both** — this is a genuine tension that requires a user decision; do not resolve silently |
-| Any agent finding vs. Review & Challenge gap classification | **Review & Challenge takes precedence** — it is the quality gate; its findings cannot be dismissed by the agent being reviewed |
-
-**When conflict cannot be resolved by hierarchy:** Surface both positions explicitly under the heading *"Unresolved Tension — Decision Required"* and state what the user must decide.
-
----
-
-## Sequencing Rules (System Level)
-
-These rules govern skill sequencing across all workflows. They reinforce skill-level rules and take effect when skills are invoked without explicit sequencing instructions.
-
-1. `qe-architect-thinking` always runs before any other skill in QE architecture work
-2. `outcome-risk-framing` always runs before `structuring-consulting-thinking`
-3. `structuring-consulting-thinking` always runs before `executive-communication`
-4. `domain-context-adaptation` always runs after substantive analysis is complete — never before
-5. `review-challenge-thinking` always runs last, before final output delivery
-6. `tooling-technology-recommendation` only runs after `qe-architect-thinking` has defined required capabilities
-7. Evidence-first validation always runs during Stage 8 — no architectural recommendation may be delivered without a traceable source (Finding ID, capability baseline, or declared assumption)
-
-These rules are enforced at two levels:
-- **Skill level (hard):** Skills with prerequisite checks (executive-communication, domain-context-adaptation, structuring-consulting-thinking) will HALT and state what is missing. Skill-level rules take precedence.
-- **Conductor level (flagged):** For skills without built-in HALT checks, sequencing violations must be flagged explicitly in the output as: *"[SEQUENCING DEVIATION — [Skill X] was applied before [prerequisite]. Output may be incomplete or incorrectly framed.]"*
-
-Explicit user instruction to proceed out of sequence overrides conductor-level flagging but does not override skill-level HALTs.
 
 ---
 
@@ -793,24 +530,10 @@ Each improvement proposal must follow this format:
 - The archive preserves institutional learning without inflating active context
 
 ### System File Protection
-See Governance Layer — System File Protection. Agents propose changes in `improvements.md` only.
+See `.claude/governance.md` — System File Protection. Agents propose changes in `improvements.md` only.
 
 ---
 
 ## Workspace Initialization
 
-If required workspace files or folders do not exist, the system may create them when first needed during workflow execution. Do not create files prematurely or speculatively.
-
-### Initialization Order
-1. Check if `claude-memory/` directory exists — create if absent
-2. Check for required memory files — create with header template when first write is needed
-3. `plan.md` at root — create if absent when task tracking begins
-4. Never create agent or skill files during initialization — these are system-managed
-
-### File Templates (for creation on first use)
-
-**decisions.md** — Header: `# Decisions Log` + `> Tracks major decisions made during engagement analysis.`
-
-**artifacts.md** — Header: `# Artifact Index` + `> Registers all knowledge source artifacts entering the system.` + table with columns: ID, Name, Type, Source, Date Received, Status
-
-**improvements.md** — Header: `# QE OS Improvement Proposals` + `> Records proposed improvements to the QE RFP Operating System.` + `> Agents propose changes here. System updates require human approval.`
+See `.claude/SETUP.md` for initialization procedures, initialization order, and file templates.
