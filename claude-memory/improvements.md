@@ -22,7 +22,7 @@
 - **Root Cause:** Value Claim Trace blocks are appended inline with findings rather than in a separate section of `memory.md`. High-claim engagements will inflate the primary findings section of memory.md disproportionately.
 - **Suggested Change:** Consider adding a dedicated `## Value Claim Traces` section to the `memory.md` schema, so that quantified claim validation blocks are stored separately from the primary finding list. This keeps the primary findings section compact while preserving full traceability. Evaluate in the first live engagement where Value Claim Trace is triggered.
 - **Impact:** Medium
-- **Status:** Proposed
+- **Status:** Implemented
 - **Priority:** Medium
 
 ---
@@ -42,7 +42,7 @@
 - **Root Cause:** No split between always-needed orchestration content and stage-specific governance rules. Agents in Stages 4–7 load ~350 lines of governance content they do not need.
 - **Suggested Change:** Split AGENTS.md into three files: (1) `AGENTS.md` — lean harness (~250 lines): stage summary, conductor responsibilities, agent/skill roster, routing guide, agent context scope, memory rules; (2) `governance.md` (~350 lines): HITL model, evidence-first rule, gap coverage rules, proposal quality rules, output type classification, conflict resolution; (3) `SETUP.md` (~55 lines): workspace initialization + file templates. Governance.md loaded on-demand at Stage 8 only.
 - **Impact:** High
-- **Status:** Proposed
+- **Status:** Implemented
 - **Priority:** High
 
 ---
@@ -52,7 +52,7 @@
 - **Root Cause:** Skill loading is governed by invocation rules inside each skill, not by a scope table enforced at the conductor level. There is no "skill context scope" equivalent to the memory context scope table.
 - **Suggested Change:** Add a "Skill Files" column to the Agent Context Scope table in AGENTS.md. Specify which skill files each agent loads as baseline context vs. on-demand. Add one-line note to `pert-estimation` and `kpi-baseline` Skill Roster entries: "Load skill file only when estimation is in scope — do not pre-load as baseline context."
 - **Impact:** High
-- **Status:** Proposed
+- **Status:** Implemented
 - **Priority:** High
 
 ---
@@ -62,7 +62,7 @@
 - **Root Cause:** All three write to memory.md without containment rules. The 250-line summarisation threshold can be hit before Stage 4 agents begin analysis on claim-heavy or high-finding engagements.
 - **Suggested Change:** Three targeted fixes: (a) Implement IP-P3-02 — separate `## Value Claim Traces` section in memory.md schema; (b) Add overwrite-not-append rule to evidence-extraction/SKILL.md Handoff — the Extraction Completeness Declaration is an operational status block, not a finding; (c) Route Gap Coverage report to `notes.md` instead of memory.md — it is a stage output, not a persistent finding.
 - **Impact:** Medium
-- **Status:** Proposed
+- **Status:** Implemented
 - **Priority:** Medium
 
 ---
@@ -72,7 +72,7 @@
 - **Root Cause:** Threshold was set before Phase 3 additions. Phase 3 materially increased the per-engagement write volume to memory.md.
 - **Suggested Change:** Lower threshold to 200 lines, or implement IP-P3-02 + IP-P3-06(c) first (separating Value Claim Traces and routing Gap Coverage to notes.md), which effectively raises the functional headroom without changing the threshold. The two approaches are complementary — implement structural separation first, then reassess whether threshold adjustment is still needed.
 - **Impact:** Medium
-- **Status:** Proposed
+- **Status:** Implemented
 - **Priority:** Medium
 
 ---
@@ -82,7 +82,7 @@
 - **Root Cause:** No designation of which file is the source of truth for the checklist criteria. Both files treat themselves as authoritative.
 - **Suggested Change:** Designate `review-challenge-thinking/SKILL.md` as the source of truth for checklist criteria. In AGENTS.md Stage 9, replace the inline criteria table with a pointer: "Run the completeness checklist defined in `review-challenge-thinking/SKILL.md` — criteria are authoritative there." This reduces AGENTS.md by ~10 lines and removes the maintenance liability.
 - **Impact:** Low
-- **Status:** Proposed
+- **Status:** Implemented
 - **Priority:** Low
 
 ---

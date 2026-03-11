@@ -98,10 +98,16 @@ Solution must address data protection obligations; output framing may reference 
 
 ## Value Claim Trace Block
 
-If the Description or Implication of a finding contains a quantified claim (%, $, × times, days, or hours), a Value Claim Trace block is **mandatory**. Append it as a trailing block after the Implication field:
+If the Description or Implication of a finding contains a quantified claim (%, $, × times, days, or hours), a Value Claim Trace block is **mandatory**. Write it to the `## Value Claim Traces` section at the bottom of `memory.md` — **not inline with the finding**.
 
+In the finding block itself, add only a reference line:
 ```md
-**Value Claim Trace:**
+**Value Claim Trace:** Ref → ## Value Claim Traces — F[ID]
+```
+
+In the `## Value Claim Traces` section of `memory.md`, write the full block:
+```md
+### Value Claim Trace — F[ID]
 - Claim: [the stated outcome or improvement benefit]
 - Baseline: [current-state measure this claim improves from]
 - Formula: [how the improvement figure is calculated]
@@ -271,7 +277,7 @@ The handoff artifact is `memory.md`, which must contain at minimum:
 - `Regulatory Context` field set to `Explicit`, `Implicit`, or `Unknown`
 
 **Extraction Completeness Declaration:**
-Append the following statement to `memory.md` before handoff. Downstream agents must not treat the memory as complete if this statement is absent.
+Write the following statement to `memory.md` before handoff. If an `## Extraction Completeness` section already exists (from a prior run), **overwrite it** — do not append a second instance.
 
 ```md
 ## Extraction Completeness
