@@ -18,6 +18,32 @@ Governance rules supplement (not replace) the guardrails in `copilot-instruction
 - No known gap may disappear silently between evidence extraction and output generation
 - Gap coverage is checked at Stage 3 (before agent analysis) and again at Stage 8 (before output)
 
+### Stage 3 Gap Coverage Enforcement Algorithm
+
+The conductor executes Stage 3 by applying the following classification logic to every finding in `memory.md`:
+
+**Step 1 — Load findings.** Retrieve all entries from `memory.md` with a Finding ID. Separate into High-confidence and Medium/Low-confidence groups.
+
+**Step 2 — Classify each High-confidence finding** using this decision tree:
+
+```
+Is this finding addressed in the planned solution output or artifacts?
+  → YES: Status = Addressed. Resolution column: brief description of how.
+  → NO: Is the finding explicitly acknowledged as out of scope with stated rationale?
+      → YES: Status = Out-of-Scope. Resolution column: state the rationale.
+      → NO: Is the finding a known pre-award gap that cannot be validated without client access?
+          → YES (and Discovery Maturity = Constrained or Moderate):
+              Status = Deferred to Transition — Explicitly Declared
+              Resolution column MUST include all three required fields (see below).
+          → NO or fields missing: Status = Unresolved.
+```
+
+**Step 3 — Classify Medium-confidence findings.** Include in the Gap Coverage report. Use the same decision tree. Medium findings do not block Stage 3 closure but must remain visible in outputs.
+
+**Step 4 — Write the Gap Coverage report** to `claude-memory/notes.md` under `## Gap Coverage`. Begin with `Discovery Maturity: [value]` before the table.
+
+**Step 5 — Checkpoint enforcement.** Stage 3 may not advance if any High-confidence finding has status `Unresolved` without a Governance HITL being raised.
+
 ## Medium-Confidence Findings (Stage 3 + Stage 8)
 Medium-confidence findings do not require full reconciliation but must remain visible in all client-facing outputs. They must not be silently dropped.
 
@@ -80,7 +106,7 @@ Agents must **never directly modify** system files:
 - Any file in `.claude/agents/`
 - `.claude/settings.json`
 
-Instead, agents record proposed changes in `improvements.md`. System file updates occur **only after explicit human approval**.
+Instead, agents record proposed changes in `claude-memory/improvements.md`. System file updates occur **only after explicit human approval**.
 
 ## Memory Integrity Rule
 Findings written to `memory.md` by one agent must not be modified or deleted by another agent.

@@ -44,8 +44,8 @@ User calls always take precedence over routing recommendations.
 | `capability-coverage` | Stage 3.5 — evaluate QE capability coverage against baseline |
 | `evidence-reconciliation` | Stage 8 — reconcile all findings before output generation |
 | `question-capability-mapping` | Optional — when RFP questions exist and capability coverage is complete; invoked by Test Architect before Solution Design |
-| `pert-estimation` | When sizing or effort estimation is in scope and test case categorisation or phase-based effort breakdown is required — **on-demand load only** |
-| `kpi-baseline` | After solution design when KPIs, success metrics, or baseline establishment are in scope; always when estimation outputs are being finalised for client submission — **on-demand load only** |
+| `pert-estimation` | Composable sub-skill invoked **only by `estimation-sizing-thinking`** when test case categorisation, PERT variance, or phase-based effort breakdown is required. Not loaded independently by agents. |
+| `kpi-baseline` | Composable sub-skill invoked **only by `estimation-sizing-thinking`** when KPI targets, success metrics, or baseline measurements are in scope. Not loaded independently by agents. |
 
 ### Skill Interaction Rules
 
@@ -198,9 +198,11 @@ Each finding in `memory.md` must follow the canonical format defined in `.claude
 **Implication:**
 [Impact on QA architecture, delivery planning, or solution design if this finding is not addressed.]
 
+*If a quantified claim (%, $, × times, days, or hours) is present in the Description or Implication, add the following line (omit if no quantified claim exists):*
+
 **Value Claim Trace:** Ref → ## Value Claim Traces — F[ID]
 
-*If a quantified claim (%, $, × times, days, or hours) is present in the Description or Implication and no trace reference is present, record a Missing Evidence entry automatically.*
+*If the line above is present and no corresponding trace block exists in the `## Value Claim Traces` section, record a Missing Evidence entry automatically.*
 ```
 
 Value Claim Trace blocks are written to a **separate** `## Value Claim Traces` section at the bottom of `memory.md` — not inline with the finding. The finding block carries only a reference line pointing to that section.
@@ -240,15 +242,15 @@ Use this table to select the right agent for a given request type.
 ## Agent Context Scope
 Agents must load only the memory and workspace files relevant to their role. Loading unnecessary files wastes context budget and may introduce irrelevant findings into analysis.
 
-| Agent | Required Context | Skill Files |
+| Agent | Required Context | Context & Skill Files |
 |---|---|---|
-| Conductor (Stages 0–3) | `memory.md`, `artifacts.md`, `insights.md`, `notes.md` | `evidence-extraction` |
-| Conductor (Stage 8) | `memory.md`, `notes.md` | `evidence-reconciliation`, `.claude/governance.md` |
-| Test Architect | `memory.md`, `artifacts.md`, `insights.md`, `notes.md` | `qe-architect-thinking`, `capability-coverage` |
-| QA Manager | `memory.md`, `insights.md`, `notes.md` | `assumption-dependency-management` |
-| Project Manager | `memory.md`, `insights.md`, `notes.md`, `decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand |
-| Client / RFP Evaluator | `memory.md`, `insights.md`, `notes.md` | `review-challenge-thinking` |
-| Tooling Recommender | `memory.md` (capability sections only), `notes.md` | `tooling-technology-recommendation` |
+| Conductor (Stages 0–3) | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `plan.md` | `evidence-extraction` |
+| Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md` | `evidence-reconciliation`, `.claude/governance.md` |
+| Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `qe-architect-thinking`, `capability-coverage` |
+| QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `assumption-dependency-management` |
+| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand |
+| Client / RFP Evaluator | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `review-challenge-thinking` |
+| Tooling Recommender | `claude-memory/memory.md` (capability sections only), `claude-memory/notes.md` | `tooling-technology-recommendation` |
 
 **Rule:** Agents must not load unrelated memory files — load only what is listed in the scope table above. If a file in the table does not exist, skip it without error.
 
@@ -281,9 +283,9 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 
 ### Stage 0 — Artifact Discovery
   Purpose:    Identify and index all available knowledge sources
-  Action:     Register artifacts in `artifacts.md` with type classification. Identify missing artifact categories (e.g., architecture diagrams, CI/CD pipeline description, test inventory) and record them in notes.md under "Missing Artifacts".
+  Action:     Register artifacts in `claude-memory/artifacts.md` with type classification. Identify missing artifact categories (e.g., architecture diagrams, CI/CD pipeline description, test inventory) and record them in `claude-memory/notes.md` under "Missing Artifacts".
   Checkpoint: Confirm artifact inventory is complete before proceeding
-  Output:     Populated `artifacts.md`
+  Output:     Populated `claude-memory/artifacts.md`
 
   **Engagement Details — populate `plan.md` at Stage 0:**
   Complete the Engagement Details block in `plan.md` before advancing to Stage 1:
@@ -310,22 +312,22 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   **Downstream stage behaviour when Discovery Maturity = `Constrained`:**
   - Stages 3 and 8: Classify expected gaps as `Deferred to Transition — Explicitly Declared` (see Stage 3) rather than `Unresolved`, provided all three required fields are declared.
   - Do not escalate missing evidence to HITL unless the missing evidence was explicitly required by the RFP itself.
-  - Record the Constrained classification in `notes.md` so all downstream agents are aware.
+  - Record the Constrained classification in `claude-memory/notes.md` so all downstream agents are aware.
 
 ### Stage 1 — Evidence Extraction
   Purpose:    Extract structured findings from all registered artifacts
-  Action:     Scan artifacts, classify findings, populate `memory.md`
+  Action:     Scan artifacts, classify findings, populate `claude-memory/memory.md`
   Checkpoint: Confirm all artifacts have status = Evidence Extracted or Not Applicable
-  Output:     Populated `memory.md` with sourced, timestamped, confidence-rated findings
+  Output:     Populated `claude-memory/memory.md` with sourced, timestamped, confidence-rated findings
 
 ### Stage 2 — Memory Initialization
   Purpose:    Confirm workspace memory is ready for agent-level analysis
-  Action:     Verify `memory.md` findings are sufficient. Populate `notes.md` with engagement context. Load `insights.md` for relevant prior patterns.
-  Checkpoint: Confirm minimum context is available for downstream agents
+  Action:     Verify `claude-memory/memory.md` findings are sufficient. Populate `claude-memory/notes.md` with engagement context. Load `claude-memory/insights.md` for relevant prior patterns. **Verify the `## Extraction Completeness` block written by Stage 1 in `claude-memory/memory.md`.** If `Extraction status = Partial`, note which artifacts were not processed and record whether the missing context blocks downstream analysis in `claude-memory/notes.md`. Do not advance to Stage 3 if critical artifacts (e.g., the RFP itself) are unprocessed.
+  Checkpoint: Confirm minimum context is available for downstream agents; Extraction status is `Complete` or declared `Partial` with rationale
   Output:     Workspace memory files ready
 
   **Regulatory Context Initialization:**
-  During Stage 2, confirm the following fields are populated in `memory.md` (set by Stage 1 evidence extraction):
+  During Stage 2, confirm the following fields are populated in `claude-memory/memory.md` (set by Stage 1 evidence extraction):
   - `Client Domain:` — the client's industry domain if detectable from artifacts (e.g., `Banking`, `Healthcare`). Omit if not detectable.
   - `Regulatory Context:` — one of `Explicit`, `Implicit`, or `Unknown`.
     - Set to `Explicit` if Stage 1 found a named regulation in the artifacts
@@ -335,10 +337,11 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 
 ### Stage 3 — Gap Coverage Enforcement
   Purpose:    Ensure all High-confidence findings have been accounted for
-  Action:     Cross-reference `memory.md` against known requirements from artifacts
+  Action:     Cross-reference `claude-memory/memory.md` against known requirements from artifacts. **Scope: All High-confidence findings must be accounted for — none may be omitted. Medium-confidence findings should be included and are required to remain visible but do not block Stage 3 closure if unresolved.**
   Checkpoint: Every High-confidence finding is either addressed, explicitly acknowledged as out of scope, or formally deferred with all required fields declared. No known gap may disappear silently.
   Output:     Gap coverage report — addressed / out-of-scope / unresolved / deferred
-  Storage:    Write gap coverage report to `notes.md` under heading `## Gap Coverage`
+  Storage:    Write gap coverage report to `claude-memory/notes.md` under heading `## Gap Coverage`
+              Begin the section with: `Discovery Maturity: [value from plan.md]` — this allows Stage 8 to access Discovery Maturity without loading plan.md.
               Format: | Finding ID | Confidence | Status | Resolution |
               Valid Status values:
               - `Addressed` — finding is covered in the solution output
@@ -348,7 +351,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
               Example row: `| F12 | High | Unresolved | CI/CD integration undefined |`
 
   **Deferred to Transition — Required Fields:**
-  A finding may use `Deferred to Transition — Explicitly Declared` status only when all three of the following are declared in the Resolution column or as a sub-block in `memory.md`:
+  A finding may use `Deferred to Transition — Explicitly Declared` status only when all three of the following are declared in the Resolution column in `claude-memory/notes.md` (`## Gap Coverage`):
   1. `Discovery Limitation` — what access or evidence was not available pre-award
   2. `Pre-award constraint rationale` — why validation was not possible before award
   3. `Transition validation deliverable` — what will be produced post-award to close this gap
@@ -369,7 +372,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 4 — Solution Design (Architecture Review)
   Agent:      Test Architect
   Skill:      QE Architect Thinking (mandatory first)
-  Input:      `memory.md` findings + gap coverage report (from `notes.md` — `## Gap Coverage`) + capability coverage output (Stage 3.5) + question capability mapping output (if available)
+  Input:      `claude-memory/memory.md` findings + gap coverage report (from `claude-memory/notes.md` — `## Gap Coverage`) + capability coverage output (Stage 3.5) + question capability mapping output (if available)
   Checkpoint: Architecture layer completeness confirmed before tooling validation
   Output:     Architecture findings, layer gaps, tooling readiness
 
@@ -433,10 +436,10 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
     2. Identify reasoning weaknesses in agent or skill outputs
     3. Identify workflow inefficiencies or sequencing problems
     4. Generate improvement proposals for the QE OS
-    5. **Evidence gap monitoring** — identify conclusions delivered in the output that lacked evidence traceability (no Finding ID, capability baseline, or declared assumption); record each as an improvement proposal in `improvements.md` with Root Cause = "Reasoning without evidence source". If more than 3 evidence gap proposals accumulate, flag for human review before the next engagement.
+    5. **Evidence gap monitoring** — identify conclusions delivered in the output that lacked evidence traceability (no Finding ID, capability baseline, or declared assumption); record each as an improvement proposal in `claude-memory/improvements.md` with Root Cause = "Reasoning without evidence source". If more than 3 evidence gap proposals accumulate, flag for human review before the next engagement.
     6. **Engagement pattern promotion** — identify any finding, behaviour, or pattern from this engagement that is likely to recur across multiple future bids. Promote to `claude-memory/insights.md` as a named insight with a carry-forward rule. Examples: how clients frame constrained-discovery bids, evidence types that are consistently missing, common proposal defensibility failures.
-    7. **Distinguish insights from improvements** — `insights.md` receives recurring engagement *patterns* (how clients behave, how proposals fail, what evidence is typically missing). `improvements.md` receives *system fixes* (schema changes, new workflow checks, new rules). The same observation may generate entries in both files if it is both a pattern worth preserving AND a system gap that needs fixing. Do not conflate the two.
-  Output:     Improvement proposals recorded in `improvements.md`; reusable patterns promoted to `insights.md`
+    7. **Distinguish insights from improvements** — `claude-memory/insights.md` receives recurring engagement *patterns* (how clients behave, how proposals fail, what evidence is typically missing). `claude-memory/improvements.md` receives *system fixes* (schema changes, new workflow checks, new rules). The same observation may generate entries in both files if it is both a pattern worth preserving AND a system gap that needs fixing. Do not conflate the two.
+  Output:     Improvement proposals recorded in `claude-memory/improvements.md`; reusable patterns promoted to `claude-memory/insights.md`
   Rule:       Agents propose improvements only — they do not directly modify system files
 
 **This workflow is a recommendation, not a lock.** Explicit user instructions override any stage or sequence.
@@ -526,11 +529,11 @@ Each improvement proposal must follow this format:
 ### Backlog Governance
 - Maximum **10 active proposals** may exist at one time (Status: Proposed or Approved)
 - When the limit is reached, new proposals must replace a lower-priority active proposal or wait until one is resolved
-- Resolved and rejected proposals must be moved to an `## Archive` section within `improvements.md` — they must not be deleted
+- Resolved and rejected proposals must be moved to an `## Archive` section within `claude-memory/improvements.md` — they must not be deleted
 - The archive preserves institutional learning without inflating active context
 
 ### System File Protection
-See `.claude/governance.md` — System File Protection. Agents propose changes in `improvements.md` only.
+See `.claude/governance.md` — System File Protection. Agents propose changes in `claude-memory/improvements.md` only.
 
 ---
 

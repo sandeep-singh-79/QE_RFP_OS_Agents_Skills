@@ -30,10 +30,10 @@ This skill activates when **any** of the following are true:
 
 This skill may load **only**:
 
-- `artifacts.md` — to identify artifacts to analyze
-- The artifact files referenced in `artifacts.md` — the actual content to extract from
-- `memory.md` — to check for existing findings before writing (avoid overwriting)
-- `notes.md` — to check for in-progress context from earlier stages
+- `claude-memory/artifacts.md` — to identify artifacts to analyze
+- The artifact files referenced in `claude-memory/artifacts.md` — the actual content to extract from
+- `claude-memory/memory.md` — to check for existing findings before writing (avoid overwriting)
+- `claude-memory/notes.md` — to check for in-progress context from earlier stages
 - `.claude/references/domain-regulatory-map.md` — for implicit domain detection (Step 10 of Responsibilities)
 
 It must **not** load other memory files (`insights.md`, `decisions.md`, `improvements.md`) unless a specific extraction task requires them. Context must be minimal and purposeful.
@@ -115,11 +115,9 @@ In the `## Value Claim Traces` section of `memory.md`, write the full block:
 - Confidence: High / Medium / Low
 ```
 
-If a quantified claim is present and this block is absent or incomplete, record a Missing Evidence entry automatically:
+If a quantified claim is present and this block is absent or incomplete, append the following entry under the `## Missing Evidence` section in `memory.md` (create the section if it does not yet exist — do not repeat the section header for each entry):
 
 ```md
-## Missing Evidence
-
 ### Missing: Value Claim Trace for Finding F[ID]
 
 **Expected Evidence:** Baseline measure, calculation formula, and data source for the quantified claim in F[ID]
