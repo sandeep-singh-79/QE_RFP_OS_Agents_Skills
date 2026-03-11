@@ -172,10 +172,10 @@ The system must function even if **only an RFP document exists** as the sole art
 Evidence Extraction is a **mandatory system stage** (Stage 1 in the execution workflow). It is not optional and runs before any agent-level analysis begins.
 
 ### Responsibilities
-1. Identify all artifacts from `artifacts.md`
+1. Identify all artifacts from `claude-memory/artifacts.md`
 2. Scan each artifact for structured findings
 3. Classify findings by Evidence Type (Requirement / Constraint / Risk / Gap / Capability / Opportunity / Compliance Requirement)
-4. Extract structured findings into `memory.md` with: source artifact, extraction timestamp, confidence level
+4. Extract structured findings into `claude-memory/memory.md` with: source artifact, extraction timestamp, confidence level
 5. Identify missing evidence — requirements referenced but not substantiated
 6. Flag artifacts that have not yet been reviewed
 
@@ -296,7 +296,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   - Current Stage: Stage 0 — Artifact Discovery
 
   **Discovery Maturity Classification:**
-  Assess and record the Discovery Maturity level based on the depth of artifact access available. Record in `plan.md` Engagement Details and append to the `artifacts.md` header block.
+  Assess and record the Discovery Maturity level based on the depth of artifact access available. Record in `plan.md` Engagement Details and append to the `claude-memory/artifacts.md` header block.
 
   | Level | Definition | Implication for Downstream Stages |
   |---|---|---|
@@ -363,11 +363,11 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 3.5 — Capability Coverage Check
   Skill:      Capability Coverage Thinking (mandatory)
   Purpose:    Evaluate QE capability coverage against the baseline — independent of what was raised in artifacts
-  Action:     Compare `memory.md` findings against all eight QE capability domains in `qe-capability-map.md`
+  Action:     Compare `claude-memory/memory.md` findings against all eight QE capability domains in `qe-capability-map.md`
   Checkpoint: All eight domains assessed; Missing and Partial domains documented
   Output:     Capability coverage table — Capability / Status / Recommendation
 
-> **Optional — Question → Capability Mapping:** If RFP questions exist in artifacts and Stage 3.5 is complete, the Test Architect may invoke the `question-capability-mapping` skill before Stage 4. Activation requires: (1) RFP questions present in artifacts, (2) Stage 4 not yet started, (3) Stage 3.5 complete. The skill maps question wording to underlying capability expectations and writes results to `notes.md`. See `.claude/skills/question-capability-mapping/SKILL.md` for HALT conditions.
+> **Optional — Question → Capability Mapping:** If RFP questions exist in artifacts and Stage 3.5 is complete, the Test Architect may invoke the `question-capability-mapping` skill before Stage 4. Activation requires: (1) RFP questions present in artifacts, (2) Stage 4 not yet started, (3) Stage 3.5 complete. The skill maps question wording to underlying capability expectations and writes results to `claude-memory/notes.md`. See `.claude/skills/question-capability-mapping/SKILL.md` for HALT conditions.
 
 ### Stage 4 — Solution Design (Architecture Review)
   Agent:      Test Architect
@@ -406,11 +406,11 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 8 — Governance Validation
   Purpose:    Enforce governance rules before output generation
   Actions:
-    1. **Evidence Reconciliation** — read gap coverage report from `notes.md` (`## Gap Coverage`) and verify all High-confidence findings from `memory.md` are addressed in the solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
+    1. **Evidence Reconciliation** — read gap coverage report from `claude-memory/notes.md` (`## Gap Coverage`) and verify all High-confidence findings from `claude-memory/memory.md` are addressed in the solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
     2. **Decision-Centric HITL check** — assess whether any decisions exceed the risk threshold requiring human approval
     3. **Proposal Quality Rules** — verify output meets quality standards
     4. **Evidence Validation** — verify every architectural recommendation references at least one of: a Finding ID, a capability domain from `qe-capability-map.md`, or an explicit declared assumption. Recommendations that fail must be marked `⚠ EVIDENCE GAP` before output is cleared
-    5. **Regulatory Control Mapping sub-check** — if any finding in `memory.md` has Evidence Type = `Compliance Requirement` AND Regulatory Context = `Explicit`, a Control Mapping Table is required before Stage 9 is cleared. If absent, flag `⚠ REGULATORY TRACE GAP` and require Governance HITL before proceeding.
+    5. **Regulatory Control Mapping sub-check** — if any finding in `claude-memory/memory.md` has Evidence Type = `Compliance Requirement` AND Regulatory Context = `Explicit`, a Control Mapping Table is required before Stage 9 is cleared. If absent, flag `⚠ REGULATORY TRACE GAP` and require Governance HITL before proceeding.
   Checkpoint: All governance checks pass, or human approval obtained for exceptions
   Output:     Governance clearance or list of items requiring human decision
 
@@ -432,7 +432,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 10 — System Learning
   Purpose:    Improve the QE OS based on engagement experience
   Actions:
-    1. Identify findings that were missed during evidence extraction
+    1. Identify findings that were missed during evidence extraction — review `claude-memory/memory.md` for any finding with no downstream resolution
     2. Identify reasoning weaknesses in agent or skill outputs
     3. Identify workflow inefficiencies or sequencing problems
     4. Generate improvement proposals for the QE OS
@@ -507,7 +507,7 @@ Checkpoint enforcement is at the **conductor level** — violations are flagged 
 After output generation (Stage 9), the system performs Stage 10 — System Learning. This is not optional for full RFP review workflows.
 
 ### Stage 10 Responsibilities
-1. **Missed findings** — identify evidence from `memory.md` that was not addressed by any agent
+1. **Missed findings** — identify evidence from `claude-memory/memory.md` that was not addressed by any agent
 2. **Reasoning weaknesses** — identify where agents produced shallow, assumed, or unsourced analysis
 3. **Workflow inefficiencies** — identify stages that were redundant, out of order, or produced low-value output
 4. **Improvement proposals** — generate specific, actionable improvement proposals for the QE OS
