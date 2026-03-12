@@ -299,3 +299,29 @@ These rules are enforced at two levels:
 - **Conductor level (flagged):** For skills without built-in HALT checks, sequencing violations must be flagged explicitly in the output as: *"[SEQUENCING DEVIATION — [Skill X] was applied before [prerequisite]. Output may be incomplete or incorrectly framed.]"*
 
 Explicit user instruction to proceed out of sequence overrides conductor-level flagging but does not override skill-level HALTs.
+
+---
+
+## Open Conditions (Stage 9 Appendix)
+
+Open Conditions (OCs) are pre-award conditions that cannot be validated without deeper client access. They are declared in the Appendices section (Section 19) of Stage 9 proposal output and formally tracked through the engagement.
+
+Open Conditions are not failure states — they are transparency mechanisms that protect proposal defensibility. Each OC must declare: what condition is open, why it cannot be confirmed pre-award, and what will close it.
+
+### OC-1 — Specialist AI/ML Capability Not Confirmed
+
+**Scope:** Applies **only** to Tier 2 AI/ML capabilities (predictive models, self-healing automation, autonomous test orchestration — see Stage 4 AI Capability Tier Classification in `AGENTS.md`).
+
+**Trigger:** A Tier 2 AI/ML capability is proposed but one or more of the following has not been confirmed pre-award: specialist ML resourcing availability, training data readiness, ML infrastructure existence.
+
+**Exclusion — CRITICAL:** Tier 1 AI-assisted process tools (LLM-prompt-based, SaaS/IDE extension, no specialist ML infrastructure required) are **NOT subject to OC-1**. These tools are Phase 2-viable and do not require pre-award specialist capability confirmation. Applying OC-1 to Tier 1 tools produces an uncompetitive proposal in modern RFP cycles.
+
+**Resolution path:** Confirmed at Phase 0 discovery — client ML readiness assessment, training data availability review, specialist resourcing plan.
+
+**Stage 9 Appendix format:**
+```
+OC-1: Specialist AI/ML capability readiness not confirmed pre-award.
+Scope: [named Tier 2 AI/ML capabilities proposed in this engagement]
+Condition: Client ML infrastructure readiness, training data availability, and specialist resourcing to be confirmed during Phase 0 discovery.
+Resolution: Phase 0 AI readiness assessment deliverable.
+```

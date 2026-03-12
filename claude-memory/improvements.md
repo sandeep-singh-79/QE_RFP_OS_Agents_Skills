@@ -7,20 +7,10 @@
 
 ## Active Proposals
 
-### Improvement Proposal: IP-P3-01
-- **Observation:** After Phase 3 implementation, `AGENTS.md` is 816 lines. The practical single-load warning threshold is ~400–500 lines. AGENTS.md is significantly above this, though as a system harness file (rules + workflow, not growing data) this is more tolerable than data files.
-- **Root Cause:** AGENTS.md accumulates all workflow rules, governance layers, stage definitions, skill rosters, HITL rules, and conflict resolution protocols in a single file. Each phase of improvements adds to it.
-- **Suggested Change:** For Phase 4, evaluate whether AGENTS.md can be split into: (1) a lean orchestration harness (stage definitions, checkpoint rules, executor table) and (2) a separate governance rulebook (HITL, gap coverage, evidence-first, regulatory context). The harness remains always-loaded; the governance rulebook is loaded selectively by relevant stages.
-- **Impact:** Medium
-- **Status:** Proposed
-- **Priority:** Medium
-
----
-
 ### Improvement Proposal: IP-P3-03
 - **Observation:** `evidence-extraction/SKILL.md` is 301 lines — the largest skill file in the system. It is loaded in full at Stage 1 and carries significant structural detail: finding formats, RFP question extraction rules, missing evidence format, Value Claim Trace block, contradiction handling, guardrails, and handoff.
 - **Root Cause:** Evidence extraction is a multi-responsibility task by nature — it must handle multiple artifact types, multiple finding categories, and multiple output formats. However, the file is approaching a size where further additions would meaningfully inflate Stage 1 context loading.
-- **Suggested Change:** No action now. Flag for Phase 4 review. If any further schema additions are proposed (e.g., new finding types, additional extraction rules), evaluate whether a dedicated `evidence-extraction-formats.md` reference file can hold schema definitions (finding structure, block formats) separately from the skill logic (responsibilities, guardrails, handoff).
+- **Suggested Change:** No action now. Flag for Phase 5 review — Phase 4 made no structural changes to evidence-extraction SKILL.md. If any further schema additions are proposed (e.g., new finding types, additional extraction rules), evaluate whether a dedicated `evidence-extraction-formats.md` reference file can hold schema definitions (finding structure, block formats) separately from the skill logic (responsibilities, guardrails, handoff).
 - **Impact:** Low
 - **Status:** Proposed
 - **Priority:** Low
@@ -28,6 +18,16 @@
 ---
 
 ## Archive
+
+### Improvement Proposal: IP-P3-01
+- **Observation:** After Phase 3 implementation, `AGENTS.md` is 816 lines. The practical single-load warning threshold is ~400–500 lines. AGENTS.md is significantly above this, though as a system harness file (rules + workflow, not growing data) this is more tolerable than data files.
+- **Root Cause:** AGENTS.md accumulates all workflow rules, governance layers, stage definitions, skill rosters, HITL rules, and conflict resolution protocols in a single file. Each phase of improvements adds to it.
+- **Suggested Change:** Split AGENTS.md into a lean orchestration harness and a separate governance rulebook loaded selectively by relevant stages.
+- **Impact:** Medium
+- **Status:** Implemented (Phase 4 — governance.md and SETUP.md extracted; AGENTS.md reduced to lean harness)
+- **Priority:** Medium
+
+---
 
 ### Improvement Proposal: IP-P3-02
 - **Observation:** The Value Claim Trace block (Task 3) adds ~5 lines per quantified claim in `memory.md`. A claim-heavy RFP (15–20 quantified benefit claims) could add 75–100 lines to `memory.md`, accelerating how quickly the 250-line summarisation threshold is reached and potentially triggering premature summarisation before all agents have used the full findings.

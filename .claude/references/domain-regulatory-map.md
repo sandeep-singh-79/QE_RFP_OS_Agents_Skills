@@ -52,3 +52,59 @@ When the following terms appear in artifacts, map to the corresponding domain:
 3. If the domain maps to `Implicit` in the table above and no explicit regulation has already been detected, set `Regulatory Context = Implicit`
 4. If no domain term is found, set `Regulatory Context = Unknown`
 5. Never set `Regulatory Context = Implicit` based on this table if `Regulatory Context = Explicit` has already been set from a named regulation in the artifact
+
+---
+
+## Domain × Geography → Regulatory Framework Inference
+
+When **both** `Client Domain` and client geography are identifiable from artifacts, use this table to infer specific regulatory frameworks. Write results to `memory.md` under `## Regulatory Context (Inferred)`.
+
+**Rule:** Use this table only when geography is explicitly or strongly implied in artifacts (named jurisdiction, regulatory body reference, data residency clause, explicit country name). Do not infer geography from company name alone.
+
+| Domain | Geography | Regulatory Frameworks | Confidence |
+|---|---|---|---|
+| Insurance | Singapore | MAS TRM + PDPA | 0.8 |
+| Insurance | Canada | OSFI B-10 + PIPEDA | 0.8 |
+| Financial Services / Banking | EU / Europe | DORA + GDPR | 0.9 |
+| Financial Services / Banking | UK | FCA + UK GDPR | 0.8 |
+| Financial Services / Banking | Australia | APRA CPS 234 + Privacy Act | 0.75 |
+| Financial Services / Banking | Singapore | MAS TRM + PDPA | 0.8 |
+| Healthcare | USA | HIPAA + SOC-2 | 0.85 |
+| Healthcare | EU / Europe | GDPR + clinical data governance | 0.8 |
+| Payments | Global / Multi-jurisdiction | PCI DSS | 0.9 |
+| Government | UK | UK GDPR + GDS Standards | 0.75 |
+| Insurance | USA | NAIC Model Laws + NY DFS 23 NYCRR 500 + SOC-2 | 0.75 |
+| Insurance | EU / Europe | Solvency II + GDPR + DORA | 0.80 |
+| Insurance | UK | PRA Rulebook + FCA SYSC + UK GDPR | 0.80 |
+| Insurance | Australia | APRA LPM + APRA CPS 234 + Privacy Act 1988 | 0.75 |
+| Financial Services / Banking | USA | GLBA + FFIEC IT Examination Handbook | 0.80 |
+| Financial Services / Banking | Canada | OSFI B-13 + PIPEDA | 0.80 |
+| Healthcare | UK | NHS DSP Toolkit + UK GDPR | 0.80 |
+| Healthcare | Canada | PHIPA + PIPEDA | 0.70 |
+| Healthcare | Australia | My Health Records Act + Privacy Act 1988 | 0.75 |
+| Payments | EU / Europe | PCI DSS + PSD2 + GDPR | 0.85 |
+| Payments | USA | PCI DSS + Regulation E + NACHA Operating Rules | 0.80 |
+| Government | USA | FedRAMP + FISMA + NIST SP 800-53 | 0.80 |
+| Government | EU / Europe | GDPR + eIDAS | 0.75 |
+| Government | Australia | Privacy Act 1988 + Australian ISM | 0.70 |
+| Government | Singapore | IM8 Policy Framework + PDPA | 0.75 |
+
+> **GDPR cross-domain note:** GDPR (EU Regulation 2016/679) and UK GDPR apply to any organisation processing personal data of EU/EEA or UK residents, regardless of industry sector. For any EU, EEA, or UK geography combination not explicitly listed above, GDPR / UK GDPR should be included as a baseline data protection obligation alongside the sector-specific framework. Do not omit GDPR from an EU-jurisdiction row on the assumption it is already covered by the sector-specific control.
+
+**`## Regulatory Context (Inferred)` write format** (add to `memory.md` after domain × geography match):
+```
+## Regulatory Context (Inferred)
+Basis: Domain × Geography inference — [Domain] × [Geography]
+| Framework | Confidence | Disclosure |
+|---|---|---|
+| [Framework name] | [0.0–1.0] | Inferred — confirm before submission |
+```
+
+**Precedence rule:** If `Regulatory Context = Explicit` is already set (a named regulation appears in the artifact), do not overwrite it. Add the domain × geography inference as supplementary context in the `## Regulatory Context (Inferred)` section — it does not change the primary `Regulatory Context` field.
+
+**Usage sequence:**
+1. Extract domain from artifacts (detection terms table above)
+2. Extract geography from artifacts — look for: country name, regulatory body name (e.g., "MAS", "FCA", "OSFI"), data residency clause, or explicit jurisdiction reference
+3. Match domain + geography to the table above
+4. If a match is found, write to `memory.md` `## Regulatory Context (Inferred)` using the format above
+5. If no geography is determinable, use the basic domain-level `Regulatory Context` column only (Implicit/Unknown)
