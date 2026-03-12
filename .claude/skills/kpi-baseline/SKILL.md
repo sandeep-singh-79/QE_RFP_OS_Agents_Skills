@@ -1,6 +1,6 @@
 ---
 name: kpi-baseline
-description: Extract client-specified KPI targets from RFP artifacts, flag their absence when not found, and recommend sourced industry benchmark KPIs with confidence scores when client targets are unavailable. Capture pre-project baseline state. Use as a composable sub-skill invoked by estimation-sizing-thinking when KPIs, success metrics, or baseline establishment are in scope. Never recommend industry defaults without first checking for client-specified targets.
+description: Extract client-specified KPI targets from RFP artifacts, flag their absence when not found, and recommend sourced industry benchmark KPIs with confidence scores when client targets are unavailable. Capture pre-project baseline state. Valid callers: Test Architect (Stage 4 — engagement-specific KPI scoping for architecture alignment), Stage 9 conductor (Section 13 — client-facing KPI framework output), and estimation-sizing-thinking (when sizing and KPI targets are co-scoped). Never recommend industry defaults without first checking for client-specified targets.
 ---
 
 # Skill: KPI & Baseline Thinking
@@ -9,7 +9,7 @@ description: Extract client-specified KPI targets from RFP artifacts, flag their
 
 Ensure that KPIs, success metrics, and baseline measurements in QA proposals are grounded in either client-specified targets (extracted from RFP artifacts) or sourced, confidence-scored industry benchmarks — never inserted without evidence or client validation.
 
-This skill is a **composable sub-skill**. It is invoked by `estimation-sizing-thinking` when KPIs and metrics are in scope. It does not perform orchestration, invoke agents, or design QA architecture.
+This skill may be invoked directly by the **Test Architect** (Stage 4 — engagement-specific KPI identification to align architecture with measurable outcomes), by the **Stage 9 conductor** (Section 13 — client-facing KPI framework), and by **`estimation-sizing-thinking`** (when effort sizing and KPI targets are co-scoped). It does not perform orchestration, invoke agents, or design QA architecture.
 
 > Use this skill to answer: *"What KPI targets has the client specified, and where they haven't — what industry-sourced benchmarks should we recommend with explicit confidence?"*
 
@@ -19,9 +19,11 @@ This skill is a **composable sub-skill**. It is invoked by `estimation-sizing-th
 
 This skill activates when **any** of the following are true:
 
-1. `estimation-sizing-thinking` requires KPI or metrics content for a proposal or estimation output
-2. The user explicitly requests KPI recommendations, success metric definitions, or baseline setting
-3. A proposal section requires measurable outcomes or quality targets
+1. The Test Architect requires engagement-specific KPI identification to align architecture with measurable outcomes (Stage 4 direct invocation)
+2. `estimation-sizing-thinking` requires KPI or metrics content alongside effort sizing (composable invocation)
+3. The Stage 9 conductor requires a client-facing delivery KPI framework (Section 13 direct invocation)
+4. The user explicitly requests KPI recommendations, success metric definitions, or baseline setting
+5. A proposal section requires measurable outcomes or quality targets
 
 ---
 

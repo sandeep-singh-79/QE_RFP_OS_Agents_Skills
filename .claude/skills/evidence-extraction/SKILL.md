@@ -34,7 +34,7 @@ This skill may load **only**:
 - The artifact files referenced in `claude-memory/artifacts.md` — the actual content to extract from
 - `claude-memory/memory.md` — to check for existing findings before writing (avoid overwriting)
 - `claude-memory/notes.md` — to check for in-progress context from earlier stages
-- `.claude/references/domain-regulatory-map.md` — for implicit domain detection (Step 10 of Responsibilities)
+- `.claude/references/domain-regulatory-map.md` — for implicit domain detection and regulatory framework inference (Steps 10 and 12 of Responsibilities)
 
 It must **not** load other memory files (`insights.md`, `decisions.md`, `improvements.md`) unless a specific extraction task requires them. Context must be minimal and purposeful.
 
@@ -56,6 +56,7 @@ When activated, this skill must:
 9. **Detect explicit regulations** — scan artifacts for named regulatory frameworks (e.g., GDPR, PCI DSS, HIPAA, SOC 2, ISO 27001). If found, set `Regulatory Context = Explicit` in `memory.md` and record each regulatory reference as a finding with Evidence Type `Compliance Requirement`.
 10. **Detect implicit regulatory domains** — if no explicit regulation is detected, check for domain terms indicating strongly regulated industries (see `.claude/references/domain-regulatory-map.md`). If a regulated domain is confirmed, set `Regulatory Context = Implicit`. Do not override `Explicit` once set.
 11. **Record client domain** — when domain terms appear in artifacts (e.g., digital banking platform, card payment processing, patient data platform, energy grid system), record `Client Domain: [Domain]` in `memory.md`. Domain labels must be drawn from artifact content — never inferred without textual evidence.
+12. **Run domain × geography regulatory framework inference** — after domain (Step 11) and geography signals are extracted, cross-reference the **Domain × Geography → Regulatory Framework Inference** table in `.claude/references/domain-regulatory-map.md`. If a matching combination is found, write inferred frameworks to `memory.md` under `## Regulatory Context (Inferred)` using the format defined in that table. If geography cannot be determined from artifacts, skip this step. Do not overwrite `Regulatory Context = Explicit` if already set — add inferred frameworks as supplementary context only.
 
 ---
 

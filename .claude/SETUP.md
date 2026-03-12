@@ -24,6 +24,18 @@ If required workspace files or folders do not exist, the system may create them 
 
 **claude-memory/improvements.md** — Header: `# QE OS Improvement Proposals` + `> Records proposed improvements to the QE RFP Operating System.` + `> Agents propose changes here. System updates require human approval.`
 
+**claude-memory/notes.md** — Header: `# Working Notes` + `> Records in-progress observations, gap coverage, dependency register, and inter-stage handoff notes for the current engagement.`
+
+Initial sections on first creation:
+```md
+## Missing Artifacts
+[To be populated at Stage 0 — list any artifact categories not available]
+
+## Dependency Register
+| D-[n] | Stage Identified | Description | Owner (Client/Vendor/Joint) | Status (Open/Confirmed/Mitigated) |
+|---|---|---|---|---|
+```
+
 **plan.md** (at workspace root) — Use the following structure:
 
 ```md
@@ -35,6 +47,10 @@ If required workspace files or folders do not exist, the system may create them 
 | RFP / Document | [document name or reference] |
 | Engagement Started | [date] |
 | Discovery Maturity | [Constrained / Moderate / Deep] |
+| Engagement Type | [managed_service / transformation_partnership / retained_qe_delivery / standalone_project / qa_audit] |
+| Application Count | [integer] |
+| Engagement Signals | [none / comma-separated list: incumbent_vendor_present, distributed_delivery_consolidation, vendor_transition, greenfield_delivery] |
+| Regulatory Context | [Explicit / Inferred ([framework], confidence [score]) / Unknown] |
 | Current Stage | [Stage N — Name] |
 
 ## Stage Status
