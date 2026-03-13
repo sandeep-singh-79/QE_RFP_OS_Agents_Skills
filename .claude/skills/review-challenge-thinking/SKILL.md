@@ -151,6 +151,24 @@ If any section is not present in the output, declare: `[Section]: Not Present â€
 
 If any section scores `Low`, the output must not be classified as submission-ready until the finding is resolved or explicitly accepted.
 
+### Gate Verdict
+
+After section scores are assigned, declare an overall gate verdict:
+
+| Verdict | Condition | Stage 9 Impact |
+|---|---|---|
+| `Ready` | All sections scored High | Stage 9 may proceed |
+| `Conditional` | Any section scored Medium, none scored Low | Stage 9 may proceed â€” flagged items must be acknowledged |
+| `Not Ready` | Any section scored Low | Stage 9 blocked until Low-scored sections are resolved or explicitly accepted |
+
+**Format:**
+```
+Gate Verdict: [Ready / Conditional / Not Ready]
+Rationale: [one-line summary of what drives the verdict]
+```
+
+The gate verdict is a mandatory structured output. If omitted, the quality gate has not been correctly applied.
+
 ---
 
 ## Completeness Checklist

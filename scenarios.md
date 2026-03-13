@@ -609,15 +609,14 @@ The extraction is partially completed — the agent produced findings for all fi
 1. **Correct VCT for Section 3.2 (F03):**
    The inline finding entry includes: `**Value Claim Trace:** Ref → ## Value Claim Traces — F03`
 
-   In `## Value Claim Traces` at the bottom of `memory.md`:
+   In `## Value Claim Traces` at the bottom of `memory.md` (canonical schema — see `evidence-extraction/SKILL.md` § Value Claim Trace Block):
    ```
    ### Value Claim Trace — F03
-   Claim: "60% reduction in test execution time by Phase 2"
-   Source artifact: A1, Section 3.2
-   Claim type: Performance Improvement
-   Evidence basis: Stated expectation — not confirmed as measured baseline
-   Confidence in claim: Medium — client aspiration, not measured actuals
-   Grounding required: Baseline execution time must be established in Phase 0 before this claim can be used as a proposal commitment
+   - Claim: "60% reduction in test execution time by Phase 2"
+   - Baseline: Not established — client aspiration, not measured actuals
+   - Formula: Not calculable — baseline execution time must be established in Phase 0
+   - Measurement Source: A1, Section 3.2 — stated expectation, not confirmed measure
+   - Confidence: Medium
    ```
 
 2. **Missing VCT flags for Sections 5.1 and 8.4:**

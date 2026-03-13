@@ -54,9 +54,15 @@ When activated, this skill must:
 7. **Normalize findings** — apply the standard finding structure (see below) to all extracted findings
 8. **Write results to `memory.md`** — append all findings; never overwrite existing content
 9. **Detect explicit regulations** — scan artifacts for named regulatory frameworks (e.g., GDPR, PCI DSS, HIPAA, SOC 2, ISO 27001). If found, set `Regulatory Context = Explicit` in `memory.md` and record each regulatory reference as a finding with Evidence Type `Compliance Requirement`.
-10. **Detect implicit regulatory domains** — if no explicit regulation is detected, check for domain terms indicating strongly regulated industries (see `.claude/references/domain-regulatory-map.md`). If a regulated domain is confirmed, set `Regulatory Context = Implicit`. Do not override `Explicit` once set.
+10. **Detect implicit regulatory domains** — if no explicit regulation is detected, check for domain terms indicating strongly regulated industries (see `.claude/references/domain-regulatory-map.md`). If a regulated domain is confirmed, set `Regulatory Context = Inferred`. Do not override `Explicit` once set.
 11. **Record client domain** — when domain terms appear in artifacts (e.g., digital banking platform, card payment processing, patient data platform, energy grid system), record `Client Domain: [Domain]` in `memory.md`. Domain labels must be drawn from artifact content — never inferred without textual evidence.
-12. **Run domain × geography regulatory framework inference** — after domain (Step 11) and geography signals are extracted, cross-reference the **Domain × Geography → Regulatory Framework Inference** table in `.claude/references/domain-regulatory-map.md`. If a matching combination is found, write inferred frameworks to `memory.md` under `## Regulatory Context (Inferred)` using the format defined in that table. If geography cannot be determined from artifacts, skip this step. Do not overwrite `Regulatory Context = Explicit` if already set — add inferred frameworks as supplementary context only.
+12. **Apply regulatory framework context** — this step behaves differently depending on whether Stage 0 has already run:
+
+   **Full workflow (Stage 0 completed):** Read `Regulatory Context` from `plan.md` Engagement Details (set at Stage 0). Use the value to tag compliance-related findings during extraction. Do not re-run domain × geography inference — it was completed at Stage 0.
+
+   **Spot-task / Mode 2 (no Stage 0):** If `plan.md` does not exist or has no `Regulatory Context` field, run domain × geography inference independently: after domain (Step 11) and geography signals are extracted, cross-reference the **Domain × Geography → Regulatory Framework Inference** table in `.claude/references/domain-regulatory-map.md`. If a matching combination is found, write inferred frameworks to `memory.md` under `## Regulatory Context (Inferred)` using the format defined in that table. If geography cannot be determined from artifacts, skip inference.
+
+   In both paths: do not overwrite `Regulatory Context = Explicit` if already set — add inferred frameworks as supplementary context only.
 
 ---
 
@@ -97,7 +103,7 @@ GDPR compliance requirement stated in RFP Section 6.
 Solution must address data protection obligations; output framing may reference GDPR by name.
 ```
 
-## Value Claim Trace Block
+## Value Claim Trace Block (Canonical Schema)
 
 If the Description or Implication of a finding contains a quantified claim (%, $, × times, days, or hours), a Value Claim Trace block is **mandatory**. Write it to the `## Value Claim Traces` section at the bottom of `memory.md` — **not inline with the finding**.
 
@@ -273,7 +279,7 @@ The handoff artifact is `memory.md`, which must contain at minimum:
 - Confidence level on every finding
 - Source artifact reference on every finding
 - `Client Domain` field (if detectable from artifacts, otherwise omit)
-- `Regulatory Context` field set to `Explicit`, `Implicit`, or `Unknown`
+- `Regulatory Context` field set to `Explicit`, `Inferred`, or `Unknown`
 
 **Extraction Completeness Declaration:**
 Write the following statement to `memory.md` before handoff. If an `## Extraction Completeness` section already exists (from a prior run), **overwrite it** — do not append a second instance.
