@@ -34,6 +34,9 @@ Initial sections on first creation:
 ## Dependency Register
 | D-[n] | Stage Identified | Description | Owner (Client/Vendor/Joint) | Status (Open/Confirmed/Mitigated) |
 |---|---|---|---|---|
+
+## Insight Candidates
+[Populated progressively during Stages 1–8. Format: `> INSIGHT CANDIDATE [Stage N]: [observation]. Carry-forward: [why this recurs / what to watch for]`. Reviewed and promoted (or discarded) at Stage 10.]
 ```
 
 **plan.md** (at workspace root) — Use the following structure:

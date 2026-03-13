@@ -7,21 +7,23 @@
 
 ## Learning Actions
 
-At Stage 10, the conductor performs all seven of the following actions:
+At Stage 10, the conductor performs all eight of the following actions:
 
-1. **Missed findings** — review `claude-memory/memory.md` for any finding with no downstream resolution. Log missed findings as improvement proposals in `claude-memory/improvements.md`.
+1. **Insight candidate promotion** — scan `claude-memory/notes.md` for all `## Insight Candidates` entries (flagged during Stages 1–8 using the `INSIGHT CANDIDATE` marker). For each candidate, evaluate: Is this pattern likely to recur across other engagements? Is it actionable for future analysis? If yes — promote to `claude-memory/insights.md` as a named insight with a carry-forward rule (see Action 7 below for the Insights vs. Improvements distinction). If no — discard with a one-line note explaining why. Clear the `## Insight Candidates` section in `claude-memory/notes.md` after promotion.
 
-2. **Reasoning weaknesses** — identify where agents produced shallow, assumed, or unsourced analysis. Propose specific skill or prompt improvements.
+2. **Missed findings** — review `claude-memory/memory.md` for any finding with no downstream resolution. Log missed findings as improvement proposals in `claude-memory/improvements.md`.
 
-3. **Workflow inefficiencies** — identify stages that were redundant, out of order, or produced low-value output in this engagement.
+3. **Reasoning weaknesses** — identify where agents produced shallow, assumed, or unsourced analysis. Propose specific skill or prompt improvements.
 
-4. **Improvement proposals** — generate specific, actionable improvement proposals for the QE OS and record in `claude-memory/improvements.md`.
+4. **Workflow inefficiencies** — identify stages that were redundant, out of order, or produced low-value output in this engagement.
 
-5. **Evidence gap monitoring** — identify conclusions delivered in the output that lacked evidence traceability (no Finding ID, capability baseline, or declared assumption). Record each as an improvement proposal with Root Cause = "Reasoning without evidence source". If more than 3 evidence gap proposals accumulate, flag for human review before the next engagement.
+5. **Improvement proposals** — generate specific, actionable improvement proposals for the QE OS and record in `claude-memory/improvements.md`.
 
-6. **Engagement pattern promotion** — identify any finding, behaviour, or pattern from this engagement likely to recur across future bids. Promote to `claude-memory/insights.md` as a named insight with a carry-forward rule. Examples: how clients frame constrained-discovery bids, evidence types consistently missing, common proposal defensibility failures.
+6. **Evidence gap monitoring** — identify conclusions delivered in the output that lacked evidence traceability (no Finding ID, capability baseline, or declared assumption). Record each as an improvement proposal with Root Cause = "Reasoning without evidence source". If more than 3 evidence gap proposals accumulate, flag for human review before the next engagement.
 
-7. **Distinguish insights from improvements** — `claude-memory/insights.md` receives recurring engagement *patterns* (how clients behave, how proposals fail, what evidence is typically missing). `claude-memory/improvements.md` receives *system fixes* (schema changes, new workflow checks, new rules). The same observation may generate entries in both files if it is both a pattern worth preserving AND a system gap that needs fixing. Do not conflate the two.
+7. **Engagement pattern promotion** — identify any finding, behaviour, or pattern from this engagement likely to recur across future bids. Promote to `claude-memory/insights.md` as a named insight with a carry-forward rule. Examples: how clients frame constrained-discovery bids, evidence types consistently missing, common proposal defensibility failures.
+
+8. **Distinguish insights from improvements** — `claude-memory/insights.md` receives recurring engagement *patterns* (how clients behave, how proposals fail, what evidence is typically missing). `claude-memory/improvements.md` receives *system fixes* (schema changes, new workflow checks, new rules). The same observation may generate entries in both files if it is both a pattern worth preserving AND a system gap that needs fixing. Do not conflate the two.
 
 ---
 

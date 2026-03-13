@@ -104,6 +104,9 @@ Every agent must, after completing its analysis:
 2. Log major decisions to `claude-memory/decisions.md` with rationale
 3. Update `claude-memory/notes.md` with in-progress observations for downstream agents
 4. Update `claude-memory/artifacts.md` status if any artifact review status changed
+5. **Flag insight candidates** — if an observation, pattern, or behaviour is noticed that is likely to recur across *other* engagements (not just this one), append it to `claude-memory/notes.md` under `## Insight Candidates` using the format:
+   `> INSIGHT CANDIDATE [Stage N]: [observation]. Carry-forward: [why this recurs / what to watch for]`
+   Do not write to `claude-memory/insights.md` directly during active stages — candidates are reviewed and promoted at Stage 10.
 
 ### Context Loading Priority
 When context budget is constrained, load files in this priority order:
@@ -423,8 +426,8 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 
 ### Stage 10 — System Learning
   Purpose:    Improve the QE OS based on engagement experience
-  Actions:    Load `.claude/references/stage-10-learning.md` for full protocol: evidence gap monitoring, engagement pattern promotion, insights vs. improvements discipline, and `improvements.md` schema + backlog governance.
-  Output:     Improvement proposals recorded in `claude-memory/improvements.md`; reusable patterns promoted to `claude-memory/insights.md`
+  Actions:    Load `.claude/references/stage-10-learning.md` for full protocol: insight candidate promotion, evidence gap monitoring, engagement pattern promotion, insights vs. improvements discipline, and `improvements.md` schema + backlog governance.
+  Output:     Insight candidates reviewed and promoted or discarded; improvement proposals recorded in `claude-memory/improvements.md`; reusable patterns promoted to `claude-memory/insights.md`
   Rule:       Agents propose improvements only — they do not directly modify system files
 
 **This workflow is a recommendation, not a lock.** Explicit user instructions override any stage or sequence.
