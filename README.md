@@ -12,6 +12,16 @@ The QE OS is an AI-assisted system for reviewing, designing, and strengthening Q
 | Designs or validates QA architecture | Test Architect agent |
 | Assesses whether a plan and timeline is realistic | Project Manager agent |
 | Assesses whether teams can adopt a proposed approach | QA Manager agent |
+| Infers applicable regulatory framework from client domain + geography | Stage 0 via `domain-regulatory-map.md` |
+| Detects incumbent vendor presence and gates Section 15 accordingly | Stage 0 explicit confirmation prompt |
+| Classifies engagement type, application count, and vendor capability | Stage 0 via `stage-0-inputs.md` |
+| Extracts and traces quantified value claims with evidence grounding | Stage 1 via Value Claim Trace Block |
+| Classifies benefit realisability (unconditional vs conditional) | Stage 4 Benefit Claim Classification |
+| Produces risk-based test classification by change type | Stage 4 Risk-Based Test Classification |
+| Generates canonical 19-section structured proposal output | Stage 9 via `stage-9-output-structure.md` |
+| Applies go/no-go quality gate verdict before Stage 9 output | Review & Challenge skill — Gate Verdict |
+| Provides PERT-based effort estimation with tier and phase breakdown | `pert-estimation` skill |
+| Extracts KPI targets, flags absence, recommends sourced benchmarks | `kpi-baseline` skill |
 | Structures raw findings into leadership-ready outputs | Structuring + Executive Communication skills |
 | Enforces anti-hallucination, evidence traceability, and governance | System-wide via `copilot-instructions.md` + `AGENTS.md` |
 
@@ -27,19 +37,19 @@ The system runs Stages 0–10:
 
 | Stage | What Happens |
 |---|---|
-| 0 — Artifact Discovery | All documents indexed into `artifacts.md` |
-| 1 — Evidence Extraction | Findings extracted from artifacts into `memory.md` |
+| 0 — Engagement Classification | Artifacts indexed; engagement type, application count, and vendor capability manifest captured; incumbent vendor confirmed; regulatory context inferred from domain × geography |
+| 1 — Evidence Extraction | Findings extracted from artifacts into `memory.md`; value claim traces produced; regulatory context applied from Stage 0 |
 | 2 — Memory Initialization | Workspace confirmed ready for agent work |
 | 3 — Gap Coverage | All High-confidence findings accounted for |
 | 3.5 — Capability Coverage | All 8 QE capability domains assessed |
 | (Optional) Question → Capability Mapping | RFP questions mapped to evaluation intent |
-| 4 — Solution Design | Test Architect architects the QA solution |
-| 5 — Architecture Validation | QA Manager assesses execution feasibility |
-| 6 — Delivery Validation | Project Manager assesses timeline and dependencies |
+| 4 — Solution Design | Test Architect architects the QA solution; benefit claims classified; risk-based test classification produced; application clustering drafted |
+| 5 — Architecture Validation | QA Manager assesses execution feasibility; SME demand impact evaluated |
+| 6 — Delivery Validation | Project Manager assesses timeline and dependencies; in-sprint automation DoD validated |
 | 7 — Client Perspective | Client Evaluator simulates scoring and red flags |
 | 8 — Governance Validation | Evidence traceability and quality rules enforced |
-| 9 — Output Generation | Review & Challenge quality gate applied |
-| 10 — System Learning | Improvement proposals recorded |
+| 9 — Output Generation | Review & Challenge quality gate (Gate Verdict: Ready / Conditional / Not Ready) applied; canonical 19-section proposal output produced |
+| 10 — System Learning | Improvement proposals recorded to `improvements.md` and promoted to `insights.md` |
 
 **To start a full review**, say:
 
@@ -77,8 +87,22 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 |---|---|
 | `.claude/AGENTS.md` | Full QE OS execution harness — workflow, governance, routing, memory rules |
 | `.claude/copilot-instructions.md` | System-wide guardrails — anti-hallucination, input validation, scope, confidentiality |
+| `.claude/governance.md` | HITL model, gap coverage rules, evidence traceability, output type classification, conflict resolution, sequencing rules |
+| `.claude/SETUP.md` | Workspace initialization, file templates, and System Change Review Checklist |
+
+### Reference Files (loaded on demand by stage action instructions)
+
+| File | Purpose |
+|---|---|
 | `.claude/references/trigger-prompts.md` | Example prompts that should (and should not) activate each skill and agent |
 | `.claude/references/qe-capability-map.md` | The 8 QE capability domains used for coverage assessment |
+| `.claude/references/domain-regulatory-map.md` | Domain × Geography → Regulatory Framework inference table (used at Stage 0) |
+| `.claude/references/stage-0-inputs.md` | Engagement input classification reference — engagement type, application count, Discovery Maturity, Vendor Capability Manifest, Engagement Signals |
+| `.claude/references/stage-4-classifications.md` | AI tier, tooling tier, and benefit claim classification definitions used at Stage 4 |
+| `.claude/references/stage-9-output-structure.md` | Canonical 19-section proposal output structure with per-section content rules, source inputs, and conditional trigger logic |
+| `.claude/references/quality-gate-reference.md` | Quality gate scoring rules, Gate Verdict criteria, and Completeness Checklist |
+| `.claude/references/memory-protocol.md` | Memory file protocols — append rules, summarisation thresholds, overwrite conditions |
+| `.claude/references/stage-10-learning.md` | Stage 10 learning and improvement recording rules |
 
 ### Agent Files (define agent scope and behaviour)
 
@@ -105,6 +129,8 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 ├── structuring-consulting-thinking/
 ├── executive-communication/
 ├── estimation-sizing-thinking/
+├── pert-estimation/                   ← PERT formula, 8 tiers, effort multipliers, phase breakdown
+├── kpi-baseline/                      ← KPI extraction, flag-if-absent, sourced benchmarks, baseline capture
 ├── review-challenge-thinking/
 ├── domain-context-adaptation/
 └── tooling-technology-recommendation/
@@ -211,6 +237,12 @@ Each Finding ID (e.g., `F14`) links a recommendation all the way back to the art
 
 **Challenge the whole output:**
 > "Do a final challenge pass on this before we submit."
+
+**Get a sizing estimate:**
+> "Give me a directional estimate for 200 test cases across 3 applications using PERT."
+
+**Check KPI targets:**
+> "Extract any KPI targets from this RFP. If none are stated, recommend industry benchmarks."
 
 ---
 
