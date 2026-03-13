@@ -1,7 +1,42 @@
 # Stage 4 — Classification Reference
 
-> **Used by:** Test Architect at Stage 4 — Solution Design.
-> Load this file when Benefit Realisability Classification, Risk-Based Test Classification, or Application Clustering Draft is required. Contains the full procedure, values, formats, and rules for each.
+> **Used by:** Test Architect at Stage 4 — Solution Design; Stage 9 Section 9 (tooling table column labelling and AI tier column).
+> Load this file when AI Capability Tier Classification, Tooling Three-Tier Framing, Benefit Realisability Classification, Risk-Based Test Classification, or Application Clustering Draft is required. Contains the full procedure, values, formats, and rules for each.
+
+---
+
+## AI Capability Tier Classification
+
+**When:** Mandatory at Stage 4. Classify every proposed AI or GenAI capability before assigning a roadmap phase. Classification determines whether OC-1 applies (see `governance.md`).
+
+### Classification table
+
+| Tier | Definition | Phase Viability | OC-1 Applies? |
+|---|---|---|---|
+| Tier 1 — AI-assisted process tools | Rule-based or LLM-prompt-based; no specialist ML infrastructure; available as SaaS or IDE extension (e.g., AI-assisted test case generation, story readiness checkers, LLM-based defect summarisation, coverage gap analysis) | Phase 2 onwards | **No** — Tier 1 tools are not subject to OC-1 deferral |
+| Tier 2 — AI/ML predictive models | Requires training data, specialist ML resourcing, or ML infrastructure (e.g., self-healing test, predictive defect trending, autonomous test orchestration) | Phase 3–4 | **Yes** — OC-1 applies; defer confirmation to Phase 0 |
+
+### Rule
+Classification is mandatory — unclassified AI capabilities must not be assigned a phase.
+
+OC-1 definition, scope, trigger, exclusion note, and Stage 9 Appendix format: see `## OC-1` in `.claude/governance.md`.
+
+---
+
+## Tooling Three-Tier Framing
+
+**When:** Mandatory at Stage 4 and Stage 9. The blanket "defer all tooling decisions to Phase 0" rule is replaced by this model — Confirmed tools are named without deferral.
+
+### Tier table
+
+| Tier | Definition | Output Framing |
+|---|---|---|
+| Confirmed | Tool identified in Stage 1 findings as currently in use by the client | Listed without caveat — state as "currently in use" |
+| Suggested | New-capability tool not currently in the client stack | "Suggested — subject to Phase 0 confirmation" |
+| Proposed — Vendor Platform | Tool from Vendor Capability Manifest | "Proposed — subject to Phase 0 assessment" |
+
+### Rule
+Stage 9 tooling tables (Section 9) must display the tier label (Confirmed / Suggested / Proposed) alongside tool name and rationale. The `AI Tier` column in Section 9 uses the Tier 1 / Tier 2 classification from `## AI Capability Tier Classification` above.
 
 ---
 
