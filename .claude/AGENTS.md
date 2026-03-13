@@ -313,14 +313,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Output:     Architecture findings, layer gaps, tooling readiness
 
   **AI Capability Tier Classification — mandatory at Stage 4:**
-  For each proposed AI or GenAI capability, the Test Architect must classify it as Tier 1 or Tier 2 before assigning a roadmap phase. Classification determines whether OC-1 applies (see `.claude/governance.md`).
-
-  | Tier | Definition | Phase Viability | OC-1 Applies? |
-  |---|---|---|---|
-  | Tier 1 — AI-assisted process tools | Rule-based or LLM-prompt-based; no specialist ML infrastructure; available as SaaS or IDE extension (e.g., AI-assisted test case generation, story readiness checkers, LLM-based defect summarisation, coverage gap analysis) | Phase 2 onwards | **No** — Tier 1 tools are not subject to OC-1 deferral |
-  | Tier 2 — AI/ML predictive models | Requires training data, specialist ML resourcing, or ML infrastructure (e.g., self-healing test, predictive defect trending, autonomous test orchestration) | Phase 3–4 | **Yes** — OC-1 applies; defer confirmation to Phase 0 |
-
-  Classification is mandatory — unclassified AI capabilities must not be assigned a phase.
+  Classify each proposed AI/GenAI capability as `Tier 1` (LLM-prompt-based / SaaS / IDE extension — no specialist ML infrastructure; Phase 2-viable; OC-1 does **not** apply) or `Tier 2` (predictive models requiring training data / specialist ML resourcing / ML infrastructure; Phase 3–4; OC-1 **applies**). Unclassified AI capabilities must not be assigned a phase. Full classification table and examples: see `## AI Capability Tier Classification` in `.claude/references/stage-4-classifications.md`.
 
   **Benefit Realisability Classification — mandatory at Stage 4:**
   For each benefit claim, classify as `Unconditional`, `Conditional — Client Infrastructure`, or `Conditional — Vendor Delivery`. Unarticulated claims must not pass Stage 4. Write to `claude-memory/notes.md` under `## Benefit Claim Classification`.
@@ -341,15 +334,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   If `## Vendor Capability Manifest` is present in `claude-memory/memory.md`, the Test Architect reads it and populates relevant architecture pillars with vendor tool names and tier-appropriate phases. Tier assignments in the manifest are accepted for named vendor tools and do not require independent reclassification unless conflicting evidence exists.
 
   **Tooling Three-Tier Framing — mandatory at Stage 4 and Stage 9:**
-  All proposed tooling must be classified into one of three tiers before inclusion in any output. The blanket "defer all tooling decisions to Phase 0" rule is replaced by this model — Confirmed tools are named without deferral.
-
-  | Tier | Definition | Output Framing |
-  |---|---|---|
-  | Confirmed | Tool identified in Stage 1 findings as currently in use by the client | Listed without caveat — state as "currently in use" |
-  | Suggested | New-capability tool not currently in the client stack | "Suggested — subject to Phase 0 confirmation" |
-  | Proposed — Vendor Platform | Tool from Vendor Capability Manifest | "Proposed — subject to Phase 0 assessment" |
-
-  Stage 9 tooling tables must display the tier label (Confirmed / Suggested / Proposed) alongside tool name and rationale.
+  Classify all proposed tooling as `Confirmed` (currently in use — list without caveat), `Suggested` (new capability — "Suggested — subject to Phase 0 confirmation"), or `Proposed — Vendor Platform` (from Vendor Capability Manifest — "Proposed — subject to Phase 0 assessment"). Confirmed tools are named without deferral. Stage 9 tooling tables must display the tier label alongside tool name and rationale. Full tier definitions and output framing strings: see `## Tooling Three-Tier Framing` in `.claude/references/stage-4-classifications.md`.
 
 ### Stage 5 — Architecture Validation (Execution Feasibility)
   Agent:      QA Manager

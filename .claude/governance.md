@@ -310,7 +310,7 @@ Open Conditions are not failure states — they are transparency mechanisms that
 
 ### OC-1 — Specialist AI/ML Capability Not Confirmed
 
-**Scope:** Applies **only** to Tier 2 AI/ML capabilities (predictive models, self-healing automation, autonomous test orchestration — see Stage 4 AI Capability Tier Classification in `AGENTS.md`).
+**Scope:** Applies **only** to Tier 2 AI/ML capabilities (predictive models, self-healing automation, autonomous test orchestration — see `## AI Capability Tier Classification` in `.claude/references/stage-4-classifications.md`).
 
 **Trigger:** A Tier 2 AI/ML capability is proposed but one or more of the following has not been confirmed pre-award: specialist ML resourcing availability, training data readiness, ML infrastructure existence.
 
