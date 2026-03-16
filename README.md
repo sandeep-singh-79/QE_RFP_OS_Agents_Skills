@@ -106,6 +106,7 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 | `.claude/references/stage-9-output-structure.md` | Canonical 19-section proposal output structure with per-section content rules, source inputs, and conditional trigger logic |
 | `.claude/references/quality-gate-reference.md` | Quality gate scoring rules, Gate Verdict criteria, and Completeness Checklist |
 | `.claude/references/memory-protocol.md` | Memory file protocols — append rules, summarisation thresholds, overwrite conditions |
+| `.claude/references/estimation-model.md` | Mode-conditional estimation model — multiplier chain, overhead categories, scope establishment activities, and engagement-mode parameters |
 | `.claude/references/stage-10-learning.md` | Stage 10 learning and improvement recording rules |
 
 ### Agent Files (define agent scope and behaviour)
@@ -288,7 +289,7 @@ These gaps were identified during a framework evaluation in March 2026. They are
 
 **Contrast:** Stage 3 blocks if any High-confidence finding is `Unresolved`. Stage 3.5 has no equivalent enforcement.
 
-**Fix needed:** Add a HITL block condition to Stage 3.5 — if any of the 8 QE capability domains is `Absent` AND no planned remediation is declared in the solution design, halt and require human confirmation before advancing to Stage 4.
+**Fix needed:** Add a HITL block condition to Stage 3.5 — if any of the 8 QE capability domains is `Missing` AND no planned remediation is declared in the solution design, halt and require human confirmation before advancing to Stage 4.
 
 ---
 
@@ -318,11 +319,11 @@ These gaps were identified during a framework evaluation in March 2026. They are
 
 ---
 
-### 5. `improvements.md` — no tracked promotion path from proposal to implementation
+### 5. `claude-memory/improvements.md` — no tracked promotion path from proposal to implementation
 
 **Gap:** Agents write improvement proposals to `claude-memory/improvements.md`. Human approval is required before changes are made to system files. However, there is no tracking mechanism in the framework for when approved proposals are actually promoted — proposals can accumulate indefinitely without being actioned, and there is no way to distinguish "approved but not yet implemented" from "awaiting approval".
 
-**Fix needed:** Add a `Status` column to the `improvements.md` schema (`Proposed / Approved / Implemented / Rejected`) and add a Stage 10 check that flags any `Approved` improvements that have remained unimplemented for more than one engagement cycle.
+**Fix needed:** Add a `Status` column to the `claude-memory/improvements.md` schema (`Proposed / Approved / Implemented / Rejected`) and add a Stage 10 check that flags any `Approved` improvements that have remained unimplemented for more than one engagement cycle.
 
 ---
 
