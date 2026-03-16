@@ -320,8 +320,25 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Skill:      Capability Coverage Thinking (mandatory)
   Purpose:    Evaluate QE capability coverage against the baseline — independent of what was raised in artifacts
   Action:     Compare `claude-memory/memory.md` findings against all eight QE capability domains in `qe-capability-map.md`
-  Checkpoint: All eight domains assessed; Missing and Partial domains documented
+  Checkpoint: All eight domains assessed; Missing and Partial domains documented; no `Missing` domain without a declared remediation path advances without HITL
   Output:     Capability coverage table — Capability / Status / Recommendation
+
+  **Blocking HITL condition — Stage 3.5:**
+  After producing the capability coverage table, check every `Missing` domain. If **any** domain is `Missing` AND no planned remediation is declared in the current engagement context, halt and raise:
+
+  ```
+  ⚠ BLOCKING HITL — Stage 3.5 Capability Gap
+  Domain(s): [list each Missing domain]
+  Issue: One or more capability domains have no evidence and no declared remediation path.
+  Impact: Stage 4 (Solution Design) cannot proceed — the Test Architect would design an architecture
+          with no baseline for these domains, producing an output that is structurally incomplete.
+  Required: Confirm one of the following for each Missing domain before advancing:
+    (a) "This domain is out of scope for this engagement — reason: [state reason]"
+    (b) "This domain will be addressed in the solution design at Stage 4"
+    (c) "Discovery Maturity = Constrained; this gap is expected and will be deferred to transition"
+  ```
+
+  Stage 4 may not begin until a human response is received for each `Missing` domain. A confirmed `Out of Scope` or `Deferred to Transition` response satisfies the condition — it does not need to become `Present`. The absence of evidence is acceptable; the absence of acknowledgement is not.
 
 > **Optional — Question → Capability Mapping:** If RFP questions exist in artifacts and Stage 3.5 is complete, the Test Architect may invoke the `question-capability-mapping` skill before Stage 4. Activation requires: (1) RFP questions present in artifacts, (2) Stage 4 not yet started, (3) Stage 3.5 complete. The skill maps question wording to underlying capability expectations and writes results to `claude-memory/notes.md`. See `.claude/skills/question-capability-mapping/SKILL.md` for HALT conditions.
 
@@ -419,9 +436,32 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 9 — Output Generation (Quality Gate)
   Skill:      Review & Challenge Thinking (MANDATORY)
   Input:      Full output from all prior stages + governance clearance
-  Checkpoint: Gap classification complete, section-level completeness check passed, submission readiness confirmed
+  Checkpoint: `plan.md` engagement fields validated; gap classification complete; section-level completeness check passed; submission readiness confirmed
   Output:     Challenged, reviewed output ready for delivery
   Post-gate:  Executive Communication skill (if executive-facing output required)
+
+  **`plan.md` field validation — required before any output sections are generated:**
+  Before rendering any output section, confirm the following fields in `plan.md` are set to explicit values (not template placeholders, empty brackets, or default text):
+
+  | Field | Valid | Invalid (blocks output) |
+  |---|---|---|
+  | `Engagement Type` | One of: `managed_service`, `transformation_partnership`, `retained_qe_delivery`, `standalone_project`, `qa_audit` | `[engagement type]`, blank, or any value not in the list |
+  | `Engagement Signals` | `none` or one or more valid signal values | `[none / comma-separated list]`, blank |
+  | `Discovery Maturity` | `Constrained`, `Moderate`, or `Deep` | `[Constrained / Moderate / Deep]`, blank |
+  | `Application Count` | An integer ≥ 1 | `[integer]`, blank |
+
+  If any field is invalid, raise before generating output:
+
+  ```
+  ⚠ BLOCKING HITL — plan.md Engagement Fields Not Confirmed
+  Field(s): [list each field at its invalid value]
+  Issue: One or more Stage 0 classification fields are unset or at template defaults.
+  Impact: Conditional output sections (e.g., Section 14 Application Clustering, Section 15 Transition
+          Model, Section 16 TaaS Operating Model) will be incorrectly generated or suppressed.
+  Required: Confirm the correct value for each listed field before Stage 9 proceeds.
+  ```
+
+  If `plan.md` does not exist, raise the HITL with field list = "all fields" and do not proceed.
 
   **Self-validation loop — required before the quality gate clears:**
   Before the Review & Challenge quality gate passes, the conductor must run the completeness checklist defined in `.claude/skills/review-challenge-thinking/SKILL.md` against each major output section and flag any failing section as `⚠ INCOMPLETE SECTION` before passing to the skill.
@@ -471,13 +511,13 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 1 — Evidence Extraction | All artifacts have extraction status | Artifacts stuck in Pending Review |
 | 2 — Memory Initialization | Minimum context available for downstream agents | Memory files empty or uninitialized |
 | 3 — Gap Coverage | All High-confidence findings accounted for | Findings neither addressed nor acknowledged |
-| 3.5 — Capability Coverage | All eight QE capability domains assessed | Missing or Partial domains not documented |
+| 3.5 — Capability Coverage | All eight QE capability domains assessed; every `Missing` domain has a declared remediation or human HITL confirmation | Missing domains not documented OR any `Missing` domain has no declared remediation path |
 | 4 — Solution Design | Architecture layer completeness confirmed | Missing layers not identified |
 | 5 — Architecture Validation | Adoption risks classified and surfaced | Feasibility not assessed |
 | 6 — Delivery Validation | All delivery dependencies identified | Dependencies unclassified |
 | 7 — Client Perspective | Scoring risks and defensibility gaps surfaced | No evaluator review performed |
 | 8 — Governance Validation | All governance checks pass or human-approved | Unresolved governance items or recommendations lacking evidence traceability |
-| 9 — Output Generation | Quality gate passed (Review & Challenge) + evidence-first compliance verified at Stage 8 | Output not challenged or evidence gaps not cleared |
+| 9 — Output Generation | `plan.md` engagement fields confirmed (not at template defaults); quality gate passed (Review & Challenge) + evidence-first compliance verified at Stage 8 | `plan.md` fields unset or at defaults; output not challenged or evidence gaps not cleared |
 | 10 — System Learning | Improvement proposals recorded | No retrospective performed |
 
 Checkpoint enforcement is at the **conductor level** — violations are flagged but do not hard-block unless a skill-level HALT applies.

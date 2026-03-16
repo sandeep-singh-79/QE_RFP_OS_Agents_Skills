@@ -154,9 +154,40 @@ This skill must not:
 
 ---
 
+## HALT Protocol
+
+After producing the capability coverage table, apply the following check before declaring Stage 3.5 complete:
+
+**Step 1 — Identify `Missing` domains.** Collect every row in the output table where Status = `Missing`.
+
+**Step 2 — Check for declared remediation.** For each `Missing` domain, check whether the engagement context (current session, `claude-memory/notes.md`, or explicit user statement) includes one of the following:
+- The domain is explicitly declared out of scope for this engagement (with stated reason)
+- The domain will be addressed in Stage 4 solution design
+- Discovery Maturity = `Constrained` and the gap is acknowledged as expected
+
+**Step 3 — Apply gate.** If any `Missing` domain has no declared remediation matching Step 2:
+
+```
+⚠ BLOCKING HITL — Stage 3.5 Capability Gap
+Domain(s): [list each Missing domain without declared remediation]
+Issue: One or more capability domains have no evidence and no declared remediation path.
+Impact: Stage 4 (Solution Design) cannot proceed — the Test Architect would design an architecture
+        with no baseline for these domains, producing a structurally incomplete output.
+Required: Confirm one of the following for each listed domain before advancing:
+  (a) "Out of scope — reason: [state reason]"
+  (b) "Will be addressed in Stage 4 solution design"
+  (c) "Discovery Maturity = Constrained; deferring to transition"
+```
+
+**Stage 3.5 is not complete until every `Missing` domain has a declared remediation or human confirmation.**
+
+This skill must not pass control to Stage 4 while any `Missing` domain is undeclared.
+
+---
+
 ## Handoff
 
-After completion, the workflow proceeds to:
+After the HALT Protocol is satisfied (all `Missing` domains acknowledged), the workflow proceeds to:
 
 **Stage 4 — Solution Design**
 
