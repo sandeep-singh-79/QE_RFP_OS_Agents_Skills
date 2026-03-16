@@ -127,6 +127,27 @@ If `claude-memory/memory.md` grows beyond approximately 200 lines:
 3. Retain only active or unresolved findings in `claude-memory/memory.md`.
 4. Preserve all Finding IDs for traceability.
 
+### Context Compaction
+
+Use `/compact` to compress conversation history when context utilization reaches **65–70%**. Trigger at stage boundaries only — never mid-stage.
+
+**Pre-compaction checklist (must complete before issuing `/compact`):**
+1. All stage outputs have been written to workspace files (`claude-memory/memory.md`, `claude-memory/notes.md`, `plan.md`, or output documents)
+2. No in-progress values exist only in conversation memory (e.g., partial tallies, extracted figures not yet written to file)
+3. The current stage's checkpoint condition has been met and recorded in `plan.md` Stage Status
+
+**Safe compaction points:**
+| After Stage | Condition |
+|---|---|
+| Stage 0 | `claude-memory/artifacts.md` populated; `plan.md` Engagement Details complete |
+| Stage 1 | `claude-memory/memory.md` populated with all findings |
+| Stage 3 | Gap coverage written to `claude-memory/notes.md` under `## Gap Coverage` |
+| Stage 5 | Architecture validation output written |
+| Stage 7 | Client perspective output written |
+| Stage 9 | All output sections written to output document |
+
+**What the compact summary must preserve:** active Finding IDs, current stage, open conditions (OC—), unresolved dependency register items, and the embargo status of any reference files (e.g., `outputs/estimate_workbook.xlsx` — do not open until own estimate is complete).
+
 ---
 
 ## Artifact Index (artifacts.md)
@@ -178,7 +199,7 @@ Agents must load only the memory and workspace files relevant to their role. Loa
 | Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md` | `evidence-reconciliation`, `.claude/governance.md` |
 | Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
 | QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `assumption-dependency-management` |
-| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand |
+| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
 | Client / RFP Evaluator | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `review-challenge-thinking` |
 | Tooling Recommender | `claude-memory/memory.md` (capability sections only), `claude-memory/notes.md` | `tooling-technology-recommendation` |
 

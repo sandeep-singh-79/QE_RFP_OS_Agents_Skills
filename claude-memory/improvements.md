@@ -7,6 +7,176 @@
 
 ## Active Proposals
 
+### Improvement Proposal: IP-LBMX-01
+- **Observation:** The `pert-estimation` skill has no deduplication guard. When a test library contains files labelled "Regression" (or similar), those files typically contain test cases that also appear in Functional, E2E, or Integration categories. Without an explicit deduplication step before sizing, the gross file/test count inflates the estimate — and every subsequent multiplier compounds the error.
+- **Root Cause:** The skill operates on raw test counts provided to it. It has no instruction to detect or handle known overlap patterns (e.g., Regression-labelled files containing a subset of tests from other tiers).
+- **Suggested Change:** Add a mandatory **Test Deduplication Step** to `pert-estimation` before the Test Case Categorisation Tiers table is applied. The step must: (1) identify any tier groupings likely to contain overlapping test cases (e.g., Regression files vs. Functional/E2E), (2) instruct the system to deduplicate by unique test case identity before establishing the sizing baseline, (3) declare the deduplication method and net counts as an explicit assumption in the Assumptions Block. The gross count and net deduplicated count must both be reported.
+- **Impact:** High — inflated gross counts directly inflate all downstream effort figures
+- **Status:** Consolidated → merged with IP-LBMX-14 into `## Scope Reconciliation` in `references/estimation-model.md` (Phase 8, Task 6). Path-conditional deduplication guard: inference path (module boundary overlap check) + artifact-access path (bidirectional removal + decomposition expansion).
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-02
+- **Observation:** The `pert-estimation` skill does not declare a reusability reduction factor for engagements where an existing automation framework is already in place. When a client has an active Cypress (or equivalent) framework on a related project, shared components, page objects, and common workflows can be reused — materially reducing Script Development effort. Without a declared factor, estimates default to greenfield effort, overstating cost.
+- **Root Cause:** The Effort Multipliers table covers complexity-based per-test-case effort but has no mechanism to express downward effort adjustment from reusability. The skill assumes net-new scripting effort unless told otherwise.
+- **Suggested Change:** Add a **Reusability Factor** to the Effort Multipliers section of `pert-estimation`. The factor should: (1) be declared only when an existing framework is confirmed (do not infer or assume), (2) apply as a **post-summation multiplier** on the base effort total (e.g., Total × 0.60 for 40% reuse) — *not* as a per-scenario rate reduction; this distinction matters because applying the factor post-summation keeps per-scenario rates calibrated and separates the reuse adjustment from complexity-based sizing, (3) specify the application base clearly: the reusability multiplier is applied to the sum of all scenario efforts at the total level, (4) appear as a named, valued line item in the Assumptions Block and the multiplier summary table. The factor must be declared even when it is 0% (i.e., no reuse possible — state why). Typical range: 0.55–0.85 (15–45% savings depending on shared component depth).
+- **Impact:** Medium — materially affects total engagement cost for existing-framework engagements; applying factor at wrong level (per-row vs. post-summation) produces structurally different and less defensible results
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-03
+- **Observation:** The `pert-estimation` skill has no cross-browser/device efficiency declaration. When automation scripts are written to be browser-agnostic (as is standard in Cypress/Playwright/Selenium), a single script executes across multiple browsers and devices without re-scripting. Without an explicit guard, a system could mistakenly multiply Script Development effort by the number of target browsers or devices — significantly overstating cost.
+- **Root Cause:** The skill defines effort per test case but does not distinguish between scripting effort (once per test) and execution effort (once per browser per test). The distinction is not enforced.
+- **Suggested Change:** Add a **Cross-Browser/Device Efficiency** rule to the Effort Multipliers section: scripting effort is counted once per test case regardless of target browser/device count. Execution cycle effort (in the Execution & Reporting phase) may be multiplied by browser/device count where parallel execution infrastructure is not available. Both values must be declared separately in the estimate. Add a guardrail: do not multiply Script Development hours by browser count unless cross-browser scripting divergence is explicitly evidenced.
+- **Impact:** Medium — prevents a significant overestimate in multi-browser/mobile-enabled engagements
+- **Status:** Consolidated → collapsed into IP-LBMX-02 as a one-line cross-browser guardrail within the Reusability Factor section of `references/estimation-model.md` (Phase 8, Task 4.2). Removed as standalone proposal.
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-04
+- **Observation:** The `pert-estimation` and `estimation-sizing-thinking` skills have no mechanism for two related effort-reduction factors — and more critically, no rule that **scenario count is immutable once established**. The two factors are: (a) **Scenario Normalization** — a parameterized groups of scenarios (wizard-based flows, multi-tenant variants, data-driven paths) require less scripting effort per scenario because they share infrastructure, page objects, and data-driver setup. All scenarios are still automated; the factor reduces the *effort* per parameterizable group, not the scenario count. (b) **Parameterized Consolidation** — execution efficiency gain from parameterized test design, applied as a further effort reduction on the normalization-adjusted total.
+- **Root Cause:** Both skills treat complexity and count as the only effort drivers. They have no post-summation reduction mechanism, and — absent an explicit rule — a system could interpret normalization as reducing the scenario count (e.g., "50 wizard variants → 1 parameterized script") rather than reducing the effort multiplier on a fixed scenario count. This is the wrong model. If variant A and variant B are separate business validations, both must be automated. Parameterization reduces scripting effort for the pair; it does not eliminate either scenario from scope.
+- **Suggested Change:** Add three things to `pert-estimation`: (1) **Immutable Baseline Rule** (placed immediately after the Scope Establishment Pre-Phase): "The WBS scenario count established in scope establishment is fixed for the duration of estimation. Efficiency multipliers reduce effort required to automate those scenarios — they do not eliminate scenarios from scope. Do not adjust scenario count when applying normalization or parameterization factors."; (2) **Scenario Normalization factor** — a named post-summation multiplier applied to the reuse-adjusted effort total, reflecting that parameterizable scenario groups cost less to script than independently scripted equivalents; declare factor value and which module groups qualify; (3) **Parameterized Consolidation factor** — applied to normalization-adjusted total, reflecting execution efficiency (reference value: ×0.95). The application chain must be explicit: *Raw Effort → ×Reuse → ×Normalization → ×Parameterization → Adjusted Total*. Remove the companion note to `estimation-sizing-thinking` Step 2 about "counting unique scenarios not data permutations" — that logic belongs in Scope Establishment (IP-LBMX-13), not in the estimation multiplier step.
+- **Impact:** High — confusing scenario count reduction with effort reduction produces structurally invalid estimates; all scenarios must appear in the delivery baseline regardless of parameterization efficiency gains
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-05
+- **Observation:** The skills do not declare a **WBS alignment note** for engagements where client-side estimates were built using a Work Breakdown Structure (WBS) approach with direct hour assignments per work package. The PERT-based system produces effort ranges (O/ML/P) that are compatible with WBS direct assignments — where the client's direct hours map naturally to the Most Likely (M) input — but this mapping is not documented. Without it, post-run comparison between QE OS PERT output and WBS-based reference estimates is harder to interpret.
+- **Root Cause:** PERT and WBS are complementary approaches but the skill does not call this out, leaving the relationship implicit.
+- **Suggested Change:** Add a short **WBS Compatibility Note** to the PERT Formula section of `pert-estimation`: "When a reference estimate is built using WBS direct hour assignments per work package, those assignments map to the Most Likely (M) input in the PERT formula. O and P are then derived by applying optimistic/pessimistic variance to each work package. This allows PERT ranges to be layered over an existing WBS baseline without re-deriving M from scratch." This is documentation only — no workflow change required.
+- **Impact:** Low — clarity and post-run comparison quality improvement only
+- **Status:** Consolidated → downgraded to a conditional one-line footnote within the PERT Formula section of `pert-estimation/SKILL.md` (Phase 8, Task 4.7). Applies only when a client-provided WBS reference estimate exists. Removed as standalone proposal.
+- **Priority:** Low
+
+---
+
+### Improvement Proposal: IP-LBMX-06
+- **Observation:** The `pert-estimation` skill has no criticality priority classification (P0/P1/P2). The reference estimation workbook uses a separate priority dimension — P0 (mission critical), P1 (important), P2 (lower priority) — applied per sub-module row, independent of complexity (Simple/Medium/Complex/HC). Priority drives phasing decisions and risk-based sequencing: P0 items are automated first, P2 last. Without this, the skill produces effort totals but no criticality-driven ordering mechanism — making it impossible to produce a defensible "automate this first" phasing recommendation.
+- **Root Cause:** The skill's tier system (Smoke/Sanity/Regression/Functional/Integration/E2E) addresses *test type* coverage, not *business criticality*. These are orthogonal dimensions: a Functional test can be P0 or P2 depending on the sub-module it covers. The skill has no construct for criticality.
+- **Suggested Change:** Add a **Criticality Priority Classification** step to `pert-estimation`, applied per test group or sub-module before phasing recommendations are made. The step must: (1) define P0/P1/P2 levels (P0 = mission-critical, financially gated, or compliance-relevant; P1 = operationally important; P2 = lower priority / edge cases / language variants), (2) produce a priority distribution by sub-module or tier, (3) feed directly into the phase effort breakdown — Phase 1 / pilot scope targets P0 items, Phase 2 targets P1, Phase 3 targets P2. The priority classification must be declared as an assumption with rationale — do not assign priorities without evidence.
+- **Impact:** High — without criticality ordering, phasing recommendations default to arbitrary sequencing rather than risk-based prioritization, which weakens the proposal's defensibility
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-07
+- **Observation:** The `pert-estimation` skill estimates total effort per test case but does not split UI automation effort from non-UI effort (API validation, data verification, backend assertions). The reference estimation workbook explicitly separates "UI base (hrs)" columns from total effort columns, implying non-UI effort is costed on top of the UI base. Without this split, automation proposals either silently undercount non-UI effort (if total = UI only) or cannot defend how non-UI work was accounted for.
+- **Root Cause:** The Effort Multipliers table (Tier × Complexity) produces a per-test-case total without distinguishing automation layer. For test cases that involve API responses, database validation, document output verification, or EFT/GL integration checks, the UI-only base significantly understates total script development effort.
+- **Suggested Change:** Add a **UI vs Non-UI effort declaration** to the `pert-estimation` output format. At a minimum: (1) the estimate must declare whether the per-test-case effort figures include non-UI verification or are UI-only, (2) for test groups with known non-UI components (API assertions, DB validation, integration checks), declare a separate effort line or an additive percentage for non-UI work, (3) add a guardrail: do not assume UI-only effort when the test scope includes external integrations, document generation, or data pipeline validation. This does not require a full separate effort table — a declared split and rationale is sufficient.
+- **Impact:** Medium — most significant for complex integration-heavy engagements (Reconcile Management, GL XML, EFT processing, Document Manager)
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-08
+- **Observation:** The `pert-estimation` skill has no double-counting guard when multiple effort reduction factors are applied in sequence. The reference estimation workbook explicitly declares (A13): "The 40% reuse factor applies to shared code, utilities, and components, *not* additional scenario consolidation." The workbook resolves this by applying Reuse and Normalization as separate named multiplier rows each anchored to a declared base — Reuse at post-summation base, Normalization on top of reuse-adjusted total, Parameterization on normalization-adjusted total. Without an equivalent declaration structure, a system applying these factors could anchor multiple reductions to the wrong base or apply overlapping factors to the same effort component.
+- **Root Cause:** The three reduction factors target different things: Reusability = fewer scripts to write (shared components); Scenario Normalization = fewer unique scripts via parameterization; Parameterized Consolidation = execution cycle efficiency. They are applied **sequentially to different bases** — the output of each step becomes the input of the next. Without explicit sequencing and base declarations, the same reduction can be double-applied, or the chain can be applied out of order.
+- **Suggested Change:** Add a **Multi-Factor Reduction Declaration** requirement to the Effort Multipliers section of `pert-estimation`. Each declared multiplier must state: (1) its **application base** — which total it multiplies from (e.g., "Normalization applies to the Reuse-adjusted total, not to the raw base"); (2) its **application order** in the chain; (3) what it covers and explicitly what it does not cover (citing A13 pattern). Produce a stacking summary table: `Raw Base → × Reuse [factor, base=Raw] → × Normalization [factor, base=Reuse-adjusted] → × Parameterization [factor, base=Norm-adjusted] → Adjusted Total`. This must appear in the Assumptions Block. Prohibit computing a combined multiplier and applying it in a single step — the chain must be shown step-by-step.
+- **Impact:** High — without this, factors can be incorrectly chained (e.g., Normalization anchored back to raw base instead of reuse-adjusted), or combined into a single opaque multiplier that cannot be reviewed or challenged
+- **Status:** Consolidated → merged into IP-LBMX-04 as the Multi-Factor Reduction Declaration requirement in `references/estimation-model.md` § Multiplier Chain (Phase 8, Task 4.5). Chain declaration is a sub-requirement of IP-LBMX-04. Removed as standalone proposal.
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-09
+- **Observation:** The `pert-estimation` skill's Assumptions Block has no mechanism to flag specific assumptions as requiring client confirmation before the estimate is locked. The reference estimation workbook explicitly marks A1b, A4, A7, A12, A13 as "Client Confirmation Required" and includes a formal validity note: "This estimate remains valid subject to fulfillment of Assumptions A1b, A4, A7, A12, and A13. Deviations may require effort recalibration through formal change control." Without this mechanism, all assumptions are implicitly treated as provisionally accepted, which understates the governance risk and leaves the vendor exposed if unconfirmed assumptions prove wrong post-award.
+- **Root Cause:** The Assumptions Block format in `pert-estimation` uses a flat "Assumption N: [what] — if incorrect: [impact]" structure with no differentiation between internally-held assumptions and externally-dependent ones that require client confirmation.
+- **Suggested Change:** Add a **Client Confirmation Required** tag to the Assumptions Block format. Mark assumptions that are client-controlled (access, environment readiness, data availability, scope stability, SME availability) with a `[CLIENT CONFIRMATION REQUIRED]` flag. Add a mandatory validity statement to the assumptions section: "This estimate remains valid subject to fulfillment of [list flagged assumption IDs]. Deviations exceeding 15% from declared assumptions trigger formal change control." The flagged assumption IDs should also be surfaced in the final output's executive summary.
+- **Impact:** Medium — governance and defensibility quality; directly reduces post-award credibility risk when confirmed assumptions prove false
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-10
+- **Observation:** The `pert-estimation` skill produces scenario/test counts as sizing inputs but never declares the final net count as a formal **change control baseline**. The reference estimation workbook explicitly uses the deduplicated scenario count ("8,916-scenario baseline" in A9) as the trigger for formal change control: "Functional scope changes will follow formal change control using the 8,916-scenario baseline as reference." Without this, estimates have no anchor against which scope growth can be measured — making the estimate defensible at submission but unenforceable post-award.
+- **Root Cause:** The skill is scoped to produce effort figures, not delivery governance controls. The scenario count is used internally for sizing but is not surfaced as a lockable reference point in the output.
+- **Suggested Change:** Add a **Scope Baseline Declaration** to the `pert-estimation` Output Format, as a required element alongside the Assumptions Block. The declaration must: (1) state the net deduplicated scenario count used as the sizing basis, (2) note that this count constitutes the scope baseline for change control, (3) declare the variance threshold that triggers formal change control (recommend ≥15% increase in scope without corresponding estimate recalibration). This is a documentation-only addition — no workflow change required.
+- **Impact:** Medium — directly improves post-award scope management and prevents uncontrolled scope growth from eroding engagement profitability
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-11
+- **Observation:** The `pert-estimation` skill output does not include a Risk Register alongside the Assumptions Block. The reference estimation workbook pairs 14 named risks (R1–R14) with Likelihood, Impact, and Mitigation columns directly adjacent to the assumptions. Producing assumptions without paired risks creates an incomplete governance picture — assumptions declare what is relied upon, but risks declare what happens when those reliances fail under real-world conditions. Without a risk register, the estimate appears optimistically framed and may not survive scrutiny from an experienced procurement evaluator.
+- **Root Cause:** The skill's output format was designed around a simplified assumption-confidence model. Risk register production was implicitly assumed to be the responsibility of `assumption-dependency-management` — but that skill is not always invoked alongside `pert-estimation`, and the two outputs are not formally linked in the workflow.
+- **Suggested Change:** Add a lightweight **Risk Register** to the `pert-estimation` Output Format as a standard section (not optional). Minimum structure: Risk ID, Risk description, Likelihood (Low/Medium/High), Impact (Low/Medium/High), Mitigation strategy. Each assumption flagged as Client Confirmation Required (IP-LBMX-09) should have at least one corresponding risk entry covering the "assumption proves false" scenario. Note in the skill: "For engagements requiring a full risk register, invoke `assumption-dependency-management` — this skill produces a minimum viable risk register sufficient for estimation output only."
+- **Impact:** Medium — strengthens defensibility and completeness of client-facing estimation output; closes the gap between assumption declaration and risk disclosure
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-12
+- **Observation:** The `pert-estimation` skill does not declare its **estimation unit** — the fundamental object being sized. This matters differently depending on engagement type. When client test artifacts are available (uncommon — LBMX was an exception), the estimation unit is the **WBS Level-3 automation scenario**: a single, independently automatable business validation derived by decomposing multi-step manual test cases. Each validation step becomes its own scenario, so scenario count can exceed raw manual test case count. In the more common case — where no test artifacts are available — the estimation unit must be inferred from functional scope (module list, RFP feature descriptions, functional spec), and scenarios are estimated rather than counted. The base effort rates are calibrated per unit (ML: Simple=2.5h, Medium=4.5h, Complex=9h, HC=14h per scenario). Applying test case rates to a scenario count, or treating inferred scenario counts as if they were artifact-derived, produces wrong totals with no error signal.
+- **Root Cause:** The skill defines effort rates per "test case" without declaring (a) what unit those rates apply to, or (b) which input path was used to arrive at the count — artifact-derived vs. inference-based. These are structurally different inputs with different confidence levels and different review processes.
+- **Suggested Change:** Add an **Estimation Unit Declaration** as the first required output element of `pert-estimation`, with two declared fields: (1) **Unit type**: "Automation Scenarios (WBS Level-3, artifact-derived)" or "Automation Scenarios (inferred from functional scope)"; (2) **Derivation path**: how the count was reached. When artifact-derived: note that multi-step manual test cases were decomposed into atomic scenarios — one validation step = one scenario. When inference-based (the default for most RFP engagements): declare the assumption basis (e.g., module count × estimated scenario density, or functional feature count × complexity weighting) and flag the count as an estimate with stated confidence. Incorrect unit-rate pairing must be treated as a halting condition regardless of derivation path.
+- **Impact:** High — the distinction between artifact-derived and inferred scenario counts affects the confidence level, the review process, and the appropriate contingency buffer; treating an inferred count as if it were artifact-verified overstates precision
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-13
+- **Observation:** The `pert-estimation` skill receives a scenario count as input but has no declared **Scope Establishment Pre-Phase** — the work required to arrive at that count from raw inputs. This phase exists in two distinct forms depending on engagement type, and the skill handles neither explicitly: (a) **Artifact-access path** (rare — LBMX was an exception): client provides their full test repository; team must review each file, map to WBS modules, decompose multi-step manual test cases into atomic automation scenarios, classify complexity, assign priority, and reconcile overlaps. For 272 files this is a multi-week effort. (b) **Inference-based path** (the default for most RFP engagements): no test artifacts are available; the team derives scenario counts from functional scope — module lists, RFP feature descriptions, epic/story counts, or functional spec coverage areas — combined with experience-based scenario density estimates per module type. Both paths produce a scenario count that feeds estimation, but with different effort costs, different confidence levels, and different validity conditions. Neither is currently declared in the skill.
+- **Root Cause:** `pert-estimation` begins at the point where a scenario count exists. It has no concept of the upstream work that produced that count or the confidence level it carries, which means (a) the effort to produce it is unpriced, and (b) the downstream estimate carries implied precision it doesn't have.
+- **Suggested Change:** Add a **Scope Establishment Pre-Phase** declaration to `pert-estimation` before sizing begins. The declaration must: (1) state which path applies: artifact-access or inference-based; (2) for artifact-access: declare the five activities (artifact review, WBS mapping, manual-test decomposition, complexity classification, priority assignment, cross-artifact reconciliation) and estimate effort at 2–5% of projected base total; (3) for inference-based (default): declare the derivation basis (module list, feature count, domain density assumptions), state the confidence level explicitly ("Estimated ± 30% — no artifact verification"), and increase the risk contingency overhead accordingly; (4) in both cases: output an explicit scenario count with derivation path label before PERT sizing begins. The inference-based path is the skill's normal operating mode — artifact access is a premium engagement condition, not the default.
+- **Impact:** High — unpriced scope establishment effort and undeclared count confidence are the two most consistent sources of post-award estimation disputes; surfacing both at the output level prevents them
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-14
+- **Observation:** IP-LBMX-01 (Test Deduplication Guard) was written with the implicit assumption that reconciliation always *reduces* the test count. In practice, when artifact access is available, scope establishment is **bidirectional**: it removes overlaps AND structurally expands count through decomposition of multi-step manual test cases into atomic automation scenarios. The LBMX engagement — where full test artifact access was available — confirms this: raw count from ~272 manual test files ≈ 8,900, but WBS-mapped automation scenario count = 8,916 (net *increase* of +0.2%). The expansion was concentrated in rule-heavy areas: Rebate Categorization, GL Coding, Auto Reconcile, Rebate Genius, and Exports. However: **this bidirectional behaviour only applies when artifact access exists**. In the inference-based path (the default for most RFP engagements), there are no raw test files to decompose, so the deduplication guard is relevant in a different form — preventing double-counting of scenarios estimated across overlapping functional areas (e.g., the same integration boundary estimated once in Module A and again in Module B's cross-cutting scope).
+- **Root Cause:** IP-LBMX-01 was written for artifact-access engagements. Its deduplication model has two blind spots: (a) it doesn't model the expansion direction (decomposition adds scenarios); (b) it doesn't define the equivalent guard for inference-based engagements (where the overlap risk is double-counting estimated scope, not duplicate test files).
+- **Suggested Change:** Amend the **Test Deduplication Step** from IP-LBMX-01 to be path-conditional: *Artifact-access path*: model bidirectionally — removal (overlapping test files) and expansion (decomposed sub-scenarios); output four metrics: raw artifact count, removed, added, net; include the warning "Net scenario count may exceed raw file count after decomposition. This is expected.". *Inference-based path (default)*: deduplication guard applies to scope overlap — when scenario counts are estimated per module independently, flag any module boundaries where the same functional area may have been estimated twice (e.g., integrations claimed from both sides); require a cross-module overlap check before the scenario baseline is locked. In both cases: the Scope Baseline Declaration (IP-LBMX-10) must reference the post-reconciliation net count with its derivation path labelled.
+- **Impact:** Medium — the deduplication guard is relevant in both paths but for structurally different reasons; a single undifferentiated rule will be incorrectly applied in one or the other
+- **Status:** Consolidated → merged with IP-LBMX-01 into `## Scope Reconciliation` in `references/estimation-model.md` (Phase 8, Task 6). IP-14 provides the bidirectionality model (artifact path); IP-01 provides the inference-path overlap guard. LBMX-14 leads as the more complete model.
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-15
+- **Observation:** The `pert-estimation` skill's PERT Formula and Output Format sections cover only the core script development effort and a limited set of enablement overheads (Framework Establishment, CI/CD Integration, Data Utilities). They do not include four significant overhead categories present in the reference estimation workbook: (1) **Stabilization** (5.5% of adjusted base) — post-deployment defect findings, retesting, and framework stability work; (2) **Build Phase Maintenance** (5%) — ongoing test maintenance during active sprints while the build is in motion; (3) **Risk Contingency** (5%) — buffer for scope uncertainty, integration surprises, access delays; (4) **Governance and Reporting** (2%) — status reporting, review sessions, metrics dashboards, steering committee artifacts. Combined, these four categories add 17.5% to the post-multiplier adjusted base effort. Omitting them produces a structurally incomplete estimate that will be challenged as unrealistic by any experienced QA delivery manager.
+- **Root Cause:** The skill was designed to size the core automation development work. Overhead categories were treated as delivery concerns outside the estimation scope. In practice, RFP-grade estimates are expected to include these categories — their absence signals an inexperienced costing model.
+- **Suggested Change:** Add a **Delivery Overhead Categories** section to `pert-estimation` Output Format, applied as percentage additions to the post-multiplier adjusted base (the figure after all reduction factors are applied). Four required categories with reference percentages (to be declared as assumptions, adjustable by engagement): Stabilization (reference: 5–6%), Build Phase Maintenance (reference: 4–6%), Risk Contingency (reference: 3–7%), Governance and Reporting (reference: 1–3%). Each category percentage applies to the same adjusted base (post-Parameterization total). Produce a subtotal for overheads and add to adjusted base to reach the **Delivery-Ready Total**. Note: overhead percentages must be declared as assumptions, not hardcoded — engagements with fixed scope, clean environments, or low governance requirements may reduce or waive specific categories.
+- **Impact:** High — a proposal that omits these categories will be immediately identified as incomplete by client QA Managers; the gap between adjusted base and delivery-ready total is typically 15–20%, which is material to commercial viability
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-LBMX-16
+- **Observation:** The `pert-estimation` skill calculates enablement overheads (Framework Alignment, Data Utilities, KT and Handover) as flat percentages of the base effort. The reference estimation workbook uses **MIN-capped formulas** for these same categories: `MIN(cap, base × %)`. For example: Framework Alignment = `MIN(200h, base × 3%)` — on a 9,145h adjusted base, 3% = 274h but is capped at 200h. Without this cap, flat percentage calculations overstate enablement costs as engagement size grows, because infrastructure effort does not scale linearly with scenario count beyond a threshold. On large engagements, the uncapped flat % approach can overstate Framework Alignment effort alone by 30–40%.
+- **Root Cause:** The skill uses percentages for computational simplicity. The implicit model is that enablement scales proportionally with engagement size. This is only valid up to a scale threshold — above ~6,000–8,000 hrs, a single framework alignment effort does not keep growing proportionally; it hits an infrastructure ceiling.
+- **Suggested Change:** Replace flat percentage calculations for enablement overheads in `pert-estimation` with **MIN-capped formulas**. Recommended structure: `MIN(cap_hours, adjusted_base × rate%)`. Reference values from LBMX workbook: Framework Alignment `MIN(200h, base×3%)`, Data Utilities `MIN(350h, base×1.5%)`, KT and Handover `MIN(250h, base×1%)`. CI/CD Integration: retain as fixed hours (independent of scenario count). Caps must be declared as assumptions — different environments or complexity levels may warrant adjustment. Add a note: "On engagements where adjusted base exceeds ~6,700h, MIN caps will activate and limit enablement overhead growth. Declare which caps are active in the Assumptions Block."
+- **Impact:** Medium — most impactful on large-scale engagements (>400 scenarios, adjusted base >6,000h); prevents systematic overcharging of enablement overhead; improves commercial accuracy and defensibility under client scrutiny
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LBMX-17
+- **Observation:** The reference estimation workbook labels Row 301 as "Scenario Normalization 25%" but the actual sequential factor applied is ×0.45 (not ×0.75). Verification: Row 300 ML = 21,392; Row 301 ML = 9,627; 9,627 / 21,392 = 0.450 exactly — confirmed across all three effort columns (P, ML, O). The factor ×0.75 (a 25% reduction) would produce Row 301 ML = 16,044, which is 66% higher than the workbook value. This discrepancy exists between the row label and the computed factor in the workbook. Without resolution, any system following the label (×0.75) will produce an adjusted base of ~15,242 ML hrs rather than the workbook's 9,145 ML hrs — a 67% overstatement of post-normalization effort.
+- **Root Cause:** The label "25%" may describe the proportion of scenarios eligible for normalization (25% of scenarios qualify), with the full effort impact being a deeper cut on those qualifying scenarios — but neither the eligible proportion nor the per-group reduction rate is declared in the workbook row. The discrepancy is also consistent with an unlabelled second factor being applied without a dedicated row.
+- **Suggested Change:** Add a **Factor Declaration Completeness Rule** to the estimation multiplier chain: each percentage label on a multiplier row must correspond to the actual sequential factor applied. If a label reads "Normalization 25%" but the factor applied is ×0.45, the row must either: (a) explain the derivation (e.g., "25% of scenarios eligible × 40% sub-reduction on qualifying group = combined ×0.85 on total" — or whatever the correct derivation is), OR (b) relabel as the actual factor applied. Opaque labels that do not match their numeric effect are a transparency and audit risk. This is a labelling and governance standard for estimation workbooks, not a model change. LBMX workbook discrepancy (label "25%", actual factor ×0.45) is the motivating example — retained as reference case; no LBMX-specific numbers hardcoded into the principle.
+- **Impact:** High — a large variance between declared label and applied factor cannot be explained away under client scrutiny; any manual recreation of the estimate from the label alone will produce a structurally different number
+- **Status:** Proposed (reduced to universal governance principle — LBMX-specific numbers stripped per Phase 8 Task 0.5)
+- **Priority:** High
+
+---
+
 ### Improvement Proposal: IP-P3-03
 - **Observation:** `evidence-extraction/SKILL.md` is 301 lines — the largest skill file in the system. It is loaded in full at Stage 1 and carries significant structural detail: finding formats, RFP question extraction rules, missing evidence format, Value Claim Trace block, contradiction handling, guardrails, and handoff.
 - **Root Cause:** Evidence extraction is a multi-responsibility task by nature — it must handle multiple artifact types, multiple finding categories, and multiple output formats. However, the file is approaching a size where further additions would meaningfully inflate Stage 1 context loading.
@@ -14,6 +184,58 @@
 - **Impact:** Low
 - **Status:** Proposed
 - **Priority:** Low
+
+---
+
+## Design Review — Conditionality & Engagement-Model Analysis
+
+> Recorded: March 2026 — LBMX estimation deep-dive session.
+> Purpose: Captures analysis of which proposals are universal vs. conditional, and user observations that refine scope before implementation.
+
+### User Observations Analysis
+
+| ID | User Observation | Assessment | Implementation Implication |
+|---|---|---|---|
+| **General** | Multipliers are proposal-dependent; agile/sprint-embedded QA means per-phase scope isn't possible without backlog or WBS visibility | Valid structural constraint — not just a caveat. Scope visibility varies by engagement model. | Skill must declare three operating modes: Upfront/WBS-based, Inference-based, Capacity-based (agile). Multipliers only apply in Upfront mode. |
+| **IP-LBMX-02** | Not all proposals have existing frameworks; some require discovery + framework creation using accelerators that need modification | Agreed — reality is a spectrum: greenfield, partial reuse, existing framework. Accelerator onboarding effort is currently absent from skill entirely. | Model three cases explicitly. Add accelerator adoption + modification as a named effort item in greenfield/partial scenarios. Not just a reduction factor. |
+| **IP-LBMX-04** | Scenario normalization factor may not apply to all proposals | Agreed — normalization is conditional on parameterizable scenario patterns existing in scope. | Immutable baseline rule stays universal. Normalization and parameterization factors declared as conditional additions — applied only when qualifying patterns are evidenced; skipped and noted otherwise. |
+| **IP-LBMX-05** | WBS compatibility note is proposal-dependent — only relevant when client shares a WBS | Agreed. No WBS to compare against in inference-based or capacity-based engagements. | Implement as conditional footnote only. Not a structural skill addition. |
+| **IP-LBMX-06** | Criticality classification only applies if WBS or test cases are present | Partially agreed. Artifact presence improves precision but P0/P1/P2 can be assigned at module/feature level from business risk analysis alone — no artifacts required. | Apply when evidence exists; flag as assumed/inferred otherwise. Making it fully conditional on artifacts would remove it from most RFP proposals where it's most needed. |
+| **IP-LBMX-15** | Choose only the most important and relevant delivery overhead categories | Agreed. Four categories have different universality. | Mandate: Risk Contingency + Stabilization (universal). Conditional: Build Phase Maintenance (agile/ongoing delivery only), Governance and Reporting (steering committee / formal governance present). |
+
+### Full Proposal Conditionality Review
+
+| ID | Conditional or Universal | Engagement-Model Dependency | Revised Disposition |
+|---|---|---|---|
+| **IP-LBMX-01** | Conditional on input type | Artifact-access: deduplication of test files. Inference-based: overlap guard across estimated modules. Capacity-based: N/A. | Consolidate with IP-LBMX-14 — same concern at different stages of the same workflow. |
+| **IP-LBMX-02** | Conditional on framework status | Greenfield needs accelerator onboarding cost. Partial reuse needs adaptation effort. Existing framework needs reduction factor. | Expand to three-case model. Add accelerator effort as a missing item (not covered by any current proposal). |
+| **IP-LBMX-03** | Conditional on browser scope | Only relevant when multi-browser coverage is in scope. Modern frameworks abstract this natively. | Collapse into IP-LBMX-02 as a one-line guardrail. Remove as standalone proposal. |
+| **IP-LBMX-04** | Mixed — baseline rule is universal; multipliers are conditional | Normalization and parameterization only applicable in Upfront/WBS mode with qualifying scenario patterns. | Baseline rule: universal. Factors: conditional. Merge IP-LBMX-08 chain declaration into this proposal. |
+| **IP-LBMX-05** | Conditional — client WBS must exist | Only relevant in Upfront/WBS mode when a client reference estimate is available. | One-line conditional footnote only. Do not implement as structural addition. |
+| **IP-LBMX-06** | Conditional on scope visibility | Full classification requires WBS or test artifacts. Module-level assignment from business risk is always possible. | Always declare; qualify confidence level based on evidence depth. Not gated on artifacts. |
+| **IP-LBMX-07** | Conditional on automation scope | Only applies when integration/backend/API validation is in scope alongside UI. | Trigger on scope: if non-UI validation is in scope, declaration required; otherwise silent. |
+| **IP-LBMX-08** | Conditional on number of multipliers | Chain declaration only relevant when two or more reduction factors are applied. | Merge into IP-LBMX-04. Remove as standalone. |
+| **IP-LBMX-09** | Universal | Client-controlled dependencies exist in every engagement regardless of model. | Implement as-is. No conditionality needed. |
+| **IP-LBMX-10** | Conditional on estimation mode | In Upfront mode: scenario count is the anchor. In Capacity-based mode: team size × duration is the anchor; no fixed scenario baseline exists. | Make mode-conditional. Declare appropriate baseline type per mode. |
+| **IP-LBMX-11** | Universal in intent; depth is engagement-dependent | Risk register always useful. Depth scales with submission type and commercial exposure. | Tiered trigger: lightweight (3–5 risks) for estimates ≤500h; full register for RFP/governance submissions. |
+| **IP-LBMX-12** | Universal — two-path model already handles conditionality | Artifact-derived vs inference-based already declared. | Implement as-is. Add capacity-based as a third path declaration. |
+| **IP-LBMX-13** | Needs third mode | Current two paths (artifact-access, inference-based) miss capacity-based agile mode where scope establishment is ongoing, not front-loaded. | Add capacity-based mode: no upfront scenario baseline; scope establishment deferred to kickoff; estimation basis is team capacity × sprint velocity. |
+| **IP-LBMX-14** | Conditional on input type | Artifact-access: bidirectional (removal + decomposition expansion). Inference-based: module boundary double-counting guard. | Consolidate with IP-LBMX-01. Lead with inference path as the default case. |
+| **IP-LBMX-15** | Mixed — two categories universal, two conditional | Risk Contingency + Stabilization: universal. Build Phase Maintenance: agile/ongoing only. Governance and Reporting: formal governance engagements only. | Implement two-tier model. Universal categories always present. Conditional categories declared with trigger conditions. |
+| **IP-LBMX-16** | Universal formula; scale-dependent activation | MIN-cap activates above ~6,000h. Below that, produces identical result to flat %. | Implement universally — it's simply more accurate at all scales. Cap threshold noted as assumption. |
+| **IP-LBMX-17** | Universal governance rule | Applies to any multiplier row in any engagement — labels must match applied factors. | Implement principle universally. Strip LBMX-specific numbers. Reference the workbook discrepancy as the motivating example only. |
+
+### Cross-Cutting: Estimation Mode Framework
+
+> This is the structural pattern underlying most conditionality issues identified above. Skills should declare which mode is in use before any sizing begins.
+
+| Mode | When It Applies | Scope Visibility | Multiplier Applicability |
+|---|---|---|---|
+| **Upfront / WBS-based** | Full scope defined before engagement starts; client provides WBS, feature list, or test repository | High — scenario baseline fixed upfront | All multipliers applicable where conditions are met |
+| **Inference-based** | RFP response; no WBS or test artifacts available; scope inferred from module descriptions and domain experience | Medium — count is estimated, confidence declared (±30%) | Most multipliers applicable conditionally; normalization/parameterization require qualifying evidence |
+| **Capacity-based** | Agile/sprint-embedded QA; scope emerges from backlog incrementally; no upfront scenario count possible | Low — no fixed baseline at proposal time | Multipliers largely inapplicable; estimation basis is team size × sprint velocity × automation velocity |
+
+**Required action:** IP-LBMX-04, IP-LBMX-10, IP-LBMX-13 must each declare which mode(s) they apply to before the proposed skill changes are drafted. Mode declaration should be the first step in the Scope Establishment Pre-Phase (IP-LBMX-13).
 
 ---
 
