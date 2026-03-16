@@ -252,9 +252,9 @@
 ---
 
 ### Improvement Proposal: IP-P3-02
-- **Observation:** The Value Claim Trace block (Task 3) adds ~5 lines per quantified claim in `memory.md`. A claim-heavy RFP (15–20 quantified benefit claims) could add 75–100 lines to `memory.md`, accelerating how quickly the 250-line summarisation threshold is reached and potentially triggering premature summarisation before all agents have used the full findings.
-- **Root Cause:** Value Claim Trace blocks are appended inline with findings rather than in a separate section of `memory.md`. High-claim engagements will inflate the primary findings section of memory.md disproportionately.
-- **Suggested Change:** Consider adding a dedicated `## Value Claim Traces` section to the `memory.md` schema, so that quantified claim validation blocks are stored separately from the primary finding list. This keeps the primary findings section compact while preserving full traceability. Evaluate in the first live engagement where Value Claim Trace is triggered.
+- **Observation:** The Value Claim Trace block (Task 3) adds ~5 lines per quantified claim in `claude-memory/memory.md`. A claim-heavy RFP (15–20 quantified benefit claims) could add 75–100 lines to `claude-memory/memory.md`, accelerating how quickly the 250-line summarisation threshold is reached and potentially triggering premature summarisation before all agents have used the full findings.
+- **Root Cause:** Value Claim Trace blocks are appended inline with findings rather than in a separate section of `claude-memory/memory.md`. High-claim engagements will inflate the primary findings section of claude-memory/memory.md disproportionately.
+- **Suggested Change:** Consider adding a dedicated `## Value Claim Traces` section to the `claude-memory/memory.md` schema, so that quantified claim validation blocks are stored separately from the primary finding list. This keeps the primary findings section compact while preserving full traceability. Evaluate in the first live engagement where Value Claim Trace is triggered.
 - **Impact:** Medium
 - **Status:** Implemented
 - **Priority:** Medium
@@ -282,9 +282,9 @@
 ---
 
 ### Improvement Proposal: IP-P3-06
-- **Observation:** Phase 3 introduced three constructs that write to `memory.md` beyond simple findings: (a) Value Claim Trace blocks (~5 lines/claim), (b) Extraction Completeness Declaration appended at Stage 2 handoff (will accumulate on re-runs), (c) Gap Coverage report written to memory.md at Stage 3 (one row per finding — 50+ lines on large RFPs).
-- **Root Cause:** All three write to memory.md without containment rules. The 250-line summarisation threshold can be hit before Stage 4 agents begin analysis on claim-heavy or high-finding engagements.
-- **Suggested Change:** Three targeted fixes: (a) Implement IP-P3-02 — separate `## Value Claim Traces` section in memory.md schema; (b) Add overwrite-not-append rule to evidence-extraction/SKILL.md Handoff — the Extraction Completeness Declaration is an operational status block, not a finding; (c) Route Gap Coverage report to `notes.md` instead of memory.md — it is a stage output, not a persistent finding.
+- **Observation:** Phase 3 introduced three constructs that write to `claude-memory/memory.md` beyond simple findings: (a) Value Claim Trace blocks (~5 lines/claim), (b) Extraction Completeness Declaration appended at Stage 2 handoff (will accumulate on re-runs), (c) Gap Coverage report written to claude-memory/memory.md at Stage 3 (one row per finding — 50+ lines on large RFPs).
+- **Root Cause:** All three write to claude-memory/memory.md without containment rules. The 250-line summarisation threshold can be hit before Stage 4 agents begin analysis on claim-heavy or high-finding engagements.
+- **Suggested Change:** Three targeted fixes: (a) Implement IP-P3-02 — separate `## Value Claim Traces` section in claude-memory/memory.md schema; (b) Add overwrite-not-append rule to evidence-extraction/SKILL.md Handoff — the Extraction Completeness Declaration is an operational status block, not a finding; (c) Route Gap Coverage report to `claude-memory/notes.md` instead of claude-memory/memory.md — it is a stage output, not a persistent finding.
 - **Impact:** Medium
 - **Status:** Implemented
 - **Priority:** Medium
@@ -292,9 +292,9 @@
 ---
 
 ### Improvement Proposal: IP-P3-07
-- **Observation:** The memory.md summarisation threshold is 250 lines. With Value Claim Trace blocks, the Extraction Completeness Declaration, and the Gap Coverage report all writing to memory.md, a medium-complexity RFP (20+ findings, 10+ quantified claims) will reach the 250-line threshold by end of Stage 3 — before any agent analysis begins at Stage 4.
-- **Root Cause:** Threshold was set before Phase 3 additions. Phase 3 materially increased the per-engagement write volume to memory.md.
-- **Suggested Change:** Lower threshold to 200 lines, or implement IP-P3-02 + IP-P3-06(c) first (separating Value Claim Traces and routing Gap Coverage to notes.md), which effectively raises the functional headroom without changing the threshold. The two approaches are complementary — implement structural separation first, then reassess whether threshold adjustment is still needed.
+- **Observation:** The claude-memory/memory.md summarisation threshold is 250 lines. With Value Claim Trace blocks, the Extraction Completeness Declaration, and the Gap Coverage report all writing to claude-memory/memory.md, a medium-complexity RFP (20+ findings, 10+ quantified claims) will reach the 250-line threshold by end of Stage 3 — before any agent analysis begins at Stage 4.
+- **Root Cause:** Threshold was set before Phase 3 additions. Phase 3 materially increased the per-engagement write volume to claude-memory/memory.md.
+- **Suggested Change:** Lower threshold to 200 lines, or implement IP-P3-02 + IP-P3-06(c) first (separating Value Claim Traces and routing Gap Coverage to claude-memory/notes.md), which effectively raises the functional headroom without changing the threshold. The two approaches are complementary — implement structural separation first, then reassess whether threshold adjustment is still needed.
 - **Impact:** Medium
 - **Status:** Implemented
 - **Priority:** Medium

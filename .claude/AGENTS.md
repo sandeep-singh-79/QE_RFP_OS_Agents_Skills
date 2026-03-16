@@ -197,6 +197,7 @@ Agents must load only the memory and workspace files relevant to their role. Loa
 |---|---|---|
 | Conductor (Stages 0–3) | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `plan.md` | `evidence-extraction` |
 | Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md` | `evidence-reconciliation`, `.claude/governance.md` |
+| Conductor (Stage 9) | `plan.md` | `review-challenge-thinking` |
 | Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
 | QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `assumption-dependency-management` |
 | Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
@@ -324,21 +325,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Output:     Capability coverage table — Capability / Status / Recommendation
 
   **Blocking HITL condition — Stage 3.5:**
-  After producing the capability coverage table, check every `Missing` domain. If **any** domain is `Missing` AND no planned remediation is declared in the current engagement context, halt and raise:
-
-  ```
-  ⚠ BLOCKING HITL — Stage 3.5 Capability Gap
-  Domain(s): [list each Missing domain]
-  Issue: One or more capability domains have no evidence and no declared remediation path.
-  Impact: Stage 4 (Solution Design) cannot proceed — the Test Architect would design an architecture
-          with no baseline for these domains, producing an output that is structurally incomplete.
-  Required: Confirm one of the following for each Missing domain before advancing:
-    (a) "This domain is out of scope for this engagement — reason: [state reason]"
-    (b) "This domain will be addressed in the solution design at Stage 4"
-    (c) "Discovery Maturity = Constrained; this gap is expected and will be deferred to transition"
-  ```
-
-  Stage 4 may not begin until a human response is received for each `Missing` domain. A confirmed `Out of Scope` or `Deferred to Transition` response satisfies the condition — it does not need to become `Present`. The absence of evidence is acceptable; the absence of acknowledgement is not.
+  After producing the capability coverage table, the capability-coverage skill applies its HALT Protocol (see `.claude/skills/capability-coverage/SKILL.md` — `## HALT Protocol` for the authoritative procedure, response options, and gate logic). Stage 4 may not begin until every `Missing` domain has a declared remediation or human HITL confirmation. The absence of evidence is acceptable; the absence of acknowledgement is not.
 
 > **Optional — Question → Capability Mapping:** If RFP questions exist in artifacts and Stage 3.5 is complete, the Test Architect may invoke the `question-capability-mapping` skill before Stage 4. Activation requires: (1) RFP questions present in artifacts, (2) Stage 4 not yet started, (3) Stage 3.5 complete. The skill maps question wording to underlying capability expectations and writes results to `claude-memory/notes.md`. See `.claude/skills/question-capability-mapping/SKILL.md` for HALT conditions.
 

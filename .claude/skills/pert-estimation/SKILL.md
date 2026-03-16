@@ -31,6 +31,7 @@ This skill may load **only**:
 
 - `claude-memory/memory.md` — for findings relevant to scope, scale, test complexity, and platform count
 - `claude-memory/notes.md` — for any sizing context or scoping decisions from earlier stages
+- `.claude/references/estimation-model.md` — mode-conditional model parameters, multiplier chain, overhead categories, and scope establishment activities
 - Artifacts referenced in `claude-memory/artifacts.md` that contain sizing-relevant information (e.g., test inventory, application count, CI/CD pipeline description)
 
 It must **not** load `claude-memory/insights.md`, `claude-memory/decisions.md`, or `claude-memory/improvements.md` unless a specific sizing task requires prior engagement patterns.

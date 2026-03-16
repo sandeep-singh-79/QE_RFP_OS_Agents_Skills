@@ -30,6 +30,7 @@ This skill may load **only**:
 - `claude-memory/memory.md` — to compare extracted findings against the capability baseline
 - `.claude/references/qe-capability-map.md` — the QE capability baseline reference
 - `claude-memory/artifacts.md` — to identify architecture artifacts relevant to a specific capability domain (conditional; only when a domain-specific artifact reference is needed)
+- `claude-memory/notes.md` — to check for declared remediation paths during HALT Protocol Step 2 (conditional; loaded only when `Missing` domains are found)
 - Architecture artifacts referenced in `claude-memory/artifacts.md` that are directly relevant to a specific capability domain
 
 It must **not** load unnecessary files. If `qe-capability-map.md` does not yet exist, the skill must use the eight capability domains defined in this file as the baseline and note the absence.
