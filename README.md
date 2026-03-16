@@ -12,16 +12,20 @@ The QE OS is an AI-assisted system for reviewing, designing, and strengthening Q
 | Designs or validates QA architecture | Test Architect agent |
 | Assesses whether a plan and timeline is realistic | Project Manager agent |
 | Assesses whether teams can adopt a proposed approach | QA Manager agent |
-| Infers applicable regulatory framework from client domain + geography | Stage 0 via `domain-regulatory-map.md` |
+| Infers applicable regulatory framework from client domain × geography | Stage 0 via `domain-regulatory-map.md` |
 | Detects incumbent vendor presence and gates Section 15 accordingly | Stage 0 explicit confirmation prompt |
-| Classifies engagement type, application count, and vendor capability | Stage 0 via `stage-0-inputs.md` |
+| Classifies engagement type, discovery maturity, application count, and vendor capability | Stage 0 via `stage-0-inputs.md` |
 | Extracts and traces quantified value claims with evidence grounding | Stage 1 via Value Claim Trace Block |
+| Classifies AI capabilities by tier (Tier 1 prompt-based / Tier 2 ML) and phases accordingly | Stage 4 AI Capability Tier Classification |
 | Classifies benefit realisability (unconditional vs conditional) | Stage 4 Benefit Claim Classification |
 | Produces risk-based test classification by change type | Stage 4 Risk-Based Test Classification |
+| Drafts application clustering when multiple applications are in scope | Stage 4 Application Clustering Draft |
+| Applies three-tier tooling framing (Confirmed / Suggested / Proposed) | Stage 4 + Stage 9 Tooling Three-Tier Framing |
 | Generates canonical 19-section structured proposal output | Stage 9 via `stage-9-output-structure.md` |
 | Applies go/no-go quality gate verdict before Stage 9 output | Review & Challenge skill — Gate Verdict |
 | Provides PERT-based effort estimation with tier and phase breakdown | `pert-estimation` skill |
 | Extracts KPI targets, flags absence, recommends sourced benchmarks | `kpi-baseline` skill |
+| Adapts proposal language for confirmed client industry context | `domain-context-adaptation` skill |
 | Structures raw findings into leadership-ready outputs | Structuring + Executive Communication skills |
 | Enforces anti-hallucination, evidence traceability, and governance | System-wide via `copilot-instructions.md` + `AGENTS.md` |
 
@@ -250,7 +254,88 @@ Each Finding ID (e.g., `F14`) links a recommendation all the way back to the art
 
 If the system produces a weak output, the right action is:
 1. Flag the finding — the Stage 10 retrospective is designed for this
-2. Propose a change via `improvements.md` — agents write proposals there; you approve changes to system files
+2. Propose a change via `claude-memory/improvements.md` — agents write proposals there; you approve changes to system files
 3. Never edit `.claude/AGENTS.md`, `.claude/copilot-instructions.md`, or skill files directly during a live engagement
 
 Proposed improvements that accumulate 3+ evidence gap proposals trigger a human review flag before the next engagement.
+
+---
+
+## Current System Version
+
+**Post-Manulife Retrospective (March 2026)**
+
+All 12 improvements from the Manulife retrospective have been implemented. See [implementation-plan.md](implementation-plan.md) for the full task list and file change log.
+
+Key capabilities added in this cycle:
+- PERT-based effort estimation (`pert-estimation` skill) — 8 test tiers, effort multipliers, 5-phase breakdown
+- KPI extraction and benchmark sourcing (`kpi-baseline` skill) — extracts client targets, flags absence, recommends sourced benchmarks
+- Discovery Maturity classification — `Constrained / Moderate / Deep` drives gap status defaults at Stages 3 and 8
+- `Deferred to Transition — Explicitly Declared` status — requires 3 mandatory fields; missing any one reverts to `Unresolved`
+- Value Claim Trace Block — quantified benefit claims in Stage 1 now require an evidence source or are explicitly flagged
+- Regulatory Control Mapping — Stage 8 blocks on `Compliance Requirement` findings without a control mapping table
+- Review & Challenge Gate Verdict — go / conditional / not ready verdict replaces open-ended quality review
+
+---
+
+## Known Gaps (Ordered by Estimated ROI)
+
+These gaps were identified during a framework evaluation in March 2026. They are listed in order of estimated return on investment — meaning the highest-impact, highest-frequency gaps appear first.
+
+### 1. Stage 3.5 — No blocking condition for critical capability domain absence
+
+**Gap:** Stage 3.5 (Capability Coverage) documents Missing and Partial domains but does not halt workflow progression when a critical capability domain (e.g., CI/CD Integration, Automation Strategy) is entirely absent with no remediation path declared. A proposal with a structural capability hole can reach Stage 4 and produce output without escalation.
+
+**Contrast:** Stage 3 blocks if any High-confidence finding is `Unresolved`. Stage 3.5 has no equivalent enforcement.
+
+**Fix needed:** Add a HITL block condition to Stage 3.5 — if any of the 8 QE capability domains is `Absent` AND no planned remediation is declared in the solution design, halt and require human confirmation before advancing to Stage 4.
+
+---
+
+### 2. Stage 0 — `plan.md` field misconfiguration flows silently into output structure
+
+**Gap:** Engagement type (e.g., `qa_audit`, `managed_service`) and engagement signals (e.g., `incumbent_vendor_present`) set at Stage 0 control which of the 19 canonical output sections are generated. If `plan.md` is misconfigured or left at defaults, conditional sections are silently suppressed or incorrectly generated — and no downstream stage re-validates those fields before Stage 9 produces output.
+
+**Example:** A `managed_service` engagement incorrectly classified as `transformation_partnership` will generate Section 8 (Transformation Roadmap) and Section 10 (Benefit Realisation) with wrong framing assumptions running through the full output.
+
+**Fix needed:** Add a Stage 0 field validation step (or Stage 9 pre-output check) that confirms Engagement Type and Engagement Signals are explicitly set — not left at initialisation defaults — before Stage 9 begins rendering conditional sections.
+
+---
+
+### 3. Copilot pointer stub — no mechanical enforcement fallback
+
+**Gap:** `.github/copilot-instructions.md` is a pointer stub that instructs GitHub Copilot to read `.claude/copilot-instructions.md` and `.claude/AGENTS.md`. Unlike Claude Code's `@<path>` include (which is a hard load), this is an instruction — followed almost always, but not mechanically enforced. If Copilot skips it under context pressure, the anti-hallucination and evidence sourcing rules are not active.
+
+**Fix needed:** Add an inline summary of the 3–5 most critical non-overridable rules directly into `.github/copilot-instructions.md` as a fallback, so the most harmful failure modes (fabrication, missing sourcing flags) are guarded even without the full canonical file load.
+
+---
+
+### 4. File authority ambiguity — versioned files in workspace root vs. canonical `.claude/` files
+
+**Gap:** The workspace root contains `agents/` and `skills/` folders with versioned Markdown files (e.g., `Test_Architect_Agent_v1.2.md`, `Client_RFP_Evaluator_Agent_v1.3.md`). The canonical, active agent and skill definitions live in `.claude/agents/` and `.claude/skills/`. Anyone opening the workspace and editing a root-level file is modifying a predecessor version with no effect on system behaviour — with no warning.
+
+**Fix needed:** Archive or remove the root-level `agents/` and `skills/` folders, or add a clearly visible `README` in each that states they are superseded by `.claude/agents/` and `.claude/skills/`.
+
+---
+
+### 5. `improvements.md` — no tracked promotion path from proposal to implementation
+
+**Gap:** Agents write improvement proposals to `claude-memory/improvements.md`. Human approval is required before changes are made to system files. However, there is no tracking mechanism in the framework for when approved proposals are actually promoted — proposals can accumulate indefinitely without being actioned, and there is no way to distinguish "approved but not yet implemented" from "awaiting approval".
+
+**Fix needed:** Add a `Status` column to the `improvements.md` schema (`Proposed / Approved / Implemented / Rejected`) and add a Stage 10 check that flags any `Approved` improvements that have remained unimplemented for more than one engagement cycle.
+
+---
+
+### 6. `question-capability-mapping` skill — optional with no activation gate enforcement
+
+**Gap:** The activation condition for `question-capability-mapping` requires three flags to be true simultaneously (RFP questions present in artifacts, Stage 3.5 complete, Stage 4 not yet started). These conditions are stated in `AGENTS.md` as rule text but are not enforced — the skill can be invoked mid-Stage 4 or skipped entirely when all three conditions are met, without triggering any system alert.
+
+**Fix needed:** Add a HALT condition to the skill itself that checks activation preconditions and refuses to run if Stage 4 has already started, and a Stage 3.5 checkpoint note that prompts the conductor to confirm whether RFP questions are present before advancing.
+
+---
+
+### 7. `prompts/` folder — orphaned engagement artifact
+
+**Gap:** The `prompts/` folder contains a single file (`manulife-rerun-master-prompt.md`) — an engagement-specific artifact from the Manulife engagement. It is not referenced by any system file and has no catalog function. Reusable trigger prompts live in `.claude/references/trigger-prompts.md`, not here. The folder's presence implies it has a system role it does not have.
+
+**Fix needed:** Either archive the file alongside other Manulife engagement outputs, or repurpose the `prompts/` folder as a curated library of standardised entry prompts for common engagement scenarios — and update the README to reference it.
