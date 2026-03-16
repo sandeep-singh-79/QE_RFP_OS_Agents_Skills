@@ -109,6 +109,7 @@ When detailed sizing or measurement content is required, invoke the following su
 
 ### `pert-estimation`
 **When to invoke:** When test case categorisation by tier and complexity, PERT variance calculation, or project phase effort breakdown is required.
+**Prerequisite:** Scope Establishment Pre-Phase must complete first — the scenario count and derivation path must be declared before `pert-estimation` begins sizing. Load `references/estimation-model.md § Scope Establishment Pre-Phase` to complete this step.
 **What it produces:** PERT summary table (tier × complexity × phase), variance ranges (E ± σ), tier-level effort multipliers, and phase effort allocation.
 **Rule:** Invoke before producing effort figures — do not estimate test case effort without PERT categorisation when detailed sizing is in scope.
 
@@ -122,10 +123,13 @@ When detailed sizing or measurement content is required, invoke the following su
 ## Output Structure
 
 Every estimate must include:
-1. Enablement vs execution split
-2. Complexity distribution summary across test groups (use `pert-estimation` output when detailed sizing is in scope)
-3. Key assumptions and unresolved dependencies
-4. Confidence qualifier — High / Medium / Low with rationale
-5. Flagged high-maintenance or high-risk scenarios
-6. Scale caveats where pilot differs from enterprise scope
-7. KPI targets and baseline state (use `kpi-baseline` output when metrics are in scope)
+1. **Estimation Mode Declaration** — state which mode applies (Upfront/WBS-based, Inference-based, or Capacity-based) before any sizing begins. Load `references/estimation-model.md § Estimation Mode Framework` for mode criteria.
+2. Enablement vs execution split
+3. Complexity distribution summary across test groups (use `pert-estimation` output when detailed sizing is in scope)
+4. **Scope Establishment Pre-Phase** — declare the path used to arrive at the scenario count (artifact-derived, inference-based, or capacity-based) and the effort cost of scope establishment. Load `references/estimation-model.md § Scope Establishment Pre-Phase`.
+5. Key assumptions and unresolved dependencies
+6. Confidence qualifier — High / Medium / Low with rationale
+7. Flagged high-maintenance or high-risk scenarios
+8. Scale caveats where pilot differs from enterprise scope
+9. **Phase-Allocated Delivery Overheads** — distribute overhead categories (Discovery/KT, Framework Establishment, Governance & Reporting, Stabilization, Risk Contingency, Build Phase Maintenance, Test Data) into the engagement phase(s) where they occur. Do not stack as a flat additive percentage. Load `references/estimation-model.md § Phase-Allocated Delivery Overheads`.
+10. KPI targets and baseline state (use `kpi-baseline` output when metrics are in scope)

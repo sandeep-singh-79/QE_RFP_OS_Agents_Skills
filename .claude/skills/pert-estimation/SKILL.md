@@ -35,6 +35,49 @@ This skill may load **only**:
 
 It must **not** load `claude-memory/insights.md`, `claude-memory/decisions.md`, or `claude-memory/improvements.md` unless a specific sizing task requires prior engagement patterns.
 
+When estimation is active, **load `references/estimation-model.md`** for mode-conditional model parameters, multiplier chain, overhead categories, and scope establishment activities. Do not apply multipliers, overhead categories, or scope establishment activities without loading this file first.
+
+---
+
+## Estimation Mode Declaration
+
+Mode must be declared **before any sizing begins**. Declare which of the three modes applies:
+
+- **Upfront / WBS-based** — full scope defined upfront; client WBS, feature list, or test artifacts available
+- **Inference-based** — no artifacts; scope inferred from RFP module descriptions and domain experience *(default for most RFP proposals)*
+- **Capacity-based** — agile/sprint-embedded engagement; scope emerges from backlog incrementally; no fixed scenario baseline possible
+
+Load `references/estimation-model.md § Estimation Mode Framework` for full mode selection criteria and multiplier applicability rules per mode.
+
+> **Halting condition:** If mode cannot be determined, declare the closest applicable mode and flag as an assumption stating the impact on estimate confidence.
+
+---
+
+## Estimation Unit Declaration
+
+Estimation unit must be declared as the **first output element** (immediately after mode declaration). Declare both fields:
+
+1. **Unit type:** `Automation Scenarios (WBS Level-3, artifact-derived)` OR `Automation Scenarios (inferred from functional scope)` OR `Capacity-based (team size × sprint velocity)`
+2. **Derivation path:** How the count was reached — artifact decomposition, module density inference, or capacity envelope
+
+Load `references/estimation-model.md § Estimation Unit Derivation Paths` for path definitions, confidence levels, and review implications per mode.
+
+> **Halting condition:** Incorrect unit-rate pairing (e.g., applying scenario rates to raw test case counts without decomposition) must be corrected before estimation proceeds.
+
+---
+
+## Immutable Baseline Rule
+
+Applies to: **Upfront and Inference modes only.** Capacity-based mode: N/A — no fixed scenario baseline exists.
+
+The scenario count established in Scope Establishment is **fixed for the duration of estimation**:
+
+- Efficiency multipliers (reusability, normalization, parameterization) reduce the *effort* required to automate scenarios — they do **not** eliminate scenarios from scope
+- Do not adjust the scenario count when applying any reduction factor
+- If variant A and variant B are separate business validations, both must be automated; parameterization reduces scripting effort for the pair, it does not remove either from scope
+
+Load `references/estimation-model.md § Multiplier Chain` for the full multiplier chain, four-case reusability model, normalization reference range, and multi-factor stacking declaration requirements.
+
 ---
 
 ## PERT Formula
@@ -63,6 +106,8 @@ $$\sigma = \frac{P - O}{6}$$
 Express all final estimates as: **E ± σ** (i.e., E − σ to E + σ)
 
 **Rule:** Never present a point estimate without the accompanying range. Point estimates imply certainty that does not exist at proposal stage.
+
+> **WBS Compatibility Note (conditional — applies only when a client-provided WBS reference estimate exists):** When a reference estimate is built using WBS direct hour assignments per work package, those assignments map to the Most Likely (M) input in the PERT formula. Derive O and P by applying optimistic/pessimistic variance to each work package. This allows PERT ranges to be layered over an existing WBS baseline without re-deriving M from scratch.
 
 ---
 
