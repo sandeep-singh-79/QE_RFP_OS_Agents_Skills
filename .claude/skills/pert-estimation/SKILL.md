@@ -50,7 +50,9 @@ Mode must be declared **before any sizing begins**. Declare which of the three m
 
 Load `references/estimation-model.md § Estimation Mode Framework` for full mode selection criteria and multiplier applicability rules per mode.
 
-> **Halting condition:** If mode cannot be determined, declare the closest applicable mode and flag as an assumption stating the impact on estimate confidence.
+> **HALT — Mode undeclared:** If mode cannot be determined from context, stop immediately and prompt:
+> *"Estimation mode must be declared before sizing begins. Which applies: (1) Upfront/WBS-based — test artifacts or WBS available? (2) Inference-based — scope inferred from RFP descriptions only? (3) Capacity-based — agile/sprint-embedded engagement, no fixed scenario list?"*
+> Do **not** guess or select the closest mode. Do **not** produce any sizing output until mode is confirmed.
 
 ---
 
@@ -64,6 +66,12 @@ Estimation unit must be declared as the **first output element** (immediately af
 Load `references/estimation-model.md § Estimation Unit Derivation Paths` for path definitions, confidence levels, and review implications per mode.
 
 > **Halting condition:** Incorrect unit-rate pairing (e.g., applying scenario rates to raw test case counts without decomposition) must be corrected before estimation proceeds.
+
+**Decision log entry (required when `decisions.md` is in use):** Estimation-unit decisions must declare both fields separately:
+- `Counting Baseline:` [source artifact count — raw file or test case count before decomposition]
+- `Estimation Unit:` [unit used for PERT sizing — e.g., Automation Scenarios (WBS Level-3, artifact-derived)]
+
+Do not conflate these two fields in a single statement. An entry stating *"estimation unit = [raw artifact count]"* without separating counting baseline from implementation unit is non-compliant and creates a directly contradictory claim under procurement review.
 
 ---
 
@@ -212,11 +220,13 @@ Assumption 2: ...
 
 ### 5. Confidence Qualifier
 
-| Qualifier | Basis |
-|---|---|
-| `High` | All three PERT inputs supported by evidence in `claude-memory/memory.md`; scope well-defined |
-| `Medium` | One or more inputs estimated rather than evidence-based; scope mostly defined |
-| `Low` | Multiple inputs estimated; scope unclear or Constrained Discovery applies |
+**Mode constraint:** `High` confidence is only available in Upfront/WBS-based mode. Inference-based and Capacity-based modes must not claim `High` without explicit documented justification — an inferred or capacity-derived baseline has inherent uncertainty that makes `High` unsupportable by default.
+
+| Qualifier | Available In | Basis |
+|---|---|---|
+| `High` | Upfront/WBS-based only | All three PERT inputs supported by evidence in `claude-memory/memory.md`; scope artifact-derived; scenario count locked post-reconciliation |
+| `Medium` | Upfront or Inference-based | One or more inputs estimated rather than evidence-based; scope mostly defined; or Inference-based mode with strong domain evidence |
+| `Low` | Any mode | Multiple inputs estimated; scope unclear; Constrained Discovery applies; or any Capacity-based engagement (no fixed scope baseline) |
 
 ---
 
