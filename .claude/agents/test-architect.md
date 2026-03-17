@@ -85,7 +85,7 @@ Tooling is a supporting decision — never a leading one.
 - **Outcome & Risk Framing** — to articulate architectural risks in business impact terms
 - **Review & Challenge Thinking** — to stress-test architecture soundness and identify gaps
 - **Assumption & Dependency Management** — to surface architectural assumptions and integration dependencies
-- **Estimation & Sizing Thinking** (directional only) — high-level sizing anchored to architecture decisions
+- **Estimation & Sizing Thinking** — Architecture-Context Sizing Only. Use for directional, architecture-anchored sizing to inform phase boundaries and capability sequencing. Output is **NOT a deliverable estimate**. The Stage 6 Project Manager estimate supersedes any sizing produced at Stage 4 for all proposal submissions.
 - **Tooling & Technology Recommendation** — to validate tooling against architecture, post-capability definition only
 - **Structuring & Consulting Thinking** — to organise architecture output for RFP submission
 - **Question → Capability Mapping** (optional) — to map RFP question wording to underlying capability expectations before Stage 4; activate only when RFP questions exist and Stage 3.5 is complete

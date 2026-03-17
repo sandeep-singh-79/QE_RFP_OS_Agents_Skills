@@ -42,7 +42,7 @@ It must **not** load unnecessary files. If `qe-capability-map.md` does not yet e
 When activated, this skill must:
 
 1. **Load the QE capability baseline** — from `qe-capability-map.md` or from the Capability Domains section below if the file is absent
-2. **Compare client evidence against expected capabilities** — review `memory.md` findings against each of the eight capability domains
+2. **Compare client evidence against expected capabilities** — review `claude-memory/memory.md` findings against each of the nine capability domains
 3. **Identify missing capabilities** — flag any domain with no supporting evidence as `Missing`; flag domains with partial evidence as `Partial`
 4. **Recommend improvements** — for each Missing or Partial capability, produce a specific, actionable recommendation
 
@@ -56,7 +56,7 @@ The baseline capability reference file is:
 .claude/references/qe-capability-map.md
 ```
 
-If this file does not exist, the skill uses the eight domains defined below as its operating baseline and appends a note to the output:
+If this file does not exist, the skill uses the nine domains defined below as its operating baseline and appends a note to the output:
 If qe-capability-map.md exists, its contents override the built-in baseline.
 This allows organizations to customize the QE capability model without modifying this skill.
 
@@ -68,7 +68,7 @@ Note: qe-capability-map.md not found. Using built-in capability domain baseline.
 
 ## Capability Domains
 
-Evaluate coverage across all eight domains. Every domain must appear in the output — even if the status is Present.
+Evaluate coverage across all nine domains. Every domain must appear in the output — even if the status is Present.
 
 | Domain | Description |
 |---|---|
@@ -80,6 +80,7 @@ Evaluate coverage across all eight domains. Every domain must appear in the outp
 | **Environment Strategy** | Service virtualization, ephemeral environments, environment parity |
 | **Observability** | Telemetry validation, production monitoring, test observability |
 | **Non-functional Testing** | Performance, security, accessibility testing coverage |
+| **AI-Assisted Quality Engineering** | AI/GenAI test generation, self-healing automation, AI-driven exploratory testing, intelligent defect analysis |
 
 ---
 
@@ -100,6 +101,7 @@ The output of this skill must be a structured table for each capability domain:
 | Environment Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
 | Observability | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
 | Non-functional Testing | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
+| AI-Assisted Quality Engineering | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
 ```
 
 Example row:
@@ -114,9 +116,9 @@ Example row:
 
 | Status | Meaning |
 |---|---|
-| `Present` | Evidence in `memory.md` clearly confirms this capability is addressed **and all four depth criteria are satisfied** (see Depth Criteria below) |
+| `Present` | Evidence in `claude-memory/memory.md` clearly confirms this capability is addressed **and all four depth criteria are satisfied** (see Depth Criteria below) |
 | `Partial` | Some evidence exists but one or more depth criteria are not satisfied, or coverage is surface-level only |
-| `Missing` | No evidence in `memory.md` supports this capability being addressed |
+| `Missing` | No evidence in `claude-memory/memory.md` supports this capability being addressed |
 
 **Classification rule:** A capability may not be classified `Present` on the basis of narrative breadth alone. All four depth criteria must be satisfied before `Present` may be assigned. A finding that mentions a capability area without providing strategy, ownership, metrics, and execution mechanism details must be classified `Partial`.
 
@@ -124,7 +126,7 @@ Example row:
 
 ## Depth Criteria
 
-For a capability to be classified `Present`, evidence in `memory.md` must demonstrate all four of the following:
+For a capability to be classified `Present`, evidence in `claude-memory/memory.md` must demonstrate all four of the following:
 
 | Criterion | Definition | What "satisfied" looks like |
 |---|---|---|
@@ -148,9 +150,9 @@ If only some criteria are satisfied, classify as `Partial` and state which crite
 
 This skill must not:
 
-- Assume a capability is `Present` without referencing a specific finding in `memory.md`
+- Assume a capability is `Present` without referencing a specific finding in `claude-memory/memory.md`
 - Mark a capability as `Present` based on the skill's own knowledge of the client's industry — only artifact evidence counts
-- Omit any of the eight domains from the output, even if status is `Present`
+- Omit any of the nine domains from the output, even if status is `Present`
 - Propose tooling solutions — this skill identifies coverage gaps, not tools; tooling decisions belong to the Test Architect
 
 ---
@@ -179,6 +181,29 @@ Required: Confirm one of the following for each listed domain before advancing:
   (b) "Will be addressed in Stage 4 solution design"
   (c) "Discovery Maturity = Constrained; deferring to transition"
 ```
+
+### Minimum Remediation Declaration Requirements
+
+A valid remediation declaration for a `Missing` domain must meet all three of the following criteria:
+
+| Requirement | Description | Minimum Content |
+|---|---|---|
+| **(a) Remedy action** | What will be done to address the gap | Named action: e.g., "include in Stage 4 architecture", "out of scope — reason: [stated reason]", "accept known gap — deferring to post-award transition" |
+| **(b) Target phase** | When the gap will be addressed | A named stage, phase, or explicit deferral: e.g., "Stage 4", "Phase 2 delivery", "post-award transition", "not applicable to this engagement" |
+| **(c) Owner** | Who is accountable for the declaration | One of: client, vendor delivery team, out-of-scope (no owner required), or user confirming explicitly |
+
+A declaration that only acknowledges the gap (e.g., "we know this is missing") without specifying the action, target phase, and owner does **not** satisfy the gate.
+
+**What does NOT count as a valid remediation declaration:**
+- "We will address this later" — no phase, no action, no owner
+- "This is noted" — acknowledgement only; no action specified
+- "The client doesn't need this" — no owner, no stated reason for out-of-scope ruling
+- A single-word confirmation (e.g., "ok") — no structure; cannot be traced or audited
+
+**Valid examples:**
+- ✓ `"Test Data Management — will be addressed in Stage 4 solution design by the Test Architect; target Phase 1 delivery; owner: vendor team"`
+- ✓ `"Environment Strategy — out of scope for this engagement; client uses shared environments managed inhouse; confirmed by user"`
+- ✓ `"Observability — Discovery Maturity = Constrained; no client evidence available; deferring acknowledgement to post-award transition plan; owner: joint"`
 
 **Stage 3.5 is not complete until every `Missing` domain has a declared remediation or human confirmation.**
 

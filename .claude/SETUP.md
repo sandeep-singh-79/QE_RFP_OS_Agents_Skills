@@ -14,7 +14,8 @@ If required workspace files or folders do not exist, the system may create them 
 1. Check if `claude-memory/` directory exists — create if absent
 2. Check for required memory files — create with header template when first write is needed
 3. `plan.md` at root — create if absent when task tracking begins
-4. Never create agent or skill files during initialization — these are system-managed
+4. `outputs/` directory and `outputs/staged-proposal.md` — created on first write at Stage 4; do not pre-create
+5. Never create agent or skill files during initialization — these are system-managed
 
 ### File Templates (for creation on first use)
 
@@ -37,6 +38,23 @@ Initial sections on first creation:
 
 ## Insight Candidates
 [Populated progressively during Stages 1–8. Format: `> INSIGHT CANDIDATE [Stage N]: [observation]. Carry-forward: [why this recurs / what to watch for]`. Reviewed and promoted (or discarded) at Stage 10.]
+```
+
+**outputs/staged-proposal.md** — Header: `# Staged Proposal Output` + `> Progressive output staging file. Written by Stages 4–7. Read by Stage 8 (evidence-reconciliation skill).`
+
+Initial sections on first creation:
+```md
+## Stage 4 — Solution Design
+[To be populated by Test Architect]
+
+## Stage 5 — Architecture Validation
+[To be populated by QA Manager]
+
+## Stage 6 — Delivery Validation
+[To be populated by Project Manager]
+
+## Stage 7 — Client Perspective Review
+[To be populated by Client/RFP Evaluator — after Conductor pre-processing]
 ```
 
 **plan.md** (at workspace root) — Use the following structure:
@@ -75,6 +93,54 @@ Initial sections on first creation:
 ```
 
 Update `Current Stage` in the header and the corresponding row in Stage Status after each stage completes.
+
+---
+
+## Engagement Teardown
+
+Run this procedure when an engagement is complete, before beginning a new engagement in the same workspace.
+
+### Purpose
+Prevent prior engagement findings, decisions, and notes from contaminating a new engagement's memory and analysis.
+
+### Step 1 — Archive (before clearing)
+Create an archive folder at `archive/[client-name]-[date]/` and copy the following files into it:
+
+| File | Action |
+|---|---|
+| `claude-memory/memory.md` | Copy to archive |
+| `claude-memory/artifacts.md` | Copy to archive |
+| `claude-memory/notes.md` | Copy to archive |
+| `claude-memory/decisions.md` | Copy to archive |
+| `plan.md` | Copy to archive |
+| `outputs/staged-proposal.md` | Copy to archive (if exists) |
+
+### Step 2 — Reset (after archive confirmed)
+Clear the following files by replacing their content with just the header template (as defined in the File Templates section above):
+
+| File | Reset Action |
+|---|---|
+| `claude-memory/memory.md` | Header only: `# Findings Memory` + `> Extracted findings for current engagement.` |
+| `claude-memory/artifacts.md` | Header + empty table (see File Templates) |
+| `claude-memory/notes.md` | Header + initial sections (see File Templates) |
+| `claude-memory/decisions.md` | Header only (see File Templates) |
+| `plan.md` | Full template (see File Templates) |
+| `outputs/staged-proposal.md` | Delete or replace with header + empty stage sections |
+
+### Step 3 — Persist (do not clear)
+The following files accumulate cross-engagement learning and must **not** be reset:
+
+| File | Why Persist |
+|---|---|
+| `claude-memory/insights.md` | Cross-engagement patterns and recurring observations |
+| `claude-memory/improvements.md` | System improvement proposals — cleared only by manual triage |
+
+### Step 4 — Confidentiality Confirmation
+Before beginning the new engagement, confirm:
+
+> "Prior engagement data has been archived to `archive/[client-name]-[date]/`. Memory files have been reset. `claude-memory/insights.md` and `claude-memory/improvements.md` carry forward cross-engagement learning only — no client-identifying data from the prior engagement remains in active memory."
+
+If you cannot confirm this, do not begin the new engagement. Re-run Steps 1–3.
 
 ---
 

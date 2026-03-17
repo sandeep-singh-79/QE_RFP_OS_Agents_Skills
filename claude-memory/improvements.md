@@ -22,7 +22,7 @@
 - **Root Cause:** The Effort Multipliers table covers complexity-based per-test-case effort but has no mechanism to express downward effort adjustment from reusability. The skill assumes net-new scripting effort unless told otherwise.
 - **Suggested Change:** Add a **Reusability Factor** to the Effort Multipliers section of `pert-estimation`. The factor should: (1) be declared only when an existing framework is confirmed (do not infer or assume), (2) apply as a **post-summation multiplier** on the base effort total (e.g., Total × 0.60 for 40% reuse) — *not* as a per-scenario rate reduction; this distinction matters because applying the factor post-summation keeps per-scenario rates calibrated and separates the reuse adjustment from complexity-based sizing, (3) specify the application base clearly: the reusability multiplier is applied to the sum of all scenario efforts at the total level, (4) appear as a named, valued line item in the Assumptions Block and the multiplier summary table. The factor must be declared even when it is 0% (i.e., no reuse possible — state why). Typical range: 0.55–0.85 (15–45% savings depending on shared component depth).
 - **Impact:** Medium — materially affects total engagement cost for existing-framework engagements; applying factor at wrong level (per-row vs. post-summation) produces structurally different and less defensible results
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Reusability Factor (Four-Case Model)
 - **Priority:** Medium
 
 ---
@@ -42,7 +42,7 @@
 - **Root Cause:** Both skills treat complexity and count as the only effort drivers. They have no post-summation reduction mechanism, and — absent an explicit rule — a system could interpret normalization as reducing the scenario count (e.g., "50 wizard variants → 1 parameterized script") rather than reducing the effort multiplier on a fixed scenario count. This is the wrong model. If variant A and variant B are separate business validations, both must be automated. Parameterization reduces scripting effort for the pair; it does not eliminate either scenario from scope.
 - **Suggested Change:** Add three things to `pert-estimation`: (1) **Immutable Baseline Rule** (placed immediately after the Scope Establishment Pre-Phase): "The WBS scenario count established in scope establishment is fixed for the duration of estimation. Efficiency multipliers reduce effort required to automate those scenarios — they do not eliminate scenarios from scope. Do not adjust scenario count when applying normalization or parameterization factors."; (2) **Scenario Normalization factor** — a named post-summation multiplier applied to the reuse-adjusted effort total, reflecting that parameterizable scenario groups cost less to script than independently scripted equivalents; declare factor value and which module groups qualify; (3) **Parameterized Consolidation factor** — applied to normalization-adjusted total, reflecting execution efficiency (reference value: ×0.95). The application chain must be explicit: *Raw Effort → ×Reuse → ×Normalization → ×Parameterization → Adjusted Total*. Remove the companion note to `estimation-sizing-thinking` Step 2 about "counting unique scenarios not data permutations" — that logic belongs in Scope Establishment (IP-LBMX-13), not in the estimation multiplier step.
 - **Impact:** High — confusing scenario count reduction with effort reduction produces structurally invalid estimates; all scenarios must appear in the delivery baseline regardless of parameterization efficiency gains
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Multiplier Chain (Normalization, Parameterization, Immutable Baseline)
 - **Priority:** High
 
 ---
@@ -62,7 +62,7 @@
 - **Root Cause:** The skill's tier system (Smoke/Sanity/Regression/Functional/Integration/E2E) addresses *test type* coverage, not *business criticality*. These are orthogonal dimensions: a Functional test can be P0 or P2 depending on the sub-module it covers. The skill has no construct for criticality.
 - **Suggested Change:** Add a **Criticality Priority Classification** step to `pert-estimation`, applied per test group or sub-module before phasing recommendations are made. The step must: (1) define P0/P1/P2 levels (P0 = mission-critical, financially gated, or compliance-relevant; P1 = operationally important; P2 = lower priority / edge cases / language variants), (2) produce a priority distribution by sub-module or tier, (3) feed directly into the phase effort breakdown — Phase 1 / pilot scope targets P0 items, Phase 2 targets P1, Phase 3 targets P2. The priority classification must be declared as an assumption with rationale — do not assign priorities without evidence.
 - **Impact:** High — without criticality ordering, phasing recommendations default to arbitrary sequencing rather than risk-based prioritization, which weakens the proposal's defensibility
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Criticality Priority Classification
 - **Priority:** High
 
 ---
@@ -72,7 +72,7 @@
 - **Root Cause:** The Effort Multipliers table (Tier × Complexity) produces a per-test-case total without distinguishing automation layer. For test cases that involve API responses, database validation, document output verification, or EFT/GL integration checks, the UI-only base significantly understates total script development effort.
 - **Suggested Change:** Add a **UI vs Non-UI effort declaration** to the `pert-estimation` output format. At a minimum: (1) the estimate must declare whether the per-test-case effort figures include non-UI verification or are UI-only, (2) for test groups with known non-UI components (API assertions, DB validation, integration checks), declare a separate effort line or an additive percentage for non-UI work, (3) add a guardrail: do not assume UI-only effort when the test scope includes external integrations, document generation, or data pipeline validation. This does not require a full separate effort table — a declared split and rationale is sufficient.
 - **Impact:** Medium — most significant for complex integration-heavy engagements (Reconcile Management, GL XML, EFT processing, Document Manager)
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Automation Layer Declaration
 - **Priority:** Medium
 
 ---
@@ -92,7 +92,7 @@
 - **Root Cause:** The Assumptions Block format in `pert-estimation` uses a flat "Assumption N: [what] — if incorrect: [impact]" structure with no differentiation between internally-held assumptions and externally-dependent ones that require client confirmation.
 - **Suggested Change:** Add a **Client Confirmation Required** tag to the Assumptions Block format. Mark assumptions that are client-controlled (access, environment readiness, data availability, scope stability, SME availability) with a `[CLIENT CONFIRMATION REQUIRED]` flag. Add a mandatory validity statement to the assumptions section: "This estimate remains valid subject to fulfillment of [list flagged assumption IDs]. Deviations exceeding 15% from declared assumptions trigger formal change control." The flagged assumption IDs should also be surfaced in the final output's executive summary.
 - **Impact:** Medium — governance and defensibility quality; directly reduces post-award credibility risk when confirmed assumptions prove false
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Assumptions Block Enhancements (CCR Flag)
 - **Priority:** Medium
 
 ---
@@ -102,7 +102,7 @@
 - **Root Cause:** The skill is scoped to produce effort figures, not delivery governance controls. The scenario count is used internally for sizing but is not surfaced as a lockable reference point in the output.
 - **Suggested Change:** Add a **Scope Baseline Declaration** to the `pert-estimation` Output Format, as a required element alongside the Assumptions Block. The declaration must: (1) state the net deduplicated scenario count used as the sizing basis, (2) note that this count constitutes the scope baseline for change control, (3) declare the variance threshold that triggers formal change control (recommend ≥15% increase in scope without corresponding estimate recalibration). This is a documentation-only addition — no workflow change required.
 - **Impact:** Medium — directly improves post-award scope management and prevents uncontrolled scope growth from eroding engagement profitability
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Assumptions Block Enhancements (Scope Baseline Declaration)
 - **Priority:** Medium
 
 ---
@@ -112,7 +112,7 @@
 - **Root Cause:** The skill's output format was designed around a simplified assumption-confidence model. Risk register production was implicitly assumed to be the responsibility of `assumption-dependency-management` — but that skill is not always invoked alongside `pert-estimation`, and the two outputs are not formally linked in the workflow.
 - **Suggested Change:** Add a lightweight **Risk Register** to the `pert-estimation` Output Format as a standard section (not optional). Minimum structure: Risk ID, Risk description, Likelihood (Low/Medium/High), Impact (Low/Medium/High), Mitigation strategy. Each assumption flagged as Client Confirmation Required (IP-LBMX-09) should have at least one corresponding risk entry covering the "assumption proves false" scenario. Note in the skill: "For engagements requiring a full risk register, invoke `assumption-dependency-management` — this skill produces a minimum viable risk register sufficient for estimation output only."
 - **Impact:** Medium — strengthens defensibility and completeness of client-facing estimation output; closes the gap between assumption declaration and risk disclosure
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Minimum Viable Risk Register
 - **Priority:** Medium
 
 ---
@@ -122,7 +122,7 @@
 - **Root Cause:** The skill defines effort rates per "test case" without declaring (a) what unit those rates apply to, or (b) which input path was used to arrive at the count — artifact-derived vs. inference-based. These are structurally different inputs with different confidence levels and different review processes.
 - **Suggested Change:** Add an **Estimation Unit Declaration** as the first required output element of `pert-estimation`, with two declared fields: (1) **Unit type**: "Automation Scenarios (WBS Level-3, artifact-derived)" or "Automation Scenarios (inferred from functional scope)"; (2) **Derivation path**: how the count was reached. When artifact-derived: note that multi-step manual test cases were decomposed into atomic scenarios — one validation step = one scenario. When inference-based (the default for most RFP engagements): declare the assumption basis (e.g., module count × estimated scenario density, or functional feature count × complexity weighting) and flag the count as an estimate with stated confidence. Incorrect unit-rate pairing must be treated as a halting condition regardless of derivation path.
 - **Impact:** High — the distinction between artifact-derived and inferred scenario counts affects the confidence level, the review process, and the appropriate contingency buffer; treating an inferred count as if it were artifact-verified overstates precision
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Estimation Unit Derivation Paths
 - **Priority:** High
 
 ---
@@ -132,7 +132,7 @@
 - **Root Cause:** `pert-estimation` begins at the point where a scenario count exists. It has no concept of the upstream work that produced that count or the confidence level it carries, which means (a) the effort to produce it is unpriced, and (b) the downstream estimate carries implied precision it doesn't have.
 - **Suggested Change:** Add a **Scope Establishment Pre-Phase** declaration to `pert-estimation` before sizing begins. The declaration must: (1) state which path applies: artifact-access or inference-based; (2) for artifact-access: declare the five activities (artifact review, WBS mapping, manual-test decomposition, complexity classification, priority assignment, cross-artifact reconciliation) and estimate effort at 2–5% of projected base total; (3) for inference-based (default): declare the derivation basis (module list, feature count, domain density assumptions), state the confidence level explicitly ("Estimated ± 30% — no artifact verification"), and increase the risk contingency overhead accordingly; (4) in both cases: output an explicit scenario count with derivation path label before PERT sizing begins. The inference-based path is the skill's normal operating mode — artifact access is a premium engagement condition, not the default.
 - **Impact:** High — unpriced scope establishment effort and undeclared count confidence are the two most consistent sources of post-award estimation disputes; surfacing both at the output level prevents them
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Scope Establishment Pre-Phase
 - **Priority:** High
 
 ---
@@ -152,7 +152,7 @@
 - **Root Cause:** The skill was designed to size the core automation development work. Overhead categories were treated as delivery concerns outside the estimation scope. In practice, RFP-grade estimates are expected to include these categories — their absence signals an inexperienced costing model.
 - **Suggested Change:** Add a **Delivery Overhead Categories** section to `pert-estimation` Output Format, applied as percentage additions to the post-multiplier adjusted base (the figure after all reduction factors are applied). Four required categories with reference percentages (to be declared as assumptions, adjustable by engagement): Stabilization (reference: 5–6%), Build Phase Maintenance (reference: 4–6%), Risk Contingency (reference: 3–7%), Governance and Reporting (reference: 1–3%). Each category percentage applies to the same adjusted base (post-Parameterization total). Produce a subtotal for overheads and add to adjusted base to reach the **Delivery-Ready Total**. Note: overhead percentages must be declared as assumptions, not hardcoded — engagements with fixed scope, clean environments, or low governance requirements may reduce or waive specific categories.
 - **Impact:** High — a proposal that omits these categories will be immediately identified as incomplete by client QA Managers; the gap between adjusted base and delivery-ready total is typically 15–20%, which is material to commercial viability
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Phase-Allocated Delivery Overheads
 - **Priority:** High
 
 ---
@@ -162,7 +162,7 @@
 - **Root Cause:** The skill uses percentages for computational simplicity. The implicit model is that enablement scales proportionally with engagement size. This is only valid up to a scale threshold — above ~6,000–8,000 hrs, a single framework alignment effort does not keep growing proportionally; it hits an infrastructure ceiling.
 - **Suggested Change:** Replace flat percentage calculations for enablement overheads in `pert-estimation` with **MIN-capped formulas**. Recommended structure: `MIN(cap_hours, adjusted_base × rate%)`. Reference values from LBMX workbook: Framework Alignment `MIN(200h, base×3%)`, Data Utilities `MIN(350h, base×1.5%)`, KT and Handover `MIN(250h, base×1%)`. CI/CD Integration: retain as fixed hours (independent of scenario count). Caps must be declared as assumptions — different environments or complexity levels may warrant adjustment. Add a note: "On engagements where adjusted base exceeds ~6,700h, MIN caps will activate and limit enablement overhead growth. Declare which caps are active in the Assumptions Block."
 - **Impact:** Medium — most impactful on large-scale engagements (>400 scenarios, adjusted base >6,000h); prevents systematic overcharging of enablement overhead; improves commercial accuracy and defensibility under client scrutiny
-- **Status:** Proposed
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Enablement MIN-Cap Formulas
 - **Priority:** Medium
 
 ---
@@ -172,7 +172,7 @@
 - **Root Cause:** The label "25%" may describe the proportion of scenarios eligible for normalization (25% of scenarios qualify), with the full effort impact being a deeper cut on those qualifying scenarios — but neither the eligible proportion nor the per-group reduction rate is declared in the workbook row. The discrepancy is also consistent with an unlabelled second factor being applied without a dedicated row.
 - **Suggested Change:** Add a **Factor Declaration Completeness Rule** to the estimation multiplier chain: each percentage label on a multiplier row must correspond to the actual sequential factor applied. If a label reads "Normalization 25%" but the factor applied is ×0.45, the row must either: (a) explain the derivation (e.g., "25% of scenarios eligible × 40% sub-reduction on qualifying group = combined ×0.85 on total" — or whatever the correct derivation is), OR (b) relabel as the actual factor applied. Opaque labels that do not match their numeric effect are a transparency and audit risk. This is a labelling and governance standard for estimation workbooks, not a model change. LBMX workbook discrepancy (label "25%", actual factor ×0.45) is the motivating example — retained as reference case; no LBMX-specific numbers hardcoded into the principle.
 - **Impact:** High — a large variance between declared label and applied factor cannot be explained away under client scrutiny; any manual recreation of the estimate from the label alone will produce a structurally different number
-- **Status:** Proposed (reduced to universal governance principle — LBMX-specific numbers stripped per Phase 8 Task 0.5)
+- **Status:** Implemented — `.claude/references/estimation-model.md` § Factor Declaration Completeness Rule (Phase 9, L-3)
 - **Priority:** High
 
 ---

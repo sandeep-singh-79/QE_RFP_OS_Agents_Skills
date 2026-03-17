@@ -1,6 +1,6 @@
 ---
 name: evidence-extraction
-description: Extract structured findings from artifacts and normalize them into the QE OS memory format. Powers Stage 1 — Evidence Extraction in the canonical workflow. Activates when artifacts are available for analysis, when Stage 1 begins, or when the conductor invokes evidence extraction. Writes all findings to memory.md with Finding IDs, confidence levels, and source traceability. Does not perform orchestration or invoke other agents.
+description: Extract structured findings from artifacts and normalize them into the QE OS memory format. Powers Stage 1 — Evidence Extraction in the canonical workflow. Activates when artifacts are available for analysis, when Stage 1 begins, or when the conductor invokes evidence extraction. Writes all findings to claude-memory/memory.md with Finding IDs, confidence levels, and source traceability. Does not perform orchestration or invoke other agents.
 ---
 
 # Skill: Evidence Extraction & Normalization
@@ -9,7 +9,7 @@ description: Extract structured findings from artifacts and normalize them into 
 
 Extract structured findings from artifacts and normalize them into the QE OS memory format.
 
-This skill powers **Stage 1 — Evidence Extraction** in the canonical workflow. It ensures every artifact registered in `artifacts.md` is analyzed, every finding is assigned a traceable ID and confidence level, and all output is written to `memory.md` in a consistent structure that downstream agents and governance stages can rely on.
+This skill powers **Stage 1 — Evidence Extraction** in the canonical workflow. It ensures every artifact registered in `claude-memory/artifacts.md` is analyzed, every finding is assigned a traceable ID and confidence level, and all output is written to `claude-memory/memory.md` in a consistent structure that downstream agents and governance stages can rely on.
 
 Without this skill, evidence extraction produces inconsistent output that breaks traceability at Stage 8.
 
@@ -20,7 +20,7 @@ Without this skill, evidence extraction produces inconsistent output that breaks
 This skill activates when **any** of the following are true:
 
 1. Stage 1 of the canonical workflow begins
-2. `artifacts.md` contains one or more artifacts with status `Pending Review`
+2. `claude-memory/artifacts.md` contains one or more artifacts with status `Pending Review`
 3. The user requests artifact analysis or evidence extraction explicitly
 4. The conductor invokes evidence extraction as part of workflow execution
 
@@ -30,13 +30,13 @@ This skill activates when **any** of the following are true:
 
 This skill may load **only**:
 
-- `claude-memory/artifacts.md` — to identify artifacts to analyze
-- The artifact files referenced in `claude-memory/artifacts.md` — the actual content to extract from
+- `claude-memory/claude-memory/artifacts.md` — to identify artifacts to analyze
+- The artifact files referenced in `claude-memory/claude-memory/artifacts.md` — the actual content to extract from
 - `claude-memory/memory.md` — to check for existing findings before writing (avoid overwriting)
 - `claude-memory/notes.md` — to check for in-progress context from earlier stages
 - `.claude/references/domain-regulatory-map.md` — for implicit domain detection and regulatory framework inference (Steps 10 and 12 of Responsibilities)
 
-It must **not** load other memory files (`insights.md`, `decisions.md`, `improvements.md`) unless a specific extraction task requires them. Context must be minimal and purposeful.
+It must **not** load other memory files (`claude-memory/insights.md`, `claude-memory/decisions.md`, `claude-memory/improvements.md`) unless a specific extraction task requires them. Context must be minimal and purposeful.
 
 ---
 
@@ -44,23 +44,25 @@ It must **not** load other memory files (`insights.md`, `decisions.md`, `improve
 
 When activated, this skill must:
 
-1. **Read artifacts** — load each artifact listed in `artifacts.md` with status `Pending Review`
+1. **Read artifacts** — load each artifact listed in `claude-memory/artifacts.md` with status `Pending Review`
 1a. Skip artifacts whose status is already "Evidence Extracted" unless explicitly re-run.
 2. **Identify artifact types** — classify each as: RFP Document / Clarification / Architecture Diagram / Test Asset / Transcript / KEDB / Other
 3. **Extract structured findings** — scan each artifact for requirements, constraints, risks, gaps, and opportunities
 4. **Assign Finding IDs** — assign a sequential ID in the format `F[N]` (e.g., F1, F2, F3) to every finding; IDs must be unique and never reused
 5. **Assign confidence levels** — rate each finding as High, Medium, or Low based on how clearly it is stated in the source artifact
-6. **Detect contradictions** — identify findings that conflict with existing entries in `memory.md`; do not overwrite — record as a conflicting finding
+6. **Detect contradictions** — identify findings that conflict with existing entries in `claude-memory/memory.md`; do not overwrite — record as a conflicting finding
 7. **Normalize findings** — apply the standard finding structure (see below) to all extracted findings
-8. **Write results to `memory.md`** — append all findings; never overwrite existing content
-9. **Detect explicit regulations** — scan artifacts for named regulatory frameworks (e.g., GDPR, PCI DSS, HIPAA, SOC 2, ISO 27001). If found, set `Regulatory Context = Explicit` in `memory.md` and record each regulatory reference as a finding with Evidence Type `Compliance Requirement`.
+8. **Write results to `claude-memory/memory.md`** — append all findings; never overwrite existing content
+9. **Detect explicit regulations** — scan artifacts for named regulatory frameworks (e.g., GDPR, PCI DSS, HIPAA, SOC 2, ISO 27001). If found, set `Regulatory Context = Explicit` in `claude-memory/memory.md` and record each regulatory reference as a finding with Evidence Type `Compliance Requirement`.
 10. **Detect implicit regulatory domains** — if no explicit regulation is detected, check for domain terms indicating strongly regulated industries (see `.claude/references/domain-regulatory-map.md`). If a regulated domain is confirmed, set `Regulatory Context = Inferred`. Do not override `Explicit` once set.
-11. **Record client domain** — when domain terms appear in artifacts (e.g., digital banking platform, card payment processing, patient data platform, energy grid system), record `Client Domain: [Domain]` in `memory.md`. Domain labels must be drawn from artifact content — never inferred without textual evidence.
+11. **Record client domain** — when domain terms appear in artifacts (e.g., digital banking platform, card payment processing, patient data platform, energy grid system), record `Client Domain: [Domain]` in `claude-memory/memory.md`. Domain labels must be drawn from artifact content — never inferred without textual evidence.
 12. **Apply regulatory framework context** — this step behaves differently depending on whether Stage 0 has already run:
 
    **Full workflow (Stage 0 completed):** Read `Regulatory Context` from `plan.md` Engagement Details (set at Stage 0). Use the value to tag compliance-related findings during extraction. Do not re-run domain × geography inference — it was completed at Stage 0.
 
-   **Spot-task / Mode 2 (no Stage 0):** If `plan.md` does not exist or has no `Regulatory Context` field, run domain × geography inference independently: after domain (Step 11) and geography signals are extracted, cross-reference the **Domain × Geography → Regulatory Framework Inference** table in `.claude/references/domain-regulatory-map.md`. If a matching combination is found, write inferred frameworks to `memory.md` under `## Regulatory Context (Inferred)` using the format defined in that table. If geography cannot be determined from artifacts, skip inference.
+   **Spot-task / Mode 2 (no Stage 0):** If `plan.md` does not exist or has no `Regulatory Context` field, run domain × geography inference independently: after domain (Step 11) and geography signals are extracted, cross-reference the **Domain × Geography → Regulatory Framework Inference** table in `.claude/references/domain-regulatory-map.md`. If a matching combination is found, write inferred frameworks to `claude-memory/memory.md` under `## Regulatory Context (Inferred)` using the format defined in that table. If geography cannot be determined from artifacts, skip inference.
+
+   > **Mode 2 canonical definition:** The full Spot-Task operating mode rules (No-Memory Disclosure, Input Validation Gate, quality gate applicability, and scope declaration requirements) are defined in `.claude/AGENTS.md` — `## Operating Modes — Mode 2`. This step covers only the regulatory inference path for Mode 2. See `AGENTS.md` for the complete governing rules.
 
    In both paths: do not overwrite `Regulatory Context = Explicit` if already set — add inferred frameworks as supplementary context only.
 
@@ -68,7 +70,7 @@ When activated, this skill must:
 
 ## Finding Structure
 
-All findings written to `memory.md` must follow this structure:
+All findings written to `claude-memory/memory.md` must follow this structure:
 
 ```md
 ### Finding F[ID]
@@ -105,14 +107,14 @@ Solution must address data protection obligations; output framing may reference 
 
 ## Value Claim Trace Block (Canonical Schema)
 
-If the Description or Implication of a finding contains a quantified claim (%, $, × times, days, or hours), a Value Claim Trace block is **mandatory**. Write it to the `## Value Claim Traces` section at the bottom of `memory.md` — **not inline with the finding**.
+If the Description or Implication of a finding contains a quantified claim (%, $, × times, days, or hours), a Value Claim Trace block is **mandatory**. Write it to the `## Value Claim Traces` section at the bottom of `claude-memory/memory.md` — **not inline with the finding**.
 
 In the finding block itself, add only a reference line:
 ```md
 **Value Claim Trace:** Ref → ## Value Claim Traces — F[ID]
 ```
 
-In the `## Value Claim Traces` section of `memory.md`, write the full block:
+In the `## Value Claim Traces` section of `claude-memory/memory.md`, write the full block:
 ```md
 ### Value Claim Trace — F[ID]
 - Claim: [the stated outcome or improvement benefit]
@@ -122,7 +124,7 @@ In the `## Value Claim Traces` section of `memory.md`, write the full block:
 - Confidence: High / Medium / Low
 ```
 
-If a quantified claim is present and this block is absent or incomplete, append the following entry under the `## Missing Evidence` section in `memory.md` (create the section if it does not yet exist — do not repeat the section header for each entry):
+If a quantified claim is present and this block is absent or incomplete, append the following entry under the `## Missing Evidence` section in `claude-memory/memory.md` (create the section if it does not yet exist — do not repeat the section header for each entry):
 
 ```md
 ### Missing: Value Claim Trace for Finding F[ID]
@@ -203,7 +205,7 @@ Question — [full question text as stated in the RFP]
 
 ## Missing Evidence Structure
 
-Missing evidence is evidence that is **referenced or implied** by artifacts but not provided. It is not the same as a finding — it does not receive a Finding ID. Instead, it is recorded under a dedicated `## Missing Evidence` heading in `memory.md`.
+Missing evidence is evidence that is **referenced or implied** by artifacts but not provided. It is not the same as a finding — it does not receive a Finding ID. Instead, it is recorded under a dedicated `## Missing Evidence` heading in `claude-memory/memory.md`.
 
 ### Rule: Record All Missing Evidence
 
@@ -238,7 +240,7 @@ If an artifact references something relevant to the solution but not provided (e
 
 ## Contradiction Handling
 
-When a new finding contradicts an existing finding in `memory.md`, the skill must **not** overwrite the original. Instead, append a conflicting finding block immediately after the original:
+When a new finding contradicts an existing finding in `claude-memory/memory.md`, the skill must **not** overwrite the original. Instead, append a conflicting finding block immediately after the original:
 
 ```md
 ### ⚠ CONFLICTING FINDING
@@ -259,9 +261,9 @@ Conflicting findings must be surfaced at Stage 8 (Governance Validation) by the 
 This skill must not:
 
 - Infer facts that are not present in or directly supported by a source artifact
-- Overwrite or delete existing findings in `memory.md`
+- Overwrite or delete existing findings in `claude-memory/memory.md`
 - Modify the artifact files being analyzed
-- Assign a Finding ID that already exists in `memory.md`
+- Assign a Finding ID that already exists in `claude-memory/memory.md`
 - Proceed silently past an artifact that cannot be loaded — report the failure
 
 If a finding cannot be classified with confidence above Low, it must still be recorded — omission is worse than a low-confidence finding.
@@ -274,7 +276,7 @@ After execution, this skill hands off to:
 
 **Stage 2 — Memory Initialization**
 
-The handoff artifact is `memory.md`, which must contain at minimum:
+The handoff artifact is `claude-memory/memory.md`, which must contain at minimum:
 - One entry per extracted finding with a valid Finding ID
 - Confidence level on every finding
 - Source artifact reference on every finding
@@ -282,7 +284,7 @@ The handoff artifact is `memory.md`, which must contain at minimum:
 - `Regulatory Context` field set to `Explicit`, `Inferred`, or `Unknown`
 
 **Extraction Completeness Declaration:**
-Write the following statement to `memory.md` before handoff. If an `## Extraction Completeness` section already exists (from a prior run), **overwrite it** — do not append a second instance.
+Write the following statement to `claude-memory/memory.md` before handoff. If an `## Extraction Completeness` section already exists (from a prior run), **overwrite it** — do not append a second instance.
 
 ```md
 ## Extraction Completeness
@@ -306,7 +308,7 @@ Downstream agents (Starting at Stage 4) must not begin analysis until Stage 2 co
 If no artifacts are available or all artifacts have status `Not Applicable`:
 
 ```
-Output: "No artifacts available for evidence extraction. memory.md has not been populated by this skill. Workflow may continue if memory.md contains pre-existing findings from a prior run."
+Output: "No artifacts available for evidence extraction. claude-memory/memory.md has not been populated by this skill. Workflow may continue if claude-memory/memory.md contains pre-existing findings from a prior run."
 ```
 
-The workflow continues — it does not hard-block. However, if `memory.md` is also empty, Stage 2 will flag minimum context unavailable.
+The workflow continues — it does not hard-block. However, if `claude-memory/memory.md` is also empty, Stage 2 will flag minimum context unavailable.
