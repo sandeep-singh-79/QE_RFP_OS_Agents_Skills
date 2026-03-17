@@ -1,8 +1,12 @@
 # SETUP.md — Workspace Initialization
 
-**Load this file:** During workspace initialization only, before Stages 0–3 begin. Not required during agent execution (Stages 4+) unless file templates or initialization order need to be consulted.
+**Load this file:**
+- During workspace initialization, before Stages 0–3 begin
+- At Stage 0 — when initialising the `## Dependency Register` in `claude-memory/notes.md` (template defined in File Templates below)
+- At Stage 4+ — when creating `outputs/staged-proposal.md` for the first time (template defined in File Templates below)
+- By the system change author (human) — before committing any change to `.claude/` or `claude-memory/improvements.md` (System Change Review Checklist, end of this file)
 
-Workspace initialization procedures for the QE RFP Operating System. Load this file when setting up a new engagement workspace or when file templates are needed for initialization.
+Workspace initialization procedures for the QE RFP Operating System, engagement teardown procedure, and System Change Review Checklist for human developers committing changes to system files.
 
 ---
 
@@ -18,6 +22,20 @@ If required workspace files or folders do not exist, the system may create them 
 5. Never create agent or skill files during initialization — these are system-managed
 
 ### File Templates (for creation on first use)
+
+**claude-memory/memory.md** — Header: `# Findings Memory` + `> Extracted findings for current engagement. Written by Stage 1 (evidence-extraction skill). Read by all downstream agents and Stage 8 governance.`
+
+Initial metadata block (written by Conductor at Stage 2):
+```md
+Client Domain: [Banking / Healthcare / Payments / etc. — or omit if unknown]
+Regulatory Context: [Explicit / Inferred ([framework], confidence [score]) / Unknown]
+
+## Extraction Completeness
+Extraction status: [Complete / Partial]
+[If Partial: list artifacts not yet processed and reason]
+```
+
+---
 
 **claude-memory/decisions.md** — Header: `# Decisions Log` + `> Tracks major decisions made during engagement analysis.`
 
@@ -82,7 +100,7 @@ Initial sections on first creation:
 | Stage 1 — Evidence Extraction | Not Started | |
 | Stage 2 — Memory Initialization | Not Started | |
 | Stage 3 — Gap Coverage Enforcement | Not Started | |
-| Stage 3.5 — Capability Coverage | Not Started | |
+| Stage 3.5 — Capability Coverage Check | Not Started | |
 | Stage 4 — Solution Design | Not Started | |
 | Stage 5 — Architecture Validation | Not Started | |
 | Stage 6 — Delivery Validation | Not Started | |
@@ -146,7 +164,9 @@ If you cannot confirm this, do not begin the new engagement. Re-run Steps 1–3.
 
 ## System Change Review Checklist
 
-Run this checklist before committing any change to system files (`.claude/`, `claude-memory/improvements.md`). Each check is derived from a real failure pattern found during post-implementation review.
+**Audience:** This checklist is for the **human developer or system author** making changes to system files. It is not an agent-runtime check. Run it before every commit to `.claude/` or `claude-memory/improvements.md`.
+
+Each check is derived from a real failure pattern found during post-implementation review. The **Found in:** note in each Pattern field names historical examples where that violation was first discovered — those files have since been fixed. Do not interpret the historical examples as indicating current violations in those files.
 
 The checklist is divided into two passes. Run Pass 1 first (structural — grep-based, exhaustive). Run Pass 2 second (consistency — cross-file, reasoning-based).
 
@@ -157,17 +177,27 @@ The checklist is divided into two passes. Run Pass 1 first (structural — grep-
 These checks are mechanical. Every item must return zero violations before Pass 2 begins.
 
 #### Check 1.1 — Bare Memory File References
-**Pattern:** Files in `claude-memory/` referenced without the `claude-memory/` prefix. Found in: AGENTS.md (Stages 1–3 action lines, Stage 0 Constrained note), capability-coverage SKILL.md, evidence-extraction SKILL.md, evidence-reconciliation SKILL.md, kpi-baseline SKILL.md, pert-estimation SKILL.md, SETUP.md file templates.
+**Pattern:** Files in `claude-memory/` referenced without the `claude-memory/` prefix. Found in: AGENTS.md (Stages 1–3 action lines, Stage 0 Constrained note), capability-coverage SKILL.md, evidence-extraction SKILL.md, evidence-reconciliation SKILL.md (frontmatter `description:` field), kpi-baseline SKILL.md, pert-estimation SKILL.md, SETUP.md file templates.
 
 **How to check:** Search every changed file for bare references to these filenames without a directory prefix:
 ```
 memory.md, notes.md, artifacts.md, insights.md, decisions.md, improvements.md
 ```
-**Pass condition:** Every occurrence carries either `claude-memory/` prefix or `.claude/` prefix (for system files). Zero bare references permitted in any instruction, action, output, or scope list.
+
+**Scope — check ALL of the following, not just body text:**
+- Instruction lines (load, read, write, populate, check, verify, update)
+- YAML frontmatter `description:` and `name:` fields — these are frequently missed
+- Table cells and bullet lists
+- Output format examples
+- Context Scope declarations
+
+**Pass condition:** Every occurrence carries either `claude-memory/` prefix or `.claude/` prefix (for system files). Zero bare references permitted in any of the above contexts.
 
 **Exceptions — bare references are valid only when:**
-- The reference is inside a code block illustrating user-facing file structure (e.g., a template)
+- The reference is inside a ` ``` ` code block illustrating user-facing file structure (e.g., a template or schema)
 - The file is `plan.md` — it lives at workspace root, not in `claude-memory/`
+- The text is a section heading or prose that *describes the file itself* (e.g., `## Artifact Index (artifacts.md)` or `memory.md header fields:`) — these are explanatory labels, not access instructions. If in doubt: does the line instruct an agent to load or access the file? If yes, it must have the prefix.
+- The text is a historical violation example or pattern description (e.g., `**Pattern:** ... Found in: ... improvements.md`) — these are documentation sentences naming files as examples, not agent instructions. This exemption applies to entries in this checklist itself.
 
 ---
 
@@ -200,10 +230,44 @@ memory.md, notes.md, artifacts.md, insights.md, decisions.md, improvements.md
 
 **How to check:** Scan changed files for:
 - Repeated `---` dividers (two in sequence with no content between them)
-- Duplicate numbered list items (same item text appearing twice in the same ordered list)
+- Duplicate numbered list items — same item text appearing **twice within the same ordered list block** (not across different sections of the file)
 - Duplicate section headings at the same heading level within the same file
 
-**Pass condition:** Zero duplicated structural elements.
+**Pass condition:** Zero duplicated structural elements within the same list or section scope. Note: identical item text appearing in two *different* sections (e.g., the same governance step repeated for Stage 1 and Stage 2) is not a violation.
+
+---
+
+#### Check 1.4 — Malformed File Paths
+**Pattern:** File path strings that are syntactically incorrect — double-prefix, missing directory, wrong separator. Found in: evidence-extraction SKILL.md Context Scope with `claude-memory/claude-memory/artifacts.md` (double-prefix introduced during editing).
+
+**How to check:** Search every changed file for any path string containing:
+- Double directory prefix — in instructions or scope declarations: `claude-memory/claude-memory/` or `.claude/.claude/`
+- Paths starting with `/` that are meant to be workspace-relative
+- Backslash separators `\` in path strings (all paths must use `/`)
+
+Note: example patterns that appear inside inline code spans (` \`claude-memory/claude-memory/\` `) or inside this checklist's own **Pattern** description lines are not violations — they are documentation.
+
+Scan particularly in:
+- Context Scope declarations in SKILL.md files
+- Agent Context Scope table in AGENTS.md
+- File reference lines in SETUP.md
+
+**Pass condition:** Every file path string has exactly one directory prefix and uses forward slashes.
+
+---
+
+#### Check 1.5 — Frontmatter Integrity (Agent and Skill Files)
+**Pattern:** YAML frontmatter in agent or skill files missing required fields, or `description:` field becoming stale after body edits. Found in: evidence-reconciliation SKILL.md frontmatter `description:` field contained a bare memory ref and described stale scope after the Context Scope section was updated.
+
+**When this check applies:** Run on every changed `.md` file inside `.claude/agents/` or `.claude/skills/*/`.
+
+**How to check:**
+1. Confirm a YAML frontmatter block is present (file starts with `---`, has `name:` and `description:` fields, closes with `---`)
+2. Confirm `name:` matches the file's stem — e.g., `name: conductor` for `conductor.md`; `name: capability-coverage` for `capability-coverage/SKILL.md`
+3. Confirm `description:` contains no bare memory file references (apply Check 1.1 scope to the frontmatter fields specifically)
+4. Confirm `description:` still accurately reflects the body scope — if allowed/prohibited skills changed, or the activation conditions changed, the description must also be updated
+
+**Pass condition:** Frontmatter block present with valid `name:` and `description:`. Description is free of bare refs and consistent with body content.
 
 ---
 
@@ -237,15 +301,18 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
-#### Check 2.3 — AGENTS.md ↔ Skill Handoff Alignment
-**Pattern:** Stage definitions in AGENTS.md and the corresponding SKILL.md contradict each other on inputs, outputs, or storage targets. Found in: Stage 3 in AGENTS.md wrote gap coverage to `notes.md`, but evidence-reconciliation SKILL.md's Deferred Validation Gate read from `memory.md` — a mismatch that broke the Stage 3 → Stage 8 data flow.
+#### Check 2.3 — Stage Procedure ↔ Governance ↔ Skill Handoff Alignment
+**Pattern:** Stage definitions in AGENTS.md, governance obligations in conductor.md, and the corresponding SKILL.md contradict each other on inputs, outputs, or storage targets. Found in: Stage 3 in AGENTS.md wrote gap coverage to `claude-memory/notes.md`, but evidence-reconciliation SKILL.md's Deferred Validation Gate read from `claude-memory/memory.md` — a mismatch that broke the Stage 3 → Stage 8 data flow.
 
-**How to check:** For every changed stage definition or changed SKILL.md:
-1. Find the corresponding SKILL.md (for a changed stage) or AGENTS.md stage definition (for a changed skill)
-2. Verify: Output file written by stage N matches input file read by stage N+1 or stage 8
-3. Verify: Skill handoff section names the correct next stage and correct output file
+**Three-way check** (AGENTS.md owns procedure; conductor.md owns governance enforcement; SKILL.md owns execution logic):
 
-**Pass condition:** Every stage output consumed by a downstream stage or skill matches exactly — file name, section heading, and content type.
+**How to check:** For every changed stage definition, conductor.md governance section, or changed SKILL.md:
+1. Find all three: (a) AGENTS.md stage definition, (b) the corresponding conductor.md Stage Responsibilities section, (c) the corresponding SKILL.md
+2. Verify: Output file written by stage N in AGENTS.md matches the file the conductor.md governance obligation references, and matches the input file declared in the downstream SKILL.md or stage definition
+3. Verify: Section heading names (`## Gap Coverage`, `## Stage 4 — Solution Design`, etc.) match exactly across all three
+4. Verify: The conductor.md `Procedure: Follow AGENTS.md — [section]` pointer names a section that actually exists in AGENTS.md
+
+**Pass condition:** Every stage output consumed by a downstream stage or skill matches exactly across all three files — file name, section heading, and content type. No dangling conductor pointers.
 
 ---
 
@@ -260,18 +327,51 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
+#### Check 2.5 — Agent Roster and Context Scope Table Completeness
+**Pattern:** A new agent is added to the Agent Roster table but its corresponding file does not exist, or the Agent Context Scope table is not updated to include a row for the new agent. Found in: conductor agent added to Agent Roster without a conductor-specific row in prior Context Scope iterations.
+
+**When this check applies:** Run when AGENTS.md Agent Roster or Agent Context Scope table is changed, or when a new agent file is created.
+
+**How to check:**
+1. For every row in the Agent Roster table: confirm the listed file path (`agents/[name].md`) exists in `.claude/agents/`
+2. For every new or modified agent: confirm a corresponding row exists in the Agent Context Scope table with all required memory files listed
+3. For every row in the Agent Context Scope table: confirm each file listed in the Required Context column either exists in the workspace or is declared in SETUP.md file templates as a create-on-first-write file
+4. Verify the Agent Roster row count equals or is covered by the Context Scope table row count (accounting for agents with multiple context rows like the Conductor)
+
+**Pass condition:** Every agent in the Roster has a file that exists. Every agent has at least one Context Scope row. No phantom file references in scope declarations.
+
+---
+
+#### Check 2.6 — Cross-File Pointer Correctness
+**Pattern:** Files that reference sections or headings in other files by name can silently break when the target file is renamed or restructured. Found in: conductor.md uses `Procedure: Follow AGENTS.md — Stage N — [Name]` references; skill files reference other skill files and AGENTS.md sections by heading name.
+
+**When this check applies:** Run when conductor.md Stage Responsibilities are changed, or when any file adds a cross-file section reference (e.g., `See [file] — [## Section Name]`).
+
+**How to check:**
+1. For every `Procedure: Follow AGENTS.md — [section name]` in conductor.md: confirm that exact section heading exists in AGENTS.md
+2. For every `see [file] — [## Section]` or `load [file] — [## Section]` instruction in any changed file: confirm the target section heading exists in the referenced file
+3. For every agent or skill file reference in the Agent Roster or Skill Roster table: confirm the file path is correct and the file exists
+
+**Pass condition:** Every cross-file section pointer resolves to an existing heading in the target file. No dangling references.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
 
 | Check | Description | Status |
 |---|---|---|
-| 1.1 | Bare memory file references — zero found | Pass / ⚠ Fail |
+| 1.1 | Bare memory file references — zero found (including frontmatter fields) | Pass / ⚠ Fail |
 | 1.2 | Stage names match canonical set exactly | Pass / ⚠ Fail |
-| 1.3 | No duplicate content or structural dividers | Pass / ⚠ Fail |
+| 1.3 | No duplicate content or structural dividers (within same list scope) | Pass / ⚠ Fail |
+| 1.4 | No malformed file paths (double-prefix, wrong separator) | Pass / ⚠ Fail |
+| 1.5 | Frontmatter present and valid on all changed agent/skill files | Pass / ⚠ Fail |
 | 2.1 | Context scope lists every file accessed by stage/skill | Pass / ⚠ Fail |
 | 2.2 | New/moved files propagated to all reference points | Pass / ⚠ Fail |
 | 2.3 | Stage ↔ skill handoff file paths align end-to-end | Pass / ⚠ Fail |
 | 2.4 | Shared templates/rules have single source of truth | Pass / ⚠ Fail |
+| 2.5 | Agent Roster files exist; Context Scope table has row for every agent | Pass / ⚠ Fail |
+| 2.6 | Cross-file section pointers resolve to existing headings | Pass / ⚠ Fail |
 
 Any `⚠ Fail` blocks commit. Resolve before pushing.
