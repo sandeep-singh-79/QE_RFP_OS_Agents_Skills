@@ -1,6 +1,6 @@
 ---
 name: evidence-reconciliation
-description: Ensure all findings extracted during evidence extraction are addressed before final outputs are produced. Powers Stage 8 — Governance Validation in the canonical workflow. Activates when solution output is produced and governance validation begins. Checks every finding in memory.md for resolution, surfaces unresolved and conflicting findings, and enforces traceability by requiring Finding ID references on all addressed findings. Does not mark findings resolved without evidence. Does not perform orchestration.
+description: Ensure all findings extracted during evidence extraction are addressed before final outputs are produced. Powers Stage 8 — Governance Validation in the canonical workflow. Activates when solution output is produced and governance validation begins. Checks every finding in claude-memory/memory.md for resolution, surfaces unresolved and conflicting findings, and enforces traceability by requiring Finding ID references on all addressed findings. Does not mark findings resolved without evidence. Does not perform orchestration.
 ---
 
 # Skill: Evidence Reconciliation Thinking

@@ -30,8 +30,8 @@ This skill activates when **any** of the following are true:
 
 This skill may load **only**:
 
-- `claude-memory/claude-memory/artifacts.md` — to identify artifacts to analyze
-- The artifact files referenced in `claude-memory/claude-memory/artifacts.md` — the actual content to extract from
+- `claude-memory/artifacts.md` — to identify artifacts to analyze
+- The artifact files referenced in `claude-memory/artifacts.md` — the actual content to extract from
 - `claude-memory/memory.md` — to check for existing findings before writing (avoid overwriting)
 - `claude-memory/notes.md` — to check for in-progress context from earlier stages
 - `.claude/references/domain-regulatory-map.md` — for implicit domain detection and regulatory framework inference (Steps 10 and 12 of Responsibilities)
