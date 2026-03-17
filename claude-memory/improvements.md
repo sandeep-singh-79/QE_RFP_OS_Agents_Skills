@@ -187,6 +187,36 @@
 
 ---
 
+### Improvement Proposal: IP-CX-01
+- **Observation:** The Agent Context Scope table lists only `plan.md` as Required Context for `Conductor (Stage 9)`. However, Stage 9 requires the Conductor to run a self-validation completeness check against each major output section and — conditionally — a cross-document duration consistency check if `outputs/estimation-proposal.md` exists. Both checks are impossible without loading the output files they operate on.
+- **Root Cause:** The scope row was set conservatively when Stage 9 was defined, before the self-validation loop and duration consistency check were added as mandatory Conductor obligations.
+- **Suggested Change:** Update the `Conductor (Stage 9)` row in the Agent Context Scope table to add `outputs/staged-proposal.md` (required) and `outputs/estimation-proposal.md` (conditional — load only if the file exists) to the Required Context column.
+- **Impact:** High — without these files in scope, the Conductor cannot legally execute mandatory Stage 9 gates; validations are either skipped or performed without their required evidence source.
+- **Status:** Implemented
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-CX-02
+- **Observation:** Two rules in AGENTS.md govern checkpoint enforcement and directly contradict each other. The Conductor Responsibilities summary states "do not advance if the checkpoint condition is not met" (hard block). But the summary note at the bottom of the Review Checkpoints table states "violations are flagged but do not hard-block unless a skill-level HALT applies." These are opposite behaviours for the same event.
+- **Root Cause:** The note at the bottom of the Review Checkpoints table was not aligned with the Conductor's HITL Escalation Protocol (defined in `conductor.md`), which classifies unmet checkpoint conditions as Blocking HITL — requiring halt and human resolution before advancement.
+- **Suggested Change:** Replace the contradicting note at the bottom of the Review Checkpoints table with a statement that aligns with the HITL protocol: unmet checkpoint conditions trigger Blocking HITL and must be resolved before advancement. Add a pointer to `agents/conductor.md — HITL Escalation Protocol`.
+- **Impact:** High — the conflicting statement creates opposite advancement decisions for the same failed checkpoint depending on which rule an agent reads first, directly undermining governance predictability.
+- **Status:** Implemented
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-CX-03
+- **Observation:** Stage 7 declares `Outcome & Risk Framing → Structuring & Consulting Thinking` as the required skill chain for pre-processing. But the two-step Execution Sequence assigns only Structuring to the Conductor (Step 1) and the Client/RFP Evaluator (Step 2). Outcome & Risk Framing is declared as required but has no designated owner, no assigned execution step, and is absent from the Conductor (Stage 7 pre-processing) context scope.
+- **Root Cause:** The Execution Sequence was written when Stage 7 pre-processing was single-skill (Structuring only). Outcome & Risk Framing was added to the Skills field without updating the Execution Sequence or the Agent Context Scope table.
+- **Suggested Change:** Expand Stage 7 Execution Sequence from two steps to three: Step 1 — Conductor applies `outcome-risk-framing` to frame findings in business impact and scoring consequence terms; Step 2 — Conductor applies `structuring-consulting-thinking` to pre-process the framed output; Step 3 — Client/RFP Evaluator reviews the structured, consequence-framed output. Update Agent Context Scope `Conductor (Stage 7 pre-processing)` to add `outcome-risk-framing` to the skill column. Update conductor.md Stage 7 governance to reference both skills.
+- **Impact:** High — without an explicit owner, Stage 7 can proceed without the consequence-framing step, producing outputs that have structure but lack the business-impact framing required for defensibility scoring.
+- **Status:** Implemented
+- **Priority:** High
+
+---
+
 ## Design Review — Conditionality & Engagement-Model Analysis
 
 > Recorded: March 2026 — LBMX estimation deep-dive session.

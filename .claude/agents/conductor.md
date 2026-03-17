@@ -84,9 +84,12 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 7 — Client Perspective Review (Pre-processing)
 
-**Procedure:** Follow the two-step Execution Sequence in `AGENTS.md — Stage 7 — Client Perspective Review`.
+**Procedure:** Follow the three-step Execution Sequence in `AGENTS.md — Stage 7 — Client Perspective Review`.
 
-**Governance:** Apply `structuring-consulting-thinking` to pre-process Stages 4–6 output before the Client / RFP Evaluator begins. The Evaluator receives already-structured input and must not invoke this skill directly.
+**Governance:**
+1. Apply `outcome-risk-framing` first to frame Stages 4–6 findings in business impact and scoring consequence terms.
+2. Apply `structuring-consulting-thinking` to pre-process the consequence-framed output before passing it to the Client / RFP Evaluator.
+3. The Evaluator receives already-framed and pre-structured input and must not invoke either skill directly.
 
 ### Stage 8 — Governance Validation (Coordination)
 
