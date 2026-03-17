@@ -222,9 +222,9 @@ Agents must load only the memory and workspace files relevant to their role. Loa
 | Agent | Required Context | Context & Skill Files |
 |---|---|---|
 | Conductor (Stages 0–3) | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `plan.md` | `evidence-extraction` |
-| Conductor (Stage 7 pre-processing) | `claude-memory/notes.md` | `structuring-consulting-thinking` |
+| Conductor (Stage 7 pre-processing) | `claude-memory/notes.md` | `outcome-risk-framing`, `structuring-consulting-thinking` |
 | Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `evidence-reconciliation`, `.claude/governance.md` |
-| Conductor (Stage 9) | `plan.md` | `review-challenge-thinking` |
+| Conductor (Stage 9) | `plan.md`, `outputs/staged-proposal.md`, `outputs/estimation-proposal.md` (conditional — load only if the file exists), `.claude/references/stage-9-output-structure.md` | `review-challenge-thinking` |
 | Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
 | QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `assumption-dependency-management` |
 | Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md`, `outputs/staged-proposal.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
@@ -432,11 +432,12 @@ Summary:
   Output:     Scoring risks, defensibility gaps, red flags
   **Output staging:** Append Stage 7 output to `outputs/staged-proposal.md` under `## Stage 7 — Client Perspective Review`. Create the file with the header defined in `.claude/SETUP.md` if it does not exist.
 
-  **Execution Sequence (two-step):**
-  - Step 1: Conductor applies Structuring & Consulting Thinking to pre-process and structure the Stages 4–6 output before it is passed to the Client / RFP Evaluator
-  - Step 2: Client / RFP Evaluator reviews the pre-structured output for scoring risks, defensibility gaps, and procurement red flags
+  **Execution Sequence (three-step):**
+  - Step 1: Conductor applies Outcome & Risk Framing to frame Stages 4–6 findings in business impact and scoring consequence terms
+  - Step 2: Conductor applies Structuring & Consulting Thinking to pre-process and structure the consequence-framed output
+  - Step 3: Client / RFP Evaluator reviews the structured, consequence-framed output for scoring risks, defensibility gaps, and procurement red flags
 
-  **Rule:** The Client / RFP Evaluator does not invoke Structuring & Consulting Thinking directly. It receives already-structured input from the Conductor.
+  **Rule:** The Client / RFP Evaluator does not invoke Outcome & Risk Framing or Structuring & Consulting Thinking directly. It receives already-framed and pre-structured input from the Conductor.
 
 ### Stage 8 — Governance Validation
   Purpose:    Enforce governance rules before output generation
@@ -550,7 +551,7 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 9 — Output Generation | `plan.md` engagement fields confirmed (not at template defaults); quality gate passed (Review & Challenge) + evidence-first compliance verified at Stage 8 | `plan.md` fields unset or at defaults; output not challenged or evidence gaps not cleared |
 | 10 — System Learning | Improvement proposals recorded | No retrospective performed |
 
-Checkpoint enforcement is at the **conductor level** — violations are flagged but do not hard-block unless a skill-level HALT applies.
+Checkpoint enforcement is at the **conductor level** — unmet checkpoint conditions trigger Blocking HITL and must be resolved before the stage advances. See `agents/conductor.md — HITL Escalation Protocol` for the full Blocking HITL taxonomy and output format.
 
 ---
 
