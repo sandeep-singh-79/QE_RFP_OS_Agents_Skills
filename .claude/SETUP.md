@@ -81,7 +81,7 @@ Initial sections on first creation:
 | Stage 0 — Artifact Discovery | Not Started | |
 | Stage 1 — Evidence Extraction | Not Started | |
 | Stage 2 — Memory Initialization | Not Started | |
-| Stage 3 — Gap Coverage | Not Started | |
+| Stage 3 — Gap Coverage Enforcement | Not Started | |
 | Stage 3.5 — Capability Coverage | Not Started | |
 | Stage 4 — Solution Design | Not Started | |
 | Stage 5 — Architecture Validation | Not Started | |

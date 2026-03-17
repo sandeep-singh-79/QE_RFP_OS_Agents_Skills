@@ -1,6 +1,6 @@
 ---
 name: capability-coverage
-description: Evaluate QE capability coverage by comparing client evidence against a baseline of expected QA engineering capabilities. Powers Stage 3.5 — Capability Coverage Check in the canonical workflow. Activates after Stage 3 Gap Coverage completes. Outputs a Capability / Status / Recommendation table covering eight QE domains. Does not assume capabilities are present without evidence. Does not perform orchestration or invoke other agents.
+description: Evaluate QE capability coverage by comparing client evidence against a baseline of expected QA engineering capabilities. Powers Stage 3.5 — Capability Coverage Check in the canonical workflow. Activates after Stage 3 Gap Coverage completes. Outputs a Capability / Status / Recommendation table covering nine QE domains. Does not assume capabilities are present without evidence. Does not perform orchestration or invoke other agents.
 ---
 
 # Skill: Capability Coverage Thinking
@@ -33,7 +33,7 @@ This skill may load **only**:
 - `claude-memory/notes.md` — to check for declared remediation paths during HALT Protocol Step 2 (conditional; loaded only when `Missing` domains are found)
 - Architecture artifacts referenced in `claude-memory/artifacts.md` that are directly relevant to a specific capability domain
 
-It must **not** load unnecessary files. If `qe-capability-map.md` does not yet exist, the skill must use the eight capability domains defined in this file as the baseline and note the absence.
+It must **not** load unnecessary files. If `qe-capability-map.md` does not yet exist, the skill must use the nine capability domains defined in this file as the baseline and note the absence.
 
 ---
 
