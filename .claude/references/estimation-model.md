@@ -390,6 +390,64 @@ Required output element alongside the Assumptions Block (mode-conditional):
 **Declaration format:**
 > *"Scope baseline: [N] scenarios ([path: artifact-derived / inferred / capacity-based]). Formal change control applies to scope changes ≥15% of this baseline."*
 
+---
+
+## Practitioner Rules
+
+> **Derived from:** LBMX engagement estimation sessions (March 2026). Applied at proposal stage when iterating or finalising an estimate. These rules require judgement on engagement context — they are not algorithmic.
+
+---
+
+### PR-1: Phase determinism = scope certainty, not phase type
+
+Whether to PERT a phase or flatten it at a fixed value is governed by **whether the variance is scope-driven or execution-driven** — not by which phase it is.
+
+| Phase variance type | Rule |
+|---|---|
+| **Scope uncertainty** — range depends on what will be discovered | Retain PERT O/M/P |
+| **Scope confirmed** — same team delivers, content known before engagement starts | Flatten at O (optimistic). Scope certainty removes the principal source of variance. |
+| **Execution uncertainty** — flaky selectors, CI instability, defect density | Always retain PERT. Cannot be eliminated by scope confirmation. |
+
+**Test:** *"Is the variance from not knowing what we’ll find, or from knowing what we’ll build but uncertainty on how smoothly it runs?"* Scope uncertainty collapses when scope is fixed. Execution uncertainty does not.
+
+**Stabilisation always retains PERT variance.** It reflects scripting-phase quality risk (flaky selectors, retry logic, CI instability) — not scope uncertainty. Do not flatten Stabilisation solely because other phases have been flattened.
+
+---
+
+### PR-2: Hypercare is conditional on engagement type — not a default phase
+
+Hypercare applies only to engagements with a **live production cutover** in scope. For fixed-scope automation delivery (scripting + execution, no production deployment), Hypercare is not applicable.
+
+**Rule:** Remove Hypercare by declaring a scope boundary, not by zeroing it. Output must state:
+> *"Hypercare — Out of Scope: engagement does not include a production cutover. If go-live support is added to scope, add [O=Xh / M=Yh / P=Zh] to this estimate."*
+
+Silently zeroing Hypercare obscures the scope decision. A procurement reviewer expects to see explicit in/out declaration.
+
+---
+
+### PR-3: E&R removal = scope transfer to client, not a cost reduction lever
+
+Execution & Reporting can only be removed from scope when the client **explicitly owns test execution**. It prices the cost of *running* what was scripted — if the vendor is not executing, this must be declared as a client-owned activity.
+
+**Rule:** If E&R is removed, output must state:
+> *"Execution & Reporting — Client-owned: [client/team] will execute scripted tests. If vendor execution is later added to scope, add [O=Xh / M=Yh / P=Zh] to this estimate."*
+
+Removing E&R without this declaration produces a scripting-only estimate that appears to price full engagement delivery but does not. This recreates the structural gap that makes OG-style workbooks incomparable to full-engagement models.
+
+---
+
+### PR-4: Third confidence tier — “Assumed” for zero-evidence situations
+
+The standard two-tier model (Evidenced / Inferred) does not cover assignments made with no supporting evidence of any kind. A third tier is required:
+
+| Tier | When to use |
+|---|---|
+| `Evidenced` | Assignment supported by artifact data, scan results, or documented client confirmation |
+| `Inferred` | Assignment derived from domain patterns, RFP context, or module structure — no direct artifact support |
+| `Assumed` | No supporting evidence of any kind; assignment made by analogy or practitioner experience alone |
+
+All `Assumed`-tier entries must carry a `[CLIENT CONFIRMATION REQUIRED]` flag and are the highest-priority items for pre-engagement confirmation. In Capacity-based mode, most entries will be `Assumed` or `Inferred` — `Evidenced` is rare.
+
 ### Minimum Viable Risk Register
 
 Standard section in estimation output (not optional). Tiered depth:

@@ -455,6 +455,16 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 
   Any `⚠ INCOMPLETE SECTION` flag must be resolved or explicitly acknowledged before Stage 9 clearance is granted.
 
+  **Cross-document duration consistency check — required when `outputs/estimation-proposal.md` exists:**
+  Any duration figure stated in an output section (e.g., "˜X months", "Y sprints", "Z weeks") must be derivable from or explicitly reference the authoritative sizing table in `outputs/estimation-proposal.md` (total hours ÷ team size ÷ utilisation rate). If a stated duration cannot be arithmetically reconciled with the sizing table, raise before clearance:
+
+  ```
+  ⚠ DURATION INCONSISTENCY — [Section name]
+  Stated: [duration figure as written in output]
+  Sizing table implies: [derived figure from estimation-proposal.md]
+  Resolution required before Stage 9 clearance is granted.
+  ```
+
   **Output structure reference:** Load `.claude/references/stage-9-output-structure.md` before generating output. It defines the canonical 19-section order, conditional section trigger rules, and per-section content rules (source inputs, formats, disclosure requirements, and suppression conditions for each section).
 
 ### Stage 10 — System Learning
