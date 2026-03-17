@@ -67,7 +67,7 @@ Load `references/estimation-model.md § Estimation Unit Derivation Paths` for pa
 
 > **Halting condition:** Incorrect unit-rate pairing (e.g., applying scenario rates to raw test case counts without decomposition) must be corrected before estimation proceeds.
 
-**Decision log entry (required when `decisions.md` is in use):** Estimation-unit decisions must declare both fields separately:
+**Decision log entry (required when `claude-memory/decisions.md` is in use):** Estimation-unit decisions must declare both fields separately:
 - `Counting Baseline:` [source artifact count — raw file or test case count before decomposition]
 - `Estimation Unit:` [unit used for PERT sizing — e.g., Automation Scenarios (WBS Level-3, artifact-derived)]
 
