@@ -33,78 +33,79 @@ When in doubt about whether to advance, the answer is to surface — not to deci
 
 ## Stage Responsibilities
 
+The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Multi-Agent Workflow` for each stage. The sections below define the conductor's **governance enforcement obligations** at each stage — the actions uniquely the conductor's accountability, complementing the procedure in `AGENTS.md`.
+
 ### Stage 0 — Artifact Discovery
 
-1. Confirm an artifact or document has been provided. If not, raise Input Validation Gate immediately — do not begin Stage 0.
-2. Register all available artifacts in `claude-memory/artifacts.md` with type classification.
-3. Identify missing artifact categories; record in `claude-memory/notes.md` under `## Missing Artifacts`.
-4. Populate `plan.md` Engagement Details block:
-   - Client, RFP/Document, Engagement Started, Discovery Maturity, Engagement Type, Application Count, Engagement Signals, Regulatory Context, Current Stage
-   - Load `.claude/references/stage-0-inputs.md` for valid values and classification procedure
-   - Regulatory Context: run domain × geography inference via `.claude/references/domain-regulatory-map.md`; raise Open Condition if confidence < 1.0
-   - Incumbent Vendor: run dual-path detection; record in Engagement Signals or raise Open Condition
-5. Initialise `## Dependency Register` in `claude-memory/notes.md`
-6. Set `plan.md` Current Stage to `Stage 0 — Artifact Discovery` (In Progress), then `Complete` on close
-7. **Checkpoint:** Artifact inventory complete; `plan.md` Engagement Details set to explicit non-placeholder values
+**Procedure:** Follow `AGENTS.md — Stage 0 — Artifact Discovery`.
+
+**Governance:**
+1. **Input Validation Gate:** If no artifact is provided, halt immediately — do not begin Stage 0. Raise `⚠ BLOCKING HITL — Input Validation Gate` (see HITL Protocol below).
+2. **Regulatory Context:** If confidence < 1.0, raise Open Condition before Stage 0 closes.
+3. **Incumbent Vendor:** If status is unanswerable, raise Advisory HITL and record Open Condition in `claude-memory/notes.md` before Stage 0 closes.
+4. **plan.md Update:** Set `Current Stage` to `Stage 0 — Artifact Discovery (In Progress)` at start; update to `Complete` when checkpoint is satisfied.
+5. **Checkpoint:** Do not advance to Stage 1 until artifact inventory is complete and `plan.md` Engagement Details are set to explicit non-placeholder values.
 
 ### Stage 1 — Evidence Extraction
 
-1. Invoke the `evidence-extraction` skill — load `.claude/skills/evidence-extraction/SKILL.md`
-2. Confirm all artifacts in `claude-memory/artifacts.md` reach status `Evidence Extracted` or `Not Applicable`
-3. Do not re-run domain × geography inference — it was completed at Stage 0
-4. Set `plan.md` Current Stage to `Stage 1 — Evidence Extraction` (In Progress → Complete)
-5. **Checkpoint:** All artifacts processed; `claude-memory/memory.md` populated with sourced, timestamped, confidence-rated findings
+**Procedure:** Follow `AGENTS.md — Stage 1 — Evidence Extraction`. Invoke the `evidence-extraction` skill.
+
+**Governance:**
+1. **Checkpoint:** Do not advance to Stage 2 until all artifacts in `claude-memory/artifacts.md` reach status `Evidence Extracted` or `Not Applicable`.
+2. **plan.md Update:** In Progress at start; Complete when checkpoint is satisfied.
 
 ### Stage 2 — Memory Initialization
 
-1. Verify `claude-memory/memory.md` findings are sufficient for downstream analysis
-2. Confirm `## Extraction Completeness` block written by Stage 1 is present. If `Extraction status = Partial`, record blocked analysis items in `claude-memory/notes.md`
-3. Load `claude-memory/insights.md` if it exists; note relevant prior patterns
-4. Write Regulatory Context handoff note to `claude-memory/notes.md`: `Regulatory Context (Stage 0): [value from plan.md]`
-5. Do not advance if critical artifacts (e.g., the RFP itself) are unprocessed
-6. Set `plan.md` Current Stage to `Stage 2 — Memory Initialization` (In Progress → Complete)
-7. **Checkpoint:** Extraction status is `Complete` or declared `Partial` with rationale; workspace memory ready
+**Procedure:** Follow `AGENTS.md — Stage 2 — Memory Initialization`.
+
+**Governance:**
+1. **Partial Extraction:** If `Extraction status = Partial`, record blocked analysis items in `claude-memory/notes.md` before advancing.
+2. **Checkpoint:** Do not advance to Stage 3 if critical artifacts (e.g., the RFP itself) are unprocessed.
+3. **plan.md Update:** In Progress at start; Complete when checkpoint is satisfied.
 
 ### Stage 3 — Gap Coverage Enforcement
 
-1. Cross-reference all High-confidence findings in `claude-memory/memory.md` against known requirements
-2. Write gap coverage report to `claude-memory/notes.md` under `## Gap Coverage`; prefix with `Discovery Maturity: [value from plan.md]`
-3. Every High-confidence finding must have one of these statuses: `Addressed`, `Out-of-Scope`, `Unresolved`, `Deferred to Transition — Explicitly Declared`
-4. `Deferred to Transition` requires all three fields declared: Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable. Missing any field: revert to `Unresolved`
-5. `Unresolved` findings raise a Blocking HITL before Stage 3.5 advances
-6. Medium-confidence findings: include in report; do not block closure if unresolved
-7. Set `plan.md` Current Stage to `Stage 3 — Gap Coverage Enforcement` (In Progress → Complete)
-8. **Checkpoint:** Every High-confidence finding accounted for; gap coverage report written to `claude-memory/notes.md`
+**Procedure:** Follow `AGENTS.md — Stage 3 — Gap Coverage Enforcement`.
+
+**Governance:**
+1. **Deferred Validation:** For every `Deferred to Transition` finding, confirm all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reject the deferral and revert to `Unresolved`.
+2. **Blocking HITL:** For every `Unresolved` High-confidence finding, raise `⚠ BLOCKING HITL` before Stage 3.5 advances.
+3. **plan.md Update:** In Progress at start; Complete when checkpoint is satisfied.
 
 ### Stage 3.5 → Stage 4 Transition
 
-1. Confirm Capability Coverage Check output is complete (all domains assessed)
-2. Apply HALT Protocol per `.claude/skills/capability-coverage/SKILL.md`: if any `Missing` domain has no declared remediation, do not advance Stage 4
-3. If optional Question → Capability Mapping is invoked, confirm output is written to `claude-memory/notes.md` before Stage 4 begins
-4. Do not invoke qe-architect-thinking — architectural analysis begins at Stage 4 with the Test Architect
+**Procedure:** Follow `AGENTS.md — Stage 3.5 — Capability Coverage Check`. Apply HALT Protocol per `.claude/skills/capability-coverage/SKILL.md`.
+
+**Governance:**
+1. Confirm all nine capability domains are assessed before Stage 4 begins.
+2. If any `Missing` domain has no declared remediation, block Stage 4 — raise Blocking HITL.
+3. If Question → Capability Mapping is invoked, confirm output is written to `claude-memory/notes.md` before Stage 4 begins.
+4. Do not invoke `qe-architect-thinking` — architectural analysis begins at Stage 4 with the Test Architect.
 
 ### Stage 7 — Client Perspective Review (Pre-processing)
 
-Before the Client / RFP Evaluator begins Stage 7:
+**Procedure:** Follow the two-step Execution Sequence in `AGENTS.md — Stage 7 — Client Perspective Review`.
 
-1. Apply `structuring-consulting-thinking` to pre-process and structure the Stages 4–6 output
-2. Ensure structured output is available as the input to the Client / RFP Evaluator
-3. The Client / RFP Evaluator receives already-structured input — it does not invoke Structuring & Consulting Thinking directly
+**Governance:** Apply `structuring-consulting-thinking` to pre-process Stages 4–6 output before the Client / RFP Evaluator begins. The Evaluator receives already-structured input and must not invoke this skill directly.
 
 ### Stage 8 — Governance Validation (Coordination)
 
-1. Load `.claude/governance.md` at the start of Stage 8
-2. Provide `evidence-reconciliation` skill access to `claude-memory/notes.md` (`## Gap Coverage`) and `claude-memory/memory.md`
-3. Ensure the skill can check for: unresolved High-confidence findings, `⚠ INCOMPLETE DEFERRAL` conditions, missing evidence traceability (`⚠ EVIDENCE GAP`), regulatory control mapping (`⚠ REGULATORY TRACE GAP`)
-4. Stage 9 does not begin until Stage 8 governance clearance is confirmed or human approval is obtained for each exception
+**Procedure:** Follow `AGENTS.md — Stage 8 — Governance Validation`.
+
+**Governance:**
+1. Load `.claude/governance.md` at the start of Stage 8.
+2. Provide `evidence-reconciliation` skill access to `claude-memory/notes.md` (`## Gap Coverage`) and `claude-memory/memory.md`.
+3. Stage 9 does not begin until Stage 8 governance clearance is confirmed or human approval is obtained for each exception.
 
 ### Stage 9 — Output Generation (Quality Gate)
 
-1. Before generating output: validate `plan.md` engagement fields — Engagement Type, Engagement Signals, Discovery Maturity, Application Count must all be set to explicit non-placeholder values. If invalid, raise Blocking HITL before proceeding.
-2. Run the self-validation completeness check (per `.claude/skills/review-challenge-thinking/SKILL.md`) against each major output section. Flag any failing section `⚠ INCOMPLETE SECTION` before passing to the quality gate.
-3. If `outputs/estimation-proposal.md` exists: run cross-document duration consistency check — stated durations must be arithmetically reconcilable with the sizing table. Raise `⚠ DURATION INCONSISTENCY` if not.
-4. Invoke `review-challenge-thinking` quality gate. Stage 9 output is not cleared until the gate passes or exceptions are explicitly acknowledged.
-5. Load `.claude/references/stage-9-output-structure.md` for canonical 19-section order and conditional section trigger rules.
+**Procedure:** Follow `AGENTS.md — Stage 9 — Output Generation`.
+
+**Governance:**
+1. Enforce `plan.md` field validation gate before any output section is generated — raise Blocking HITL if any field is invalid.
+2. Run the self-validation completeness check (per `.claude/skills/review-challenge-thinking/SKILL.md`) before the quality gate clears. Flag any failing section `⚠ INCOMPLETE SECTION`.
+3. If `outputs/estimation-proposal.md` exists, enforce cross-document duration consistency check before clearance.
+4. Stage 9 output is not cleared until the `review-challenge-thinking` quality gate passes or exceptions are explicitly acknowledged.
 
 ---
 

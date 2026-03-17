@@ -259,9 +259,9 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 ### capability-coverage
 
 **Trigger prompts**
-1. "Stage 3 is done. Now run Stage 3.5 — I want to know which of the eight QE capability domains are addressed, which are partially addressed, and which have no evidence at all." *(Direct invocation of the capability coverage stage)*
+1. "Stage 3 is done. Now run Stage 3.5 — I want to know which of the nine QE capability domains are addressed, which are partially addressed, and which have no evidence at all." *(Direct invocation of the capability coverage stage)*
 2. "Before solution design, check the capability coverage across all domains — don't just look at what the RFP mentioned. I want to know if there are gaps the client hasn't explicitly raised." *(Explicit request for baseline-driven coverage rather than artifact-driven gap coverage alone)*
-3. "Give me a capability coverage table: for each of the eight QE domains, tell me the status — Present, Partial, or Missing — and what we should recommend." *(Request for the canonical Stage 3.5 output structure)*
+3. "Give me a capability coverage table: for each of the nine QE domains, tell me the status — Present, Partial, or Missing — and what we should recommend." *(Request for the canonical Stage 3.5 output structure)*
 
 **Non-trigger prompts**
 1. "What QA capabilities should we include in our proposal?" *(Content generation — the coverage check assesses existing evidence against a baseline; it does not generate proposal content from scratch)*

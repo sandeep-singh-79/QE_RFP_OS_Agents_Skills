@@ -130,24 +130,7 @@ If `claude-memory/memory.md` grows beyond approximately 200 lines:
 
 ### Context Compaction
 
-Use `/compact` to compress conversation history when context utilization reaches **65–70%**. Trigger at stage boundaries only — never mid-stage.
-
-**Pre-compaction checklist (must complete before issuing `/compact`):**
-1. All stage outputs have been written to workspace files (`claude-memory/memory.md`, `claude-memory/notes.md`, `plan.md`, or output documents)
-2. No in-progress values exist only in conversation memory (e.g., partial tallies, extracted figures not yet written to file)
-3. The current stage's checkpoint condition has been met and recorded in `plan.md` Stage Status
-
-**Safe compaction points:**
-| After Stage | Condition |
-|---|---|
-| Stage 0 | `claude-memory/artifacts.md` populated; `plan.md` Engagement Details complete |
-| Stage 1 | `claude-memory/memory.md` populated with all findings |
-| Stage 3 | Gap coverage written to `claude-memory/notes.md` under `## Gap Coverage` |
-| Stage 5 | Architecture validation output written |
-| Stage 7 | Client perspective output written |
-| Stage 9 | All output sections written to output document |
-
-**What the compact summary must preserve:** active Finding IDs, current stage, open conditions (OC—), unresolved dependency register items, and the embargo status of any reference files (e.g., `outputs/estimate_workbook.xlsx` — do not open until own estimate is complete).
+Context compaction procedure, pre-compaction checklist, safe compaction points, and summary preservation requirements are defined in `agents/conductor.md — ## Context Compaction Trigger`. The Conductor is the sole owner of compaction decisions. Compaction is triggered at stage boundaries only — never mid-stage.
 
 ---
 
@@ -270,12 +253,12 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
 
 ### Conductor Responsibilities
 
-The conductor manages Stages 0–3 and oversees workflow sequencing. In addition to launching stages and enforcing checkpoints, the conductor must:
+The conductor manages Stages 0–3 and oversees Stage 7 pre-processing, Stage 8 coordination, and Stage 9 quality gate sequencing. Full conductor responsibilities, HITL escalation protocol, plan.md update discipline, and context compaction procedures are defined in `agents/conductor.md`.
 
-1. **Update `plan.md` after each stage:** Set the stage status to `Complete` and record brief notes on what was produced. During a stage, set status to `In Progress`. Do not leave stages at `Not Started` once they have begun.
-2. **Populate `plan.md` Engagement Details at Stage 0** — see Stage 0 definition below.
-3. **Enforce checkpoint conditions** — do not advance to the next stage if the checkpoint condition is not met.
-4. **Surface HITL conditions** — when a Blocking HITL is raised by any agent, halt stage advancement and surface the decision requirement to the user.
+Summary:
+1. **Update `plan.md` after each stage** — set stage status to `Complete`; set to `In Progress` during a stage.
+2. **Enforce checkpoint conditions** — do not advance if the checkpoint condition is not met.
+3. **Surface Blocking HITL conditions** — halt stage advancement and surface the decision requirement to the user.
 
 ### Stage 0 — Artifact Discovery
   Purpose:    Identify and index all available knowledge sources
@@ -557,7 +540,7 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 0 — Artifact Discovery | Artifact inventory confirmed complete | Artifacts remain unregistered |
 | 1 — Evidence Extraction | All artifacts have extraction status | Artifacts stuck in Pending Review |
 | 2 — Memory Initialization | Minimum context available for downstream agents | Memory files empty or uninitialized |
-| 3 — Gap Coverage | All High-confidence findings accounted for | Findings neither addressed nor acknowledged |
+| 3 — Gap Coverage Enforcement | All High-confidence findings accounted for | Findings neither addressed nor acknowledged |
 | 3.5 — Capability Coverage | All nine QE capability domains assessed; every `Missing` domain has a declared remediation or human HITL confirmation | Missing domains not documented OR any `Missing` domain has no declared remediation path |
 | 4 — Solution Design | Architecture layer completeness confirmed | Missing layers not identified |
 | 5 — Architecture Validation | Adoption risks classified and surfaced | Feasibility not assessed |

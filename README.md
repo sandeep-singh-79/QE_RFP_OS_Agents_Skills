@@ -9,6 +9,7 @@ The QE OS is an AI-assisted system for reviewing, designing, and strengthening Q
 | Capability | How |
 |---|---|
 | Reviews RFP responses for scoring risk and defensibility | Client / RFP Evaluator agent |
+| Orchestrates workflow stages, enforces checkpoints, and manages HITL escalation | Conductor agent |
 | Designs or validates QA architecture | Test Architect agent |
 | Assesses whether a plan and timeline is realistic | Project Manager agent |
 | Assesses whether teams can adopt a proposed approach | QA Manager agent |
@@ -45,7 +46,7 @@ The system runs Stages 0–10:
 | 1 — Evidence Extraction | Findings extracted from artifacts into `memory.md`; value claim traces produced; regulatory context applied from Stage 0 |
 | 2 — Memory Initialization | Workspace confirmed ready for agent work |
 | 3 — Gap Coverage | All High-confidence findings accounted for |
-| 3.5 — Capability Coverage | All 8 QE capability domains assessed |
+| 3.5 — Capability Coverage | All 9 QE capability domains assessed (including AI-Assisted Quality Engineering) |
 | (Optional) Question → Capability Mapping | RFP questions mapped to evaluation intent |
 | 4 — Solution Design | Test Architect architects the QA solution; benefit claims classified; risk-based test classification produced; application clustering drafted |
 | 5 — Architecture Validation | QA Manager assesses execution feasibility; SME demand impact evaluated |
@@ -89,7 +90,8 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 
 | File | Purpose |
 |---|---|
-| `.claude/AGENTS.md` | Full QE OS execution harness — workflow, governance, routing, memory rules |
+| `.claude/AGENTS.md` | Full QE OS execution harness — workflow, stage procedures, agent routing, memory rules (system specification) |
+| `.claude/agents/conductor.md` | Conductor agent — governance enforcement obligations, HITL escalation protocol, plan.md update discipline, context compaction |
 | `.claude/copilot-instructions.md` | System-wide guardrails — anti-hallucination, input validation, scope, confidentiality |
 | `.claude/governance.md` | HITL model, gap coverage rules, evidence traceability, output type classification, conflict resolution, sequencing rules |
 | `.claude/SETUP.md` | Workspace initialization, file templates, and System Change Review Checklist |
@@ -99,7 +101,7 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 | File | Purpose |
 |---|---|
 | `.claude/references/trigger-prompts.md` | Example prompts that should (and should not) activate each skill and agent |
-| `.claude/references/qe-capability-map.md` | The 8 QE capability domains used for coverage assessment |
+| `.claude/references/qe-capability-map.md` | The 9 QE capability domains used for coverage assessment (Domains 1–8 + Domain 9: AI-Assisted Quality Engineering) |
 | `.claude/references/domain-regulatory-map.md` | Domain × Geography → Regulatory Framework inference table (used at Stage 0) |
 | `.claude/references/stage-0-inputs.md` | Engagement input classification reference — engagement type, application count, Discovery Maturity, Vendor Capability Manifest, Engagement Signals |
 | `.claude/references/stage-4-classifications.md` | AI tier, tooling tier, and benefit claim classification definitions used at Stage 4 |
@@ -113,6 +115,7 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 
 ```
 .claude/agents/
+├── conductor.md                       ← workflow orchestration, HITL governance, plan.md discipline
 ├── test-architect.md
 ├── client-rfp-evaluator.md
 ├── project-manager.md
@@ -174,29 +177,28 @@ The system enforces five standing rules automatically. You do not need to invoke
 
 The system will pause and request your decision when a conclusion touches:
 
-- Business logic or process interpretation
-- Compliance or regulatory scope
-- Coverage reduction (removing a test layer)
-- Data sensitivity (PII, financial data)
-- Release risk (cutover strategy, rollback)
+- No artifact provided at workflow start
+- Regulatory context confidence is below 1.0
+- Incumbent vendor status cannot be confirmed
+- High-confidence finding is unresolved with no acknowledged path
+- A `Missing` capability domain has no declared remediation
+- Business logic, compliance scope, coverage reduction, data sensitivity, or release risk decisions
+- Stage 8 governance failures (`⚠ INCOMPLETE DEFERRAL`, `⚠ EVIDENCE GAP`, `⚠ REGULATORY TRACE GAP`)
 
 Two pause types exist:
 
-**Governance HITL** — triggered at governance-layer decision points:
+**Blocking HITL** — no safe forward path; stage advancement halts until resolved:
 ```
-⚠ GOVERNANCE HITL — Decision Requires Human Approval
-Decision: [what is being decided]
-Risk Category: [which category]
-Why: [why this exceeds the threshold]
-Required: [what confirmation is needed to proceed]
+⚠ BLOCKING HITL — [Short condition label]
+Stage: [Stage N — Name]
+Issue: [One sentence describing what condition has not been met]
+Impact: [One sentence on what cannot proceed safely without resolution]
+Required: [Explicit statement of what decision or confirmation is needed]
 ```
 
-**Blocking HITL** — triggered mid-workflow when stage advancement cannot continue:
+**Advisory HITL** — system can continue but human review is recommended; recorded as an Open Condition:
 ```
-⚠ BLOCKING HITL — Stage Advancement Blocked
-Issue: [what is conflicting or unresolvable]
-Impact: [what cannot proceed and why]
-Required Decision: [the specific human decision needed to unblock]
+OC-[n] — [Stage N]: [description]. Resolution: [what would close this condition].
 ```
 
 You must respond explicitly to either type. The system does not assume approval.
@@ -264,18 +266,17 @@ Proposed improvements that accumulate 3+ evidence gap proposals trigger a human 
 
 ## Current System Version
 
-**Post-Manulife Retrospective (March 2026)**
+**System Review & Gap Remediation (March 2026)**
 
-All 12 improvements from the Manulife retrospective have been implemented. See [implementation-plan.md](implementation-plan.md) for the full task list and file change log.
+A critical gap remediation pass was completed following the post-Manulife retrospective. All 12 retrospective improvements remain implemented. Key architectural and governance improvements from the gap remediation:
 
-Key capabilities added in this cycle:
-- PERT-based effort estimation (`pert-estimation` skill) — 8 test tiers, effort multipliers, 5-phase breakdown
-- KPI extraction and benchmark sourcing (`kpi-baseline` skill) — extracts client targets, flags absence, recommends sourced benchmarks
-- Discovery Maturity classification — `Constrained / Moderate / Deep` drives gap status defaults at Stages 3 and 8
-- `Deferred to Transition — Explicitly Declared` status — requires 3 mandatory fields; missing any one reverts to `Unresolved`
-- Value Claim Trace Block — quantified benefit claims in Stage 1 now require an evidence source or are explicitly flagged
-- Regulatory Control Mapping — Stage 8 blocks on `Compliance Requirement` findings without a control mapping table
-- Review & Challenge Gate Verdict — go / conditional / not ready verdict replaces open-ended quality review
+- **Conductor agent** (`agents/conductor.md`) — dedicated workflow orchestrator governing Stages 0–3, Stage 7 pre-processing, Stage 8–9 sequencing, HITL escalation, plan.md discipline, and context compaction. Previously ungoverned.
+- **HITL taxonomy formalised** — Blocking HITL (halts stage) and Advisory HITL (Open Condition, workflow continues) are now distinct types with defined output formats.
+- **Mode 2 (Spot-Task) canonical definition** — officially defined in `AGENTS.md`; spot-task invocations are governed under explicit non-overridable rules (No-Memory Disclosure, Input Validation Gate, quality gate if client-facing).
+- **Stage 3.5 remediation spec** — `Missing` domains now require three explicit fields (action, target phase, owner) before Stage 4 can proceed; missing any field is a Blocking HITL.
+- **Domain 9 — AI-Assisted Quality Engineering** added to `qe-capability-map.md` — covering AI/GenAI test generation, self-healing automation, AI-driven exploratory testing, and intelligent defect analysis. Capability coverage is now across 9 domains.
+- **Estimation boundary enforced** — Stage 4 Test Architect sizing is directional and architecture-context only; Stage 6 Project Manager estimate is the authoritative deliverable.
+- **File architecture: single source of truth** — `AGENTS.md` owns stage procedures; `conductor.md` owns governance enforcement. Context compaction, HITL protocol, and plan.md discipline live exclusively in `conductor.md`.
 
 ---
 

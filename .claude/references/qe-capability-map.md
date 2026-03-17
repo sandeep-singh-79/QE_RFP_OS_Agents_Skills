@@ -2,7 +2,7 @@
 
 > Reference file for the Capability Coverage Thinking skill.  
 > Used during Stage 3.5 — Capability Coverage Check to evaluate client evidence against the expected QE capability baseline.  
-> Eight capability domains are defined. All eight must be assessed regardless of whether evidence is present.
+> Nine capability domains are defined. All nine must be assessed regardless of whether evidence is present.
 
 ---
 

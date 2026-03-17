@@ -152,7 +152,7 @@ After completing capability mapping, execution continues with **Stage 4 — Solu
 
 The Test Architect must consider both inputs when designing the solution:
 
-- **Stage 3.5 output** — Capability Coverage table (what gaps exist across the eight domains)
+- **Stage 3.5 output** — Capability Coverage table (what gaps exist across the nine domains)
 - **Question Capability Mapping output** — which specific capabilities the client is probing by question
 
 If the Question Capability Mapping reveals a capability domain not surfaced in Stage 3.5, it must be added to the solution scope — it must not be silently ignored.
