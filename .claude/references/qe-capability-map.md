@@ -102,10 +102,23 @@ Testing coverage beyond functional correctness.
 
 ---
 
+## 9. AI-Assisted Quality Engineering
+
+Leveraging AI and GenAI capabilities to enhance QE delivery velocity, coverage, and intelligence.
+
+| Capability | Description |
+|---|---|
+| AI/GenAI Test Generation | Using AI/LLM-based tools to generate test cases, test data, and test scripts from requirements or code |
+| Self-Healing Automation | Automated test maintenance using AI to detect and repair broken selectors or test steps |
+| AI-Driven Exploratory Testing | AI-assisted exploratory testing that surfaces edge cases by adapting to application behaviour |
+| Intelligent Defect Analysis | AI-powered defect triage, root cause analysis, and defect prediction |
+
+---
+
 ## Status Legend
 
 | Status | Meaning |
 |---|---|
-| `Present` | Evidence in `memory.md` clearly confirms this capability is addressed |
+| `Present` | Evidence in `claude-memory/memory.md` clearly confirms this capability is addressed |
 | `Partial` | Some evidence exists but coverage is incomplete or surface-level only |
-| `Missing` | No evidence in `memory.md` supports this capability being addressed |
+| `Missing` | No evidence in `claude-memory/memory.md` supports this capability being addressed |

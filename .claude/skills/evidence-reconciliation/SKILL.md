@@ -28,10 +28,10 @@ This skill activates when **any** of the following are true:
 This skill may load **only**:
 
 - `claude-memory/memory.md` — the complete set of extracted findings to reconcile against
-- The solution output produced by Stages 4–7 — the content to check for finding resolution
-- `claude-memory/notes.md` — specifically the gap report section, if present
+- `outputs/staged-proposal.md` — the staged solution output written progressively by Stages 4–7; this is the primary check target. If this file does not exist, raise `⚠ BLOCKING HITL — Stage 8: No staged output found. Stages 4–7 must write their outputs to outputs/staged-proposal.md before Stage 8 can proceed.`
+- `claude-memory/notes.md` — specifically the gap report section (`## Gap Coverage`), if present; and Discovery Maturity header line needed for deferral validation
 
-It must not load `insights.md`, `improvements.md`, `decisions.md`, or artifacts unless a specific finding cannot be traced without them. Context must remain minimal.
+It must not load `claude-memory/insights.md`, `claude-memory/improvements.md`, `claude-memory/decisions.md`, or artifacts unless a specific finding cannot be traced without them. Context must remain minimal.
 
 ---
 

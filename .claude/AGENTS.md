@@ -19,6 +19,7 @@ User calls always take precedence over routing recommendations.
 
 | Agent | File | Primary Role |
 |---|---|---|
+| Conductor | `agents/conductor.md` | Workflow orchestration, checkpoint enforcement, HITL escalation, plan.md discipline (Stages 0–3, Stage 7 pre-processing, Stage 8–9 coordination) |
 | Test Architect | `agents/test-architect.md` | QA architecture design, layer completeness, tooling validation |
 | Client / RFP Evaluator | `agents/client-rfp-evaluator.md` | Scoring, defensibility, procurement panel simulation |
 | Project Manager | `agents/project-manager.md` | Planning realism, sequencing risk, delivery feasibility |
@@ -168,6 +169,48 @@ Regulatory Context: Explicit / Inferred ([framework], confidence [score]) / Unkn
 
 ---
 
+## Operating Modes
+
+The QE RFP Operating System operates in one of two modes. The active mode governs which rules and disclosures apply.
+
+### Mode 1 — Full Workflow
+
+**Activation condition:** A full engagement workflow is initiated (Stage 0 begins, or the user invokes the canonical multi-agent workflow for RFP review).
+
+**Governing rules (all apply):**
+- Canonical Stages 0–10 execute in sequence (conductor-managed)
+- All memory loading rules apply — `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/notes.md`, etc. are loaded per Agent Context Scope table
+- `plan.md` is created at Stage 0 and maintained throughout
+- Checkpoint conditions must be satisfied before stage advancement
+- Context compaction rules apply (65–70% threshold, stage boundaries only)
+- All HITL escalation protocols apply
+- Quality gate (Review & Challenge Thinking) is mandatory before client-facing output
+
+**Default mode when:** A document or RFP is provided and the user requests a full review, proposal, or workflow execution.
+
+---
+
+### Mode 2 — Spot-Task
+
+**Activation condition:** A single agent or skill is invoked without a prior Stage 0–3 workflow. Recognised signals: no `plan.md` exists, `claude-memory/memory.md` is absent, user invokes a single skill by name, or the request is clearly bounded to one analytical task.
+
+**Non-overridable rules (always enforced in Mode 2):**
+1. **No-Memory Disclosure (mandatory):** If `claude-memory/memory.md` is absent, the agent must state before any analysis: *"No prior engagement findings have been loaded. This output is based solely on the provided input."* This disclosure cannot be skipped.
+2. **Input Validation Gate (mandatory):** If the required input (document, task type, stated purpose) is absent, the agent halts and states what is missing before proceeding.
+3. **Quality gate (mandatory if client-facing):** Review & Challenge Thinking must still run before any client-facing output, even in spot-task mode.
+
+**Rules that DO NOT apply in Mode 2:**
+- Stage sequencing — spot-task skips Stages 0–3 by definition
+- plan.md population — no engagement plan is created for a single-task invocation
+- Context compaction protocol — applies to full workflows only
+- Agent Context Scope loading rules — scope is limited to the invocation context
+
+**Scope declaration required:** At the start of a spot-task output, the agent must note: *"Operating in Mode 2 (Spot-Task). Output based on provided input only — no prior workflow stages completed."*
+
+**Reference:** `evidence-extraction` skill, Step 12 (Spot-task / Mode 2 path) describes Mode 2 behaviour in detail for regulatory inference; the canonical mode definition is this section.
+
+---
+
 ## Agent Selection — Routing Guide
 
 Use this table to select the right agent for a given request type.
@@ -196,12 +239,13 @@ Agents must load only the memory and workspace files relevant to their role. Loa
 | Agent | Required Context | Context & Skill Files |
 |---|---|---|
 | Conductor (Stages 0–3) | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `plan.md` | `evidence-extraction` |
-| Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md` | `evidence-reconciliation`, `.claude/governance.md` |
+| Conductor (Stage 7 pre-processing) | `claude-memory/notes.md` | `structuring-consulting-thinking` |
+| Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `evidence-reconciliation`, `.claude/governance.md` |
 | Conductor (Stage 9) | `plan.md` | `review-challenge-thinking` |
-| Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
-| QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `assumption-dependency-management` |
-| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
-| Client / RFP Evaluator | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md` | `review-challenge-thinking` |
+| Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
+| QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `assumption-dependency-management` |
+| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md`, `outputs/staged-proposal.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
+| Client / RFP Evaluator | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `review-challenge-thinking` |
 | Tooling Recommender | `claude-memory/memory.md` (capability sections only), `claude-memory/notes.md` | `tooling-technology-recommendation` |
 
 **Rule:** Agents must not load unrelated memory files — load only what is listed in the scope table above. If a file in the table does not exist, skip it without error.
@@ -320,8 +364,8 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 3.5 — Capability Coverage Check
   Skill:      Capability Coverage Thinking (mandatory)
   Purpose:    Evaluate QE capability coverage against the baseline — independent of what was raised in artifacts
-  Action:     Compare `claude-memory/memory.md` findings against all eight QE capability domains in `qe-capability-map.md`
-  Checkpoint: All eight domains assessed; Missing and Partial domains documented; no `Missing` domain without a declared remediation path advances without HITL
+  Action:     Compare `claude-memory/memory.md` findings against all nine QE capability domains in `qe-capability-map.md`
+  Checkpoint: All nine domains assessed; Missing and Partial domains documented; no `Missing` domain without a declared remediation path advances without HITL
   Output:     Capability coverage table — Capability / Status / Recommendation
 
   **Blocking HITL condition — Stage 3.5:**
@@ -336,6 +380,8 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Classification reference: Load `.claude/references/stage-4-classifications.md` for Benefit Realisability Classification, Risk-Based Test Classification, and Application Clustering Draft procedures, formats, and rules.
   Checkpoint: Architecture layer completeness confirmed before tooling validation
   Output:     Architecture findings, layer gaps, tooling readiness
+  **Estimation boundary:** Any sizing produced at Stage 4 by the Test Architect is directional and architecture-context only — it is NOT a deliverable estimate. The Stage 6 Project Manager estimate (Estimation & Sizing Thinking) is the authoritative sizing for all proposal submissions and supersedes Stage 4 directional sizing.
+  **Output staging:** Append Stage 4 output to `outputs/staged-proposal.md` under `## Stage 4 — Solution Design`. Create the file with the header defined in `.claude/SETUP.md` if it does not exist.
 
   **AI Capability Tier Classification — mandatory at Stage 4:**
   Classify each proposed AI/GenAI capability as `Tier 1` (LLM-prompt-based / SaaS / IDE extension — no specialist ML infrastructure; Phase 2-viable; OC-1 does **not** apply) or `Tier 2` (predictive models requiring training data / specialist ML resourcing / ML infrastructure; Phase 3–4; OC-1 **applies**). Unclassified AI capabilities must not be assigned a phase. Full classification table and examples: see `## AI Capability Tier Classification` in `.claude/references/stage-4-classifications.md`.
@@ -367,6 +413,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Skill:      Assumption & Dependency Management
   Checkpoint: Adoption risks classified and surfaced
   Output:     Adoption risk, team sustainability findings
+  **Output staging:** Append Stage 5 output to `outputs/staged-proposal.md` under `## Stage 5 — Architecture Validation`. Create the file with the header defined in `.claude/SETUP.md` if it does not exist.
 
   **SME Demand Impact — named evaluation prompt at Stage 5:**
   As part of adoption risk assessment, explicitly evaluate: "Does the proposed transformation increase upfront SME demand before tools reduce it?"
@@ -382,6 +429,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Skill:      Estimation & Sizing Thinking (if timelines in scope)
   Checkpoint: All delivery dependencies identified and classified
   Output:     Sequencing risks, dependency gaps, planning realism findings
+  **Output staging:** Append Stage 6 output to `outputs/staged-proposal.md` under `## Stage 6 — Delivery Validation`. Create the file with the header defined in `.claude/SETUP.md` if it does not exist.
 
   **Application Clustering — Stage 6 consumption:**
   If `## Application Clustering Draft` is present in `claude-memory/notes.md` (written at Stage 4), the Project Manager reads tier assignments (Tier A/B/C) and uses them to validate phase sequencing and wave ordering. Delivery timelines that contradict cluster tier assignments must be flagged as sequencing risks.
@@ -399,6 +447,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Skills:     Outcome & Risk Framing → Structuring & Consulting Thinking (pre-processing)
   Checkpoint: Scoring risks and defensibility gaps surfaced
   Output:     Scoring risks, defensibility gaps, red flags
+  **Output staging:** Append Stage 7 output to `outputs/staged-proposal.md` under `## Stage 7 — Client Perspective Review`. Create the file with the header defined in `.claude/SETUP.md` if it does not exist.
 
   **Execution Sequence (two-step):**
   - Step 1: Conductor applies Structuring & Consulting Thinking to pre-process and structure the Stages 4–6 output before it is passed to the Client / RFP Evaluator
@@ -409,7 +458,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
 ### Stage 8 — Governance Validation
   Purpose:    Enforce governance rules before output generation
   Actions:
-    1. **Evidence Reconciliation** — read gap coverage report from `claude-memory/notes.md` (`## Gap Coverage`) and verify all High-confidence findings from `claude-memory/memory.md` are addressed in the solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
+    1. **Evidence Reconciliation** — read gap coverage report from `claude-memory/notes.md` (`## Gap Coverage`) and the staged solution output from `outputs/staged-proposal.md`; verify all High-confidence findings from `claude-memory/memory.md` are addressed in the staged solution or explicitly acknowledged as out of scope. `Deferred to Transition — Explicitly Declared` findings are treated as resolved only if all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reclassify as Unresolved and trigger Governance HITL.
     2. **Decision-Centric HITL check** — assess whether any decisions exceed the risk threshold requiring human approval
     3. **Proposal Quality Rules** — verify output meets quality standards
     4. **Evidence Validation** — verify every architectural recommendation references at least one of: a Finding ID, a capability domain from `qe-capability-map.md`, or an explicit declared assumption. Recommendations that fail must be marked `⚠ EVIDENCE GAP` before output is cleared
@@ -472,6 +521,7 @@ The conductor manages Stages 0–3 and oversees workflow sequencing. In addition
   Actions:    Load `.claude/references/stage-10-learning.md` for full protocol: insight candidate promotion, evidence gap monitoring, engagement pattern promotion, insights vs. improvements discipline, and `improvements.md` schema + backlog governance.
   Output:     Insight candidates reviewed and promoted or discarded; improvement proposals recorded in `claude-memory/improvements.md`; reusable patterns promoted to `claude-memory/insights.md`
   Rule:       Agents propose improvements only — they do not directly modify system files
+  **Mandatory minimum:** Actions 1 (Insight Candidate Promotion) and 6 (Evidence Gap Monitoring) are non-skippable — see `.claude/references/stage-10-learning.md` — `### Mandatory Minimum`. If Stage 10 is skipped, output must carry the skip label defined there.
 
 **This workflow is a recommendation, not a lock.** Explicit user instructions override any stage or sequence.
 
@@ -508,7 +558,7 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 1 — Evidence Extraction | All artifacts have extraction status | Artifacts stuck in Pending Review |
 | 2 — Memory Initialization | Minimum context available for downstream agents | Memory files empty or uninitialized |
 | 3 — Gap Coverage | All High-confidence findings accounted for | Findings neither addressed nor acknowledged |
-| 3.5 — Capability Coverage | All eight QE capability domains assessed; every `Missing` domain has a declared remediation or human HITL confirmation | Missing domains not documented OR any `Missing` domain has no declared remediation path |
+| 3.5 — Capability Coverage | All nine QE capability domains assessed; every `Missing` domain has a declared remediation or human HITL confirmation | Missing domains not documented OR any `Missing` domain has no declared remediation path |
 | 4 — Solution Design | Architecture layer completeness confirmed | Missing layers not identified |
 | 5 — Architecture Validation | Adoption risks classified and surfaced | Feasibility not assessed |
 | 6 — Delivery Validation | All delivery dependencies identified | Dependencies unclassified |

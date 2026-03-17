@@ -9,6 +9,24 @@
 
 At Stage 10, the conductor performs all eight of the following actions:
 
+---
+
+### Mandatory Minimum (Non-Skippable)
+
+Even if Stage 10 is abbreviated or time-constrained, the following two actions are **mandatory** and must complete before Stage 10 is marked done:
+
+| # | Action | Why Mandatory |
+|---|---|---|
+| 1 | **Insight candidate promotion** | Every `INSIGHT CANDIDATE` entry in `claude-memory/notes.md` must be evaluated and either promoted or discarded. Leaving candidates pending defeats the cross-engagement learning model. |
+| 6 | **Evidence gap monitoring** | Every `⚠ EVIDENCE GAP` conclusion delivered in the output must be logged as an improvement proposal. This is the primary feedback loop for identifying reasoning without source traceability. |
+
+**If Stage 10 is skipped entirely:** All output produced in that session must include the explicit label:
+> `[NOTE: Stage 10 System Learning not performed — improvement proposals and insight promotion may be missing.]`
+
+---
+
+### All Learning Actions
+
 1. **Insight candidate promotion** — scan `claude-memory/notes.md` for all `## Insight Candidates` entries (flagged during Stages 1–8 using the `INSIGHT CANDIDATE` marker). For each candidate, evaluate: Is this pattern likely to recur across other engagements? Is it actionable for future analysis? If yes — promote to `claude-memory/insights.md` as a named insight with a carry-forward rule (see Action 7 below for the Insights vs. Improvements distinction). If no — discard with a one-line note explaining why. Clear the `## Insight Candidates` section in `claude-memory/notes.md` after promotion.
 
 2. **Missed findings** — review `claude-memory/memory.md` for any finding with no downstream resolution. Log missed findings as improvement proposals in `claude-memory/improvements.md`.
