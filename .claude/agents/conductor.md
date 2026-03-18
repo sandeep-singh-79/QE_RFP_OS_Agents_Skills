@@ -205,6 +205,33 @@ Compact at stage boundaries only — never mid-stage.
 
 ---
 
+## Mode-Aware Activation Protocol
+
+The Conductor operates in two modes defined in `AGENTS.md — Operating Modes`. Mode is determined at invocation time based on the presence or absence of an active workflow context.
+
+### Mode 1 — Full Workflow
+
+Activates when the user starts a complete RFP review engagement (Stage 0 is the entry point). Stage responsibilities follow the canonical Stage 0–10 sequence. Input Validation Gate applies at Stage 0.
+
+### Mode 2 — Spot-Task
+
+Activates when the user invokes a single skill, a single stage, or a specific output task without an established prior workflow (no `plan.md`, no prior stages in the current session).
+
+**Mandatory Mode 2 rules — apply before any analysis or extraction begins:**
+
+1. **Operating State Declaration:** State explicitly: *"Operating in Spot-Task Mode (Mode 2). No prior workflow context has been loaded."*
+2. **Input Validation Gate:** Confirm the required input for the requested task is present. If absent, halt and issue `⚠ BLOCKING HITL — Input Validation Gate` naming what is missing.
+3. **No-Memory Disclosure:** If `claude-memory/memory.md` does not exist or has not been loaded, declare: *"No prior engagement findings have been loaded. This output is based solely on the provided input."* This declaration must appear **before** any analysis or extraction output — not after.
+4. **Quality Gate (if client-facing):** If the output will be shared with the client or presented to a leadership audience, the `review-challenge-thinking` quality gate remains mandatory. Label output as `[QUALITY GATE NOT APPLIED — treat as working draft only]` if skipped.
+
+### No-Memory Disclosure (Mode 1 — Stage 1 start)
+
+In Mode 1, `claude-memory/memory.md` does not yet exist at Stage 1 start — it is populated by Stage 1. This is the expected state and no disclosure is required.
+
+However, if Stage 1 is invoked and `memory.md` already exists from a prior engagement (i.e., engagement teardown was not completed), the Conductor must raise an Advisory HITL: *"An existing memory.md is present from a prior engagement. Confirm this is the correct engagement context before continuing, or complete the engagement teardown procedure in SETUP.md."*
+
+---
+
 ## Skill Usage Policy
 
 ### Allowed Skills
@@ -212,7 +239,8 @@ Compact at stage boundaries only — never mid-stage.
 - **Evidence Extraction** — Stage 1 only; invoked to extract and normalise findings from artifacts
 - **Evidence Reconciliation** — Stage 8 coordination; invoked to verify governance compliance before output
 - **Review & Challenge Thinking** — Stage 9 quality gate; mandatory before any client-facing output is cleared
-- **Structuring & Consulting Thinking** — Stage 7 pre-processing only; applied to structure Stages 4–6 output before passing to the Client / RFP Evaluator
+- **Structuring & Consulting Thinking** — Stage 7 pre-processing only; Step 2 of Stage 7 — applied after Outcome & Risk Framing to structure the consequence-framed output before passing to the Client / RFP Evaluator
+- **Outcome & Risk Framing** — Stage 7 pre-processing only; Step 1 of Stage 7 — applied first to frame Stages 4–6 findings in business impact and scoring consequence terms
 
 ### Prohibited Skills
 
@@ -223,7 +251,6 @@ Compact at stage boundaries only — never mid-stage.
 - **Domain & Context Adaptation** — domain framing is downstream of Stage 9 output generation
 - **KPI Baseline** — KPI scoping belongs to the Test Architect (Stage 4) and Stage 9 output
 - **Assumption & Dependency Management** — not within this agent's scope; applied by individual agents at Stages 4–6
-- **Outcome & Risk Framing** — analytical framing belongs to specialist agents, not the Conductor
 
 ### Scope Boundary Protocol
 
