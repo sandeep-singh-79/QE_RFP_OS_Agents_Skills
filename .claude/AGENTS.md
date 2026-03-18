@@ -306,7 +306,7 @@ Summary:
   Purpose:    Extract structured findings from all registered artifacts
   Actions:    (1) Scan artifacts, classify findings, populate `claude-memory/memory.md`. (2) Read `Regulatory Context` from `plan.md` Engagement Details — set at Stage 0. Use the inferred frameworks to classify compliance-related findings during extraction (e.g., tag findings as `Evidence Type: Compliance Requirement` where applicable). Do not re-run domain × geography inference — it was completed at Stage 0. See `evidence-extraction` skill for full extraction instructions.
   Checkpoint: Confirm all artifacts have status = Evidence Extracted or Not Applicable
-  Output:     Populated `claude-memory/memory.md` with sourced, timestamped, confidence-rated findings; compliance-related findings tagged where regulatory context applies
+  Output:     Populated `claude-memory/memory.md` with sourced, timestamped, confidence-rated findings; compliance-related findings tagged where regulatory context applies; `## Technology Inventory` table populated (all named tools, platforms, and frameworks classified as Confirmed / Present / Legacy)
 
 ### Stage 2 — Memory Initialization
   Purpose:    Confirm workspace memory is ready for agent-level analysis
@@ -381,6 +381,15 @@ Summary:
   Activation condition: `application_count > 1`. When active, produce preliminary application clustering from Stage 1 evidence. Write to `claude-memory/notes.md` under `## Application Clustering Draft`.
   Tier model (A/B/C), column format, and consumption rules: see `Application Clustering Draft` in `.claude/references/stage-4-classifications.md`.
 
+  **Transition Planning Stub — conditional at Stage 4:**
+  Activation condition: `incumbent_vendor_present` confirmed in `plan.md` Engagement Signals (set at Stage 0). When active, write a Transition Planning Stub to `claude-memory/notes.md` under `## Transition Planning Stub` with the following minimum fields:
+  - `Incumbent Vendor:` [named vendor, or `[CLIENT CONFIRMATION REQUIRED]` if name unavailable]
+  - `Preliminary Parallel Run:` [estimated phase range, e.g., "Phase 0–1"]
+  - `Known Handover Dependencies:` [knowledge transfer, data access, tool handover, credential transfer]
+  Stage 6 must consume this stub when constructing phase durations — parallel run period must be reflected in Phase 0–1 timing and duration estimates.
+  Stage 9 §15 expands this stub into the full Transition Model section — do not reconstruct from scratch at Stage 9.
+  **If `incumbent_vendor_present` is not confirmed or is at OC status:** do NOT produce a stub — wait for HITL confirmation before transition planning begins.
+
   **Dependency Register — Stage 4 contribution:**
   For each architecture pillar or benefit claim, check: does this require a client-controlled decision that is not yet confirmed? If yes, log an entry to `## Dependency Register` in `claude-memory/notes.md`.
 
@@ -416,6 +425,9 @@ Summary:
 
   **Application Clustering — Stage 6 consumption:**
   If `## Application Clustering Draft` is present in `claude-memory/notes.md` (written at Stage 4), the Project Manager reads tier assignments (Tier A/B/C) and uses them to validate phase sequencing and wave ordering. Delivery timelines that contradict cluster tier assignments must be flagged as sequencing risks.
+
+  **Transition Planning Stub — Stage 6 consumption:**
+  If `## Transition Planning Stub` is present in `claude-memory/notes.md` (written at Stage 4 when `incumbent_vendor_present` confirmed), the Project Manager reads the stub and incorporates the parallel run period into Phase 0–1 duration estimates. The parallel run window must be reflected as a named phase component — it is not a separate phase but a constraint on Phase 0–1 capacity and duration. If the stub declares `[CLIENT CONFIRMATION REQUIRED]` for the incumbent name, log an Open Condition before finalising Phase 0–1 estimates.
 
   **In-Sprint Automation Definition of Done — Stage 6 mandatory check:**
   Suppression: Skip this check for `qa_audit` and `standalone_project` engagement types.

@@ -66,6 +66,25 @@ When activated, this skill must:
 
    In both paths: do not overwrite `Regulatory Context = Explicit` if already set — add inferred frameworks as supplementary context only.
 
+13. **Build Technology Inventory** — scan all artifacts for named tools, platforms, frameworks, and infrastructure components. Classify each as:
+   - `Confirmed` — explicitly stated as currently in use (e.g., "we currently use Katalon for regression testing")
+   - `Present` — mentioned in artifacts but usage context is unclear (e.g., tool named in a list without deployment confirmation)
+   - `Legacy` — mentioned in a historical context (e.g., "migrated away from Selenium in 2024", "previously used")
+
+   Write results to `claude-memory/memory.md` under `## Technology Inventory` using the format:
+
+   ```md
+   ## Technology Inventory
+   | Tool / Platform | Classification | Source Reference | Notes |
+   |---|---|---|---|
+   | [name] | Confirmed / Present / Legacy | [Artifact ID + section] | [usage context or migration note] |
+   ```
+
+   **Rules:**
+   - A tool may appear in only one classification — if a tool is both currently cited and historically retired, classify as `Legacy` and note the migration.
+   - If no tools are mentioned in any artifact, write `## Technology Inventory` with the note: `No tools identified in artifacts — to be confirmed in Phase 0.` Record this as a missing evidence entry under `## Missing Evidence`.
+   - Section 3 of the Stage 9 output sources exclusively from this inventory. Stage 9 must not re-extract tools from artifacts.
+
 ---
 
 ## Finding Structure
