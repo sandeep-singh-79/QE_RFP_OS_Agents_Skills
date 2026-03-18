@@ -1,6 +1,6 @@
 ---
 name: evidence-extraction
-description: Extract structured findings from artifacts and normalize them into the QE OS memory format. Powers Stage 1 — Evidence Extraction in the canonical workflow. Activates when artifacts are available for analysis, when Stage 1 begins, or when the conductor invokes evidence extraction. Writes all findings to claude-memory/memory.md with Finding IDs, confidence levels, and source traceability. Does not perform orchestration or invoke other agents.
+description: Extract structured findings from artifacts and normalize them into the QE OS memory format. Powers Stage 1 — Evidence Extraction in the canonical workflow. Activates when artifacts are available for analysis, when Stage 1 begins, or when the conductor invokes evidence extraction. Writes all findings to claude-memory/memory.md with Finding IDs, confidence levels, and source traceability. Also builds and writes the Technology Inventory (named tools/platforms classified as Confirmed/Present/Legacy) to claude-memory/memory.md. Does not perform orchestration or invoke other agents.
 ---
 
 # Skill: Evidence Extraction & Normalization
