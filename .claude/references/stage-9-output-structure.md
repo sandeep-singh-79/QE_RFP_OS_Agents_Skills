@@ -51,8 +51,10 @@ Trigger: Generate if Stage 1 findings include positive evidence (existing toolin
 
 ### Section 3 — Technology Landscape
 Two-column table: (1) Confirmed in Discovery (with Stage 1 evidence source reference) vs. (2) To be confirmed in Phase 0.
-- Source: Named applications and tooling from Stage 1 findings.
+- **Source:** `## Technology Inventory` from `claude-memory/memory.md` (populated at Stage 1, Step 13). Do not re-extract tools from artifacts at Stage 9 — use the inventory exclusively.
+- Classification mapping: `Confirmed` tools → Column 1 (include source reference from inventory). `Present` and `Legacy` tools → Column 2 (TBC or note migration). For `Legacy` tools in Column 2, add a note: "Previously in use — [migration note from inventory]."
 - All tools appear in exactly one column — confirmed or TBC, not both.
+- If the Technology Inventory is empty (flagged at Stage 1 as no tools identified), render Column 1 as empty with the note: "No tools confirmed in artifacts — all to be confirmed in Phase 0."
 
 ### Section 6 — Maturity Model
 Produces a per-domain capability maturity matrix. Suppressed only when `engagement_type = qa_audit`.
@@ -86,6 +88,25 @@ Deployment table format:
 - Deployment stages must reference Section 8 roadmap phase dates — Smoke Suite must align with Phase 1 dates; Full Regression Suite with Phase 2–3 dates.
 - If a risk-tier table was produced at Stage 4, the Automation Priority column in that table informs which application sets are prioritised for each suite. Surface this linkage in the subsection narrative.
 
+**Agentic AI Governance Model (conditional sub-section in §7):**
+Trigger: AI accelerators or AI-assisted QE capabilities are proposed in the QE Architecture (Pillar 8 / AI-Assisted QE) — any Tier 1 or Tier 2 capability. Suppressed when no AI capabilities are proposed.
+
+When triggered, render a mandatory "Agentic AI Governance Model" sub-section **immediately after** the AI accelerator deployment or capability table. Format as a 5-column lifecycle table:
+
+| SDLC Phase | Agentic Workflow Activities | Human-in-the-Loop Gates | Escalation Triggers | Named Human Roles |
+|---|---|---|---|---|
+
+- **SDLC Phase:** Minimum 5 phases (e.g., Requirements, Design, Build, Test Execution, Release).
+- **Agentic Workflow Activities:** What the AI performs autonomously (e.g., test case generation, defect triage, risk scoring).
+- **Human-in-the-Loop Gates:** What requires explicit human validation before the AI output is accepted or acted on.
+- **Escalation Triggers:** When the AI agent must be overridden — e.g., confidence below threshold, policy boundary breached, conflicting outputs from multi-agent flows.
+- **Named Human Roles:** The specific named role (e.g., QE Lead, Test Architect, Release Manager) accountable for each HITL gate.
+
+State the governing principle explicitly beneath the table:
+> "AI Recommends → SMEs Validate / Refine → Leadership Approves"
+
+This principle must appear verbatim. It applies to all Tier 1 and Tier 2 AI capabilities — HITL governance is not restricted to Tier 2 ML models.
+
 ### Section 8 — Transformation Roadmap
 Phase-based delivery roadmap. Phasing driven by `engagement_type` and `application_count` from Stage 0.
 - Source: Stage 6 delivery planning output + Stage 4 architecture pillars.
@@ -97,8 +118,29 @@ For `transformation_partnership`, `managed_service`, and `retained_qe_delivery` 
 > "DoD update — in-sprint automation criteria approved and embedded in team working agreements."
 This milestone must appear **before** any automation coverage milestone in later phases. Do not omit it for these engagement types. Suppressed for `qa_audit` and `standalone_project`.
 
+**Sprint-Lifecycle QE Integration model (recommended sub-section in §8):**
+Trigger: `engagement_type = transformation_partnership` AND sprint-based Agile delivery is confirmed in Stage 1 findings or Stage 0 signals. Recommended — not mandatory. Suppressed for `qa_audit`, `standalone_project`, or when waterfall delivery is confirmed.
+
+When triggered, render a "Sprint-Lifecycle QE Integration" sub-section within §8, after the roadmap phase table and before any appendix references. Format as a sprint progression model with 4 columns:
+
+| Sprint N | QE Practice Introduced | Team Impact | Definition of Done Change |
+|---|---|---|---|
+
+- Minimum 4 sprints. Maximum 6 for engagements with longer ramp periods; compress to 2 sprints only if total engagement window is fewer than 3 sprints.
+- **Sprint N:** Sprint number or range (e.g., Sprint 1, Sprint 2–3).
+- **QE Practice Introduced:** The specific QE change introduced in that sprint (e.g., "API regression harness activated", "smoke suite added to PR gates").
+- **Team Impact:** What changes for the development or QA team in their sprint activities (e.g., "QA joins sprint planning to review test coverage", "No-code defect triage via AI assistant").
+- **Definition of Done Change:** What new or modified DoD criterion applies from this sprint onward.
+- This model bridges the macro phase roadmap (executive audience) with micro sprint integration (delivery teams) — it answers "what changes in my sprint next month?"
+- Source: Stage 4 automation deployment sequence + Stage 6 delivery planning phase milestones. Do not fabricate sprint activities without a corresponding Stage 4/6 output.
+
 ### Section 9 — Tooling Recommendations
 All tooling must use the three-tier framing defined at Stage 4 (Confirmed / Suggested / Proposed — Vendor Platform). Table columns: Tool | Tier | Capability Layer | AI Tier (if applicable) | Rationale.
+
+**Named tool completeness check:** For each tooling capability category proposed in the solution (e.g., test management, service virtualisation, test data management, security testing, CI/CD integration, dashboarding / reporting), confirm a specific named tool is referenced — not just a category label. If only a generic category is stated with no named tool, either:
+- Name a candidate tool using `Suggested` tier framing (e.g., "WireMock — Suggested — subject to Phase 0 confirmation"), or
+- Declare an Open Condition: `OC-[n]: [Category] tool not named — specific tooling to be confirmed during Phase 0 discovery.`
+Unresolved unnamed capability category slots must not pass Stage 8 governance clearance without an OC declared. This check cross-references the Stage 1 `## Technology Inventory` to promote any `Confirmed` tools to the appropriate capability category.
 
 ### Section 10 — Benefit Realisation + "Towards Shift" Table
 The Benefit Realisation table is followed immediately by the "Towards Shift" operational before/after table.
@@ -145,7 +187,8 @@ Trigger: Stage 0 `application_count` > 1.
 
 ### Section 15 — Transition Model (Conditional)
 Trigger: Stage 0 `Engagement Signals` include any of: `incumbent_vendor_present`, `distributed_delivery_consolidation`, `vendor_transition`.
-- Content: (1) Handover sequence — current-state vs. R Systems-led delivery boundary by phase; (2) Parallel-run period with named entry/exit criteria; (3) Wave sequencing using Section 14 Application Clustering tier assignments; (4) Change management and team onboarding framing.
+- **Source:** Stage 4 Transition Planning Stub (written to `claude-memory/notes.md` under `## Transition Planning Stub`). If a stub was produced at Stage 4, Section 15 expands it — do not reconstruct the transition model from scratch. If no stub was produced (incumbent was not confirmed at Stage 0), declare: *"Transition planning to be scoped in Phase 0 once incumbent confirmation is obtained."*
+- Content: (1) Handover sequence — current-state vs. R Systems-led delivery boundary by phase; (2) Parallel-run period with named entry/exit criteria (entry/exit criteria drawn from stub's `Preliminary Parallel Run` field where available); (3) Wave sequencing using Section 14 Application Clustering tier assignments; (4) Change management and team onboarding framing.
 - Suppression: Not generated for `greenfield_delivery` signal or `standalone_project` engagement type.
 
 ### Section 16 — TaaS Operating Model (Conditional)

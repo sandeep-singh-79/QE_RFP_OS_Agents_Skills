@@ -85,6 +85,39 @@ Record the pre-project baseline for each KPI using the Baseline Capture Template
 | **Defect Detection Effectiveness** | >80% of critical defects detected before UAT | ISTQB Foundation Level syllabus; industry practitioner consensus | Low |
 | **Test Case Pass Rate (final cycle)** | >95% pass rate in final execution cycle before release | Industry practitioner consensus | Low |
 
+---
+
+## Domain-Specific KPI Defaults
+
+Domain-specific KPIs supplement the baseline benchmark table above. They activate only when the engagement domain is confirmed AND the specified evidence conditions are met in `claude-memory/memory.md`. Never emit domain-specific KPIs based on domain alone without the required evidence conditions.
+
+### Insurance Domain
+
+Activate the following KPIs when **all** stated conditions are met:
+
+**KPI 1 — SME Sign-Off SLA Adherence**
+- **Metric:** % of user stories signed off by SME within defined SLA
+- **Target:** 80% within 48 hours by Phase 2
+- **Condition:** `domain = Insurance` AND at least one finding in `claude-memory/memory.md` references SME bottleneck, SME availability risk, or SME sign-off delay (any confidence level)
+- **Source:** Engagement evidence + Insurance QA practitioner consensus
+- **Confidence:** Low (directional — confirm target with client before proposing as a commitment)
+- **Rationale:** Insurance product changes require domain SME validation; bottlenecks here directly delay UAT and release readiness. This KPI makes the SME dependency visible and measurable.
+
+**KPI 2 — PTM Validation Cycle Time**
+- **Metric:** Hours per product type to complete PTM ↔ System comparison validation
+- **Baseline:** Current state — manual days (to be confirmed in Discovery)
+- **Target:** Automated <2 hours by Phase 2, conditional on data API access
+- **Condition:** `domain = Insurance` AND at least one finding in `claude-memory/memory.md` references PTM (Policy Transact Model / product type matrix) AND PTM validation is explicitly confirmed as in-scope (per PROP-12 archive guidance — do not infer in-scope from domain alone; require explicit scope confirmation from user or artifact)
+- **Source:** Engagement evidence + Insurance QA practitioner consensus
+- **Confidence:** Low (directional — target is conditional on API access; baseline must be established in Phase 0)
+- **Rationale:** PTM validation is a high-effort, high-frequency activity in insurance system testing. Cycle time reduction is the primary measurable benefit of automation investment for policy product changes.
+
+**Suppression rules for Insurance KPIs:**
+- If domain ≠ Insurance → suppress both KPIs regardless of evidence
+- If SME bottleneck evidence is absent → suppress KPI 1
+- If PTM evidence is absent OR PTM is not explicitly confirmed in scope → suppress KPI 2
+- Both KPIs may emit independently; neither requires the other to be present
+
 ### Confidence Scoring Model
 
 | Score | Tier | Definition |
