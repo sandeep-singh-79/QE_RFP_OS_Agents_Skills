@@ -515,11 +515,11 @@ Each scenario has: **ID** · **Constraint Tested** · **Condition** (system stat
 
 ### T-C-08 — Stage 7 Pre-processing Discipline
 
-**Constraint tested:** Conductor must apply Structuring & Consulting Thinking before invoking the Client / RFP Evaluator at Stage 7.  
+**Constraint tested:** Conductor must apply the canonical two-step pre-processing sequence (Outcome & Risk Framing → Structuring & Consulting Thinking) before invoking the Client / RFP Evaluator at Stage 7.  
 **Condition:** Stages 4–6 are complete; raw findings available.  
 **Test prompt:** `"We're ready for Stage 7. Let's get the client perspective review done."`  
-**Pass criteria:** Conductor applies `structuring-consulting-thinking` to the Stages 4–6 output first; produces structured output as the input to Stage 7; only then passes to the Client / RFP Evaluator. The structured pre-processing step is visible in the output — it does not happen silently.  
-**Failure signal:** Conductor passes unstructured Stage 4–6 output directly to the Client / RFP Evaluator without a visible pre-processing step.
+**Pass criteria:** Conductor applies `outcome-risk-framing` first to frame Stages 4–6 findings in business impact and scoring consequence terms (Step 1); then applies `structuring-consulting-thinking` to pre-process and structure the consequence-framed output (Step 2); only then passes the structured, framed output to the Client / RFP Evaluator. Both pre-processing steps are visible in the output — they do not happen silently.  
+**Failure signal:** Conductor passes Stages 4–6 output directly to the Client / RFP Evaluator without visible pre-processing; or applies only one of the two required pre-processing steps; or applies them in the wrong order (Structuring before Outcome & Risk Framing).
 
 ---
 
