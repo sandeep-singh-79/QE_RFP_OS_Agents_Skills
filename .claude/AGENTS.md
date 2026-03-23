@@ -437,6 +437,26 @@ Summary:
   **Dependency Register — Stage 6 contribution:**
   For each delivery timeline or phase boundary, check: are there unconfirmed client dependencies that could affect delivery? If yes, log an entry to `## Dependency Register` in `claude-memory/notes.md`.
 
+  **Phase 0 Exit Criteria — Stage 6 mandatory output (IP-MAN-04):**
+  After producing the Phase 0 deliverable list and milestone, produce a `### Phase 0 Exit Criteria` subsection in the Stage 6 delivery plan output. This subsection is mandatory — a deliverable list alone is not sufficient. Exit criteria are the named, verifiable conditions that must all be satisfied before Phase 1 begins; they are not a restatement of the deliverable list.
+
+  Format as a two-column table:
+  | Exit Condition | How Verified |
+  |---|---|
+
+  Minimum required conditions:
+  1. Test strategies for all in-scope workstreams reviewed and approved by client QA lead.
+  2. Integration dependencies confirmed — named external systems and API availability dates agreed.
+  3. Environment readiness validated — test environment provisioned and accessible by QE team.
+  4. Automation coverage baseline established — documenting automation coverage % per workstream, critical path coverage completeness (pass/fail per workstream), and regression suite readiness level (ready / conditional / not ready).
+  5. Test data availability confirmed — data provisioning approach agreed and first dataset available.
+  6. Refined estimates approved — Phase 1 effort and team composition signed off by sponsor.
+
+  Add the following escalation statement at the end of the subsection:
+  > Phase 0 does not close with outstanding exit criteria. Any condition not satisfied at the Phase 0 review is escalated to the joint steering committee. Phase 1 start is contingent on all conditions being met — not on the Phase 0 calendar date.
+
+  Suppression: Do not suppress this subsection for any engagement type. Exit criteria apply to all engagements with a Phase 0.
+
 ### Stage 7 — Client Perspective Review
   Agent:      Client / RFP Evaluator
   Input:      Structured findings from Stages 4–6 (after Outcome & Risk Framing → Structuring)

@@ -338,3 +338,90 @@
 - **Impact:** Low
 - **Status:** Implemented
 - **Priority:** Low
+
+---
+
+### Improvement Proposal: IP-MAN-01
+- **Observation:** AGENTS.md Stage 4 (Test Architect) has AI Capability Tier Classification (Tier 1/Tier 2) governing phasing and OC-1 guard, but contains no instruction to frame Tier 1 AI capabilities as *embedded execution accelerators with named delivery responsibilities per phase*. The output produced is a tier table and tooling rationale — not an execution integration narrative. AI capabilities consistently land in Stage 9 as tooling additions or optional enhancements rather than as delivery mechanisms, reducing proposal credibility under governance and procurement scrutiny.
+- **Root Cause:** Stage 4 AI classification governs what to include and under what conditions — it does not govern how to position AI in the narrative. Stage 9 output structure has no explicit instruction to produce an execution integration section for Tier 1 AI capabilities.
+- **Suggested Change:** Add a rule to Stage 9 output structure (AGENTS.md Stage 9 / Test Architect section): "After the AI Capability Tier table and Agentic AI Governance Model, produce a `### [AI Platform] — Execution Integration` subsection that names the delivery-stage responsibilities of each active Tier 1 capability (test generation on spec receipt, regression acceleration, failure triage, suite stability). Frame capabilities as execution mechanisms with phase-activation points — not as tooling options."
+- **Impact:** High — AI framing directly affects delivery credibility scoring. Tooling framing scores in the tech section; execution mechanism framing scores in delivery confidence and commercial defensibility.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 review, March 23, 2026
+- **Status:** Implemented
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-MAN-02
+- **Observation:** `scope-completeness-validator` Category 1 (Integration Testing) correctly flags when integration testing is absent from scope estimates. However, Stage 9 has no instruction to produce integration testing as a *named architecture section* in the proposal output. Flagging at estimation time does not produce named framing in the final proposal narrative — the two actions are independent. Integration testing remains embedded inside per-workstream bullets rather than appearing as a named, evaluator-visible discipline.
+- **Root Cause:** The scope validator operates on the estimation layer; Stage 9 output structure operates on the narrative layer. There is no wiring between them — a Category 1 `Present` result does not trigger a named section in Section 7.
+- **Suggested Change:** Add a rule to Stage 9 output structure: "If integration testing is in scope (scope validator Category 1 = `Present`), produce a named `### External Integration Testing Model` subsection within the QE Architecture section. Do not rely on integration testing being visible inside per-workstream bullets. The subsection must cover: integration boundary inventory, contract/API testing approach, service virtualisation where applicable, and cross-system E2E validation."
+- **Impact:** Medium — evaluators scanning for a named integration testing layer will not find it in workstream bullets. Named sections score; buried bullets do not.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 review, March 23, 2026
+- **Status:** Implemented
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-MAN-03
+- **Observation:** `scope-completeness-validator` Category 2 (RBAC) correctly flags when RBAC validation is absent from scope estimates. However, Stage 9 has no instruction to produce RBAC validation as a *named security control section* in the proposal output. RBAC work remains buried in workstream functional testing bullets rather than appearing as a named compliance and governance control layer — invisible to MAS-TRM or equivalent regulatory scrutiny.
+- **Root Cause:** The scope validator operates on the estimation layer; Stage 9 Security Testing pillar has no conditional rule to produce a named RBAC subsection. RBAC is treated as a functional testing concern rather than a security and compliance control layer.
+- **Suggested Change:** Add a rule to Stage 9 output structure: "If RBAC validation is in scope (scope validator Category 2 = `Present`), produce a named `### RBAC Validation as a Security Control` subsection within the Security Testing pillar. Frame RBAC as a security and compliance control layer — not solely as a functional testing activity. The subsection must cover: role entitlement verification, access denial validation for unauthorised roles, privilege escalation testing, and audit log verification."
+- **Impact:** Medium — RBAC as a security control layer is scored differently from RBAC as a functional check. Governance and compliance evaluators expect to see it as a named security pillar element.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 review, March 23, 2026
+- **Status:** Implemented
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-MAN-04
+- **Observation:** AGENTS.md Stage 6 (Project Manager) instructs production of a Phase Model with deliverables and milestones. No instruction exists to produce explicit, enumerable Phase 0 exit criteria — the named conditions that must be satisfied before Phase 1 can begin. Every Stage 9 output will have a Phase 0 deliverable list and a gate statement but no table of verifiable exit conditions with named blockers and escalation paths.
+- **Root Cause:** Phase model instructions specify what happens during each phase and what the milestone is, but not what conditions must simultaneously be true for the phase to be declared complete. A deliverable list is an activity checklist; exit criteria are a readiness gate — these are different.
+- **Suggested Change:** Add a rule to Stage 6 Project Manager instructions: "After the Phase 0 deliverable triage block, produce a `### Phase 0 Exit Criteria` subsection. Enumerate named, verifiable conditions (not deliverable lists) that must all be satisfied before Phase 1 begins. Include a verification column. State that any unsatisfied condition at Phase 0 close is escalated to joint steering — Phase 0 does not close with outstanding blockers silently carried forward." Minimum required conditions: test strategies approved, integration dependencies confirmed, environment readiness validated, automation coverage baseline established, test data availability confirmed, refined estimates approved.
+- **Impact:** High — absence of explicit exit criteria implies Phase 1 start is schedule-driven, not quality-gate-driven — a red flag for governance-oriented reviewers.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 review, March 23, 2026
+- **Status:** Implemented
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-MAN-05
+- **Observation:** Section 11 (Governance Model + RACI) rule requires a RACI table and governance tier derivation, but has no instruction to produce a named delivery risk ownership statement. In multi-workstream concurrent engagements, the RACI shows who is Accountable per activity but no section consolidates delivery risk monitoring into a single named function — creating a gap against procurement governance rubrics that expect a single accountable risk owner.
+- **Root Cause:** Section 11 rule focuses on RACI activity coverage. It does not have a conditional rule for a named accountability paragraph for delivery risk visibility when the engagement involves multiple concurrent workstreams.
+- **Suggested Change:** Add a conditional rule to Section 11: "For `transformation_partnership` and `managed_service` engagement types with `application_count > 3`, produce a `### Delivery Risk Ownership` subsection after the RACI table. Name the QA Lead as the single delivery risk visibility owner. List 4 monitoring responsibilities: (1) continuous monitoring of workstream readiness signals; (2) early identification of schedule or dependency risks; (3) escalation of cross-workstream delivery risks; (4) reporting of release readiness status to the steering committee."
+- **Impact:** Medium — addresses a specific procurement governance expectation. Low effort, high signal for evaluators applying a single-point accountability rubric.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 third-pass review, March 23, 2026
+- **Status:** Pending
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-MAN-06
+- **Observation:** Section 8 Parallel Execution Assurance rule captures what enables concurrent execution but has no instruction to explicitly name environment capacity contention risk for engagements with 3+ simultaneous Tier A workstreams sharing test environments. With multiple concurrent workstreams active, environment capacity may become the binding constraint — but this is not named in the governance narrative.
+- **Root Cause:** Parallel Execution Assurance covers enabling mechanisms (dedicated ownership, milestone coordination). Section 6 covers environment stability and readiness. Neither covers the specific risk that available environment slots may be insufficient for concurrent test cycles across 3+ workstreams.
+- **Suggested Change:** To the Parallel Execution Assurance sub-section rule in `stage-9-output-structure.md` §8, add: "When engagement has 3+ concurrent workstreams (Tranche-based or simultaneous Tier A workstreams), include an environment capacity planning note: (1) concurrent test cycle execution assumes sufficient environment capacity; (2) environment capacity validated during Phase 0; (3) where contention occurs, sequencing coordinated through governance framework to protect tranche milestones."
+- **Impact:** Low-Medium — genuine multi-workstream constraint; currently partially covered by Phase 0 exit criteria but not named as a capacity constraint pattern.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 third-pass review, March 23, 2026
+- **Status:** Pending
+- **Priority:** Low
+
+---
+
+### Improvement Proposal: IP-MAN-07
+- **Observation:** Phase 0 Exit Criteria condition "Automation coverage baseline established" (added by IP-MAN-04) is stated without specifying what constitutes a baseline. The condition is verifiable in principle but not in practice — without a shared definition of what the baseline documents, delivery teams and evaluators cannot confirm it has been met.
+- **Root Cause:** IP-MAN-04 correctly mandated the Exit Criteria table, but the coverage baseline condition is generic. A verifiable condition must state exactly what will be measured and reported.
+- **Suggested Change:** Refine the Phase 0 exit criteria coverage baseline condition (in `stage-9-output-structure.md` and `AGENTS.md` Stage 6) from: "Automation coverage baseline established" to: "Automation coverage baseline established — documenting automation coverage % per workstream, critical path coverage completeness (pass/fail), and regression suite readiness level (ready / conditional / not ready)."
+- **Impact:** Low — the substance is already present; this is a precision improvement that makes condition 4 verifiable rather than aspirational.
+- **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 third-pass review, March 23, 2026
+- **Status:** Pending
+- **Priority:** Low
+
+---
+
+### Design Decision: IP-MAN-08 (Gap 4 — Dependency Failure Handling — NOT IMPLEMENTING)
+- **Gap identified by:** ChatGPT 5.4 third-pass review, March 23, 2026
+- **Proposed:** Add a `## Dependency Failure Handling` generic narrative paragraph describing the protocol when dependencies fail.
+- **Assessment:** Negative ROI. The Section 18 Dependency Register with its "Impact if Missed" column already provides per-dependency, specific failure consequence statements for every dependency. A generic narrative paragraph replaces specific, per-dependency clarity with abstracted governance language. Specificity is more valuable than abstraction in dependency risk communication — evaluators reviewing a dependency register assess each dependency against its consequence, not against a generic protocol statement.
+- **Decision:** Do NOT add a generic dependency failure narrative section. The existing per-dependency "Impact if Missed" column is the correct mechanism. If escalation is insufficiently visible, strengthen the cross-reference from Section 18 to Section 11 (escalation path) rather than adding abstraction.
+- **Status:** Closed — design decision (no OS implementation)
+- **Priority:** N/A
