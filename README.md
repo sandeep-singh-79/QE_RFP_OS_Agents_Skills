@@ -26,6 +26,9 @@ The QE OS is an AI-assisted system for reviewing, designing, and strengthening Q
 | Applies go/no-go quality gate verdict before Stage 9 output | Review & Challenge skill — Gate Verdict |
 | Provides PERT-based effort estimation with tier and phase breakdown | `pert-estimation` skill |
 | Extracts KPI targets, flags absence, recommends sourced benchmarks | `kpi-baseline` skill |
+| Gates estimation with 7-category scope completeness check before PERT sizing begins | `scope-completeness-validator` skill |
+| Classifies workstreams by complexity (Tier A/B/C) using five scored dimensions | `estimation-sizing-thinking` via `estimation-model.md § Workstream Complexity Classification` |
+| Maps High-criticality assumptions to directional effort impact (Assumption → Risk → Effort) | `assumption-dependency-management` — Estimation Traceability Mapping |
 | Adapts proposal language for confirmed client industry context | `domain-context-adaptation` skill |
 | Structures raw findings into leadership-ready outputs | Structuring + Executive Communication skills |
 | Enforces anti-hallucination, evidence traceability, and governance | System-wide via `copilot-instructions.md` + `AGENTS.md` |
@@ -139,6 +142,7 @@ See `.claude/references/trigger-prompts.md` for full examples of what activates 
 ├── estimation-sizing-thinking/
 ├── pert-estimation/                   ← PERT formula, 8 tiers, effort multipliers, phase breakdown
 ├── kpi-baseline/                      ← KPI extraction, flag-if-absent, sourced benchmarks, baseline capture
+├── scope-completeness-validator/      ← pre-PERT scope gate: 7-category checklist (Integration, RBAC, Regression, NFR, External Deps, Data Migration, Environment)
 ├── review-challenge-thinking/
 ├── domain-context-adaptation/
 └── tooling-technology-recommendation/

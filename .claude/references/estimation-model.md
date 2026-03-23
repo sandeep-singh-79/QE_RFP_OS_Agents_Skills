@@ -214,6 +214,62 @@ Never assign P0 without rationale. If in doubt, declare as P1 and flag for clien
 
 ---
 
+## Workstream Complexity Classification
+
+> **Phase 12, Task 2** — mode applicability: **Upfront and Inference modes.** Capacity-based: classify if sufficient context exists; otherwise defer to engagement kickoff.
+
+Classify each workstream at the engagement level before PERT sizing and phasing decisions are made. This produces a repeatable Tier A / Tier B / Tier C assignment grounded in scored criteria — not informal judgement.
+
+### Scoring Dimensions
+
+| Dimension | Weight | Low (1) | Medium (2) | High (3) |
+|---|---|---|---|---|
+| **Integration Count** | 30% | 0–1 integration points | 2–4 integration points | 5+ integration points |
+| **Security / Compliance Impact** | 25% | No compliance requirements | Standard security (auth, RBAC) | Regulatory compliance (SOC2, HIPAA, PCI-DSS) |
+| **External Dependencies** | 20% | No external dependencies | 1–2 managed vendor APIs | 3+ external systems or unmanaged APIs |
+| **Data Complexity** | 15% | Simple data model, single entity | Multi-entity, moderate transformations | Complex reconciliation, multi-source, financial data |
+| **Change Volatility** | 10% | Stable, confirmed requirements | Moderate change expected | Active development, frequent scope changes |
+
+**Weighted score** = Σ (dimension score × weight)
+
+### Tier Thresholds
+
+| Tier | Score Range | Meaning |
+|---|---|---|
+| **Tier A** | ≥ 2.3 | High complexity — highest integration count, compliance or regulatory scope, or critical data dependencies |
+| **Tier B** | 1.5–2.29 | Medium complexity — moderate integration, standard security, manageable dependencies |
+| **Tier C** | < 1.5 | Low complexity — limited integrations, minimal external dependencies, stable scope |
+
+### Classification Output Format
+
+Produce one classification block per workstream:
+```
+Workstream: [Name]
+Dimensions: Integration=[score], Security=[score], External=[score], Data=[score], Volatility=[score]
+Weighted Score: [n.nn]
+Classification: Tier [A / B / C]
+Confidence: [Evidenced / Inferred / Assumed]
+```
+
+### Usage Rules
+
+- **Tier A workstreams** receive higher risk contingency (use upper bound of contingency range), are flagged for explicit risk register entries, and determine phasing position under the active phasing strategy:
+  - Confidence-first strategy: Tier A in later phases (Phase 2+)
+  - Risk-first strategy: Tier A in Phase 1 (retire highest risk earliest)
+- **Tier C workstreams** may be accelerated or grouped; lower contingency applies
+- All dimension scores are assumptions — declare confidence tier per PR-4 (Evidenced / Inferred / Assumed)
+- All workstream `Assumed` Tier A assignments must carry `[CLIENT CONFIRMATION REQUIRED]`
+
+### Mode Conditionality
+
+| Mode | Application |
+|---|---|
+| **Upfront / WBS-based** | Full scoring available — artifact-derived dimension scores |
+| **Inference-based** | Scoring based on RFP module descriptions and domain experience; all scores declared as `Inferred` |
+| **Capacity-based** | Classify if context supports it; otherwise state: "Workstream classification deferred — insufficient context at proposal stage. Confirm at engagement kickoff." |
+
+---
+
 ## Scope Reconciliation
 
 > **Tasks 6.1–6.3** — mode-conditional deduplication/overlap guard. Mode: **Upfront and Inference only.** Capacity-based: N/A.

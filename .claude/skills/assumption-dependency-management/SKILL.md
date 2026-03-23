@@ -77,6 +77,34 @@ Produce:
 
 ---
 
+### Estimation Traceability Mapping (Conditional)
+
+**Activation:** Produce this output when invoked in the context of an estimation or sizing engagement — i.e., when `estimation-sizing-thinking` or `pert-estimation` is active or has produced output. Silent when invoked outside an estimation context.
+
+For each **High-criticality assumption**, produce a traceability row mapping assumption → affected dependency → risk → directional effort impact:
+
+| Assumption | Dependency | Risk if Invalid | Effort Impact | Confidence |
+|---|---|---|---|---|
+| [assumption text] | [which dependency is affected] | [what goes wrong if assumption is violated] | [directional % impact, e.g. "+15% regression effort"] | [Evidenced / Inferred / Assumed] |
+
+**Column rules:**
+- **Assumption** — exact text from the Identify Assumptions output above
+- **Dependency** — the specific dependency affected if the assumption fails; sourced from the Identify Dependencies output
+- **Risk if Invalid** — business or delivery consequence; if `outcome-risk-framing` is active in the same workflow, reference its framing; otherwise state the consequence directly
+- **Effort Impact** — directional percentage or phase-specific impact (e.g., "+15% regression effort", "+10% framework establishment"); not a precise recalculation — a defensible order-of-magnitude indicator
+- **Confidence** — evidence tier for the effort impact estimate per PR-4: `Evidenced` / `Inferred` / `Assumed`
+
+**Coverage rules:**
+- All High-criticality assumptions require a traceability row
+- Medium-criticality assumptions may include rows if the effort impact is material
+- Low-criticality assumptions: no traceability row required
+- The mapping extends CCR flags in the Assumptions Block — it does not replace them
+- If no High-criticality assumptions exist, state: “No High-criticality assumptions — Estimation Traceability Mapping not required.”
+
+**Cross-reference rule:** All CCR-flagged assumptions with High criticality must have a corresponding traceability row. If a CCR assumption has no row, flag as incomplete: “`[CCR assumption ID]` is High-criticality and CCR-flagged but has no traceability row — effort impact must be declared.”
+
+---
+
 ## Explicit Exclusions
 
 Do not:
