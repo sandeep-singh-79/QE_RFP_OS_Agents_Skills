@@ -87,6 +87,10 @@ The scenario count established in Scope Establishment is **fixed for the duratio
 
 Load `references/estimation-model.md § Multiplier Chain` for the full multiplier chain, four-case reusability model, normalization reference range, and multi-factor stacking declaration requirements.
 
+Load `references/estimation-model.md § Workstream Complexity Classification` when workstream-level effort differentiation or tier-based contingency is required. Produces Tier A / B / C per workstream using five scored dimensions. Tier A workstreams receive higher contingency and are prioritised per the active phasing strategy (confidence-first or risk-first).
+
+> **CCR assumptions and traceability:** CCR-flagged High-criticality assumptions are primary candidates for the Estimation Traceability Mapping produced by `assumption-dependency-management`. When both skills are active in an estimation context, ensure a traceability row (Assumption → Dependency → Risk if Invalid → Effort Impact → Confidence) exists for every CCR High-criticality assumption.
+
 ---
 
 ## PERT Formula

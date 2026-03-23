@@ -107,6 +107,11 @@ Follow these principles and exclusions to ensure estimates are defensible and re
 
 When detailed sizing or measurement content is required, invoke the following sub-skills before producing the final estimate output. These skills are composable — they do not perform orchestration or invoke agents.
 
+### `scope-completeness-validator`
+**When to invoke:** After Scope Establishment Pre-Phase completes and before `pert-estimation` begins sizing.
+**What it produces:** Scope Completeness Report — 7-category checklist (Present / Explicitly Excluded / Missing). Raises `⚠ SCOPE COMPLETENESS — REVIEW REQUIRED` if ≥2 categories are Missing.
+**Rule:** Invoke before producing effort figures. Categories flagged Missing must appear as `[UNVERIFIED]` assumptions in the Assumptions Block. Non-blocking — estimation proceeds but flags persist to Stage 9 output.
+
 ### `pert-estimation`
 **When to invoke:** When test case categorisation by tier and complexity, PERT variance calculation, or project phase effort breakdown is required.
 **Prerequisite:** Scope Establishment Pre-Phase must complete first — the scenario count and derivation path must be declared before `pert-estimation` begins sizing. Load `references/estimation-model.md § Scope Establishment Pre-Phase` to complete this step.
@@ -115,7 +120,7 @@ When detailed sizing or measurement content is required, invoke the following su
 
 ### `kpi-baseline`
 **When to invoke:** When KPIs, success metrics, or baseline measurements need to be included in the estimation or proposal output.
-**What it produces:** Client-specified KPI targets (from `memory.md`), `⚠ NO CLIENT KPI TARGETS FOUND` flag if absent, sourced industry benchmark KPIs with confidence scores, and pre-project baseline capture.
+**What it produces:** Client-specified KPI targets (from `claude-memory/memory.md`), `⚠ NO CLIENT KPI TARGETS FOUND` flag if absent, sourced industry benchmark KPIs with confidence scores, and pre-project baseline capture.
 **Rule:** Always invoke before finalising any estimation output that will contain KPI or quality targets for client submission. Never insert KPI figures without first checking client-specified targets.
 
 ---
@@ -126,8 +131,10 @@ Every estimate must include:
 1. **Estimation Mode Declaration** — state which mode applies (Upfront/WBS-based, Inference-based, or Capacity-based) before any sizing begins. Load `references/estimation-model.md § Estimation Mode Framework` for mode criteria.
 2. Enablement vs execution split
 3. Complexity distribution summary across test groups (use `pert-estimation` output when detailed sizing is in scope)
+3a. **Workstream Complexity Classification** — Tier A / B / C per workstream with scored dimensions. Load `references/estimation-model.md § Workstream Complexity Classification`. Tier A workstreams flagged for higher contingency and priority attention.
 4. **Scope Establishment Pre-Phase** — declare the path used to arrive at the scenario count (artifact-derived, inference-based, or capacity-based) and the effort cost of scope establishment. Load `references/estimation-model.md § Scope Establishment Pre-Phase`.
-5. Key assumptions and unresolved dependencies
+4a. **Scope Completeness Report** — output of `scope-completeness-validator`. Invoke after Scope Establishment Pre-Phase, before PERT sizing begins. Categories flagged Missing must appear as explicit inclusions or `[UNVERIFIED]` assumptions before the estimate is finalised.
+5. Key assumptions and unresolved dependencies. Where `assumption-dependency-management` is active in an estimation context, its Estimation Traceability Mapping links High-criticality assumptions to directional effort impacts — surface these linkages in the Assumptions Block alongside CCR flags.
 6. Confidence qualifier — High / Medium / Low with rationale
 7. Flagged high-maintenance or high-risk scenarios
 8. Scale caveats where pilot differs from enterprise scope

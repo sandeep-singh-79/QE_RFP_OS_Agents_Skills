@@ -47,6 +47,7 @@ User calls always take precedence over routing recommendations.
 | `question-capability-mapping` | Optional — when RFP questions exist and capability coverage is complete; invoked by Test Architect before Solution Design |
 | `pert-estimation` | Sub-skill for test case sizing and PERT effort calculation. Invoked only by `estimation-sizing-thinking` — not loaded independently. |
 | `kpi-baseline` | Invoke for KPI targets and success metrics. Valid callers: Test Architect (Stage 4), Stage 9 conductor (Section 13), `estimation-sizing-thinking` (co-scoped sizing). Non-orchestrating. |
+| `scope-completeness-validator` | Pre-PERT scope gate — checks 7 coverage categories before effort sizing begins. Invoked only by `estimation-sizing-thinking` after Scope Establishment, before `pert-estimation`. Not loaded independently. |
 
 ---
 
@@ -227,7 +228,7 @@ Agents must load only the memory and workspace files relevant to their role. Loa
 | Conductor (Stage 9) | `plan.md`, `outputs/staged-proposal.md`, `outputs/estimation-proposal.md` (conditional — load only if the file exists), `.claude/references/stage-9-output-structure.md` | `review-challenge-thinking` |
 | Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
 | QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `assumption-dependency-management` |
-| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md`, `outputs/staged-proposal.md` | `estimation-sizing-thinking`; `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
+| Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md`, `outputs/staged-proposal.md` | `estimation-sizing-thinking`; `scope-completeness-validator` + `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
 | Client / RFP Evaluator | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `review-challenge-thinking` |
 | Tooling Recommender | `claude-memory/memory.md` (capability sections only), `claude-memory/notes.md` | `tooling-technology-recommendation` |
 
