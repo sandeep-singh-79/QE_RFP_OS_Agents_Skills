@@ -107,6 +107,32 @@ State the governing principle explicitly beneath the table:
 
 This principle must appear verbatim. It applies to all Tier 1 and Tier 2 AI capabilities — HITL governance is not restricted to Tier 2 ML models.
 
+**AI Execution Integration (conditional sub-section in §7, Tier 1 only — IP-MAN-01):**
+Trigger: At least one Tier 1 AI capability is proposed. Suppressed when only Tier 2 capabilities or no AI capabilities are present.
+
+When triggered, render a `### [AI Platform] — Execution Integration` subsection **immediately after** the Agentic AI Governance Model table and governing principle. This subsection must:
+- Name the **delivery-stage responsibilities** of each active Tier 1 capability with its phase-activation point (e.g., "Active from Phase 1 — test case generation on spec receipt"; "Active from Phase 2 — regression suite acceleration"; "Active from Phase 2 — failure triage and defect classification"; "Active from Phase 3 — suite stability and flakiness detection").
+- Frame each capability as an **execution mechanism** — not as a tooling option or optional enhancement. Each capability is operational from its activation phase and contributes to named delivery outcomes.
+- Do **not** frame Tier 1 AI capabilities as "available tools", "optional accelerators", or "subject to Phase 0 assessment". AI capabilities classified as Tier 1 are available without specialist ML infrastructure and are committed delivery mechanisms. Tooling-framed AI scores in the technology catalogue; execution-mechanism framing scores in delivery confidence and commercial defensibility.
+
+**External Integration Testing Model (conditional sub-section in §7 — IP-MAN-02):**
+Trigger: `scope-completeness-validator` Category 1 (Integration Testing) resolves as `Present` — i.e., integration testing is confirmed in scope. Suppressed when integration testing is not in scope.
+
+When triggered, render a named `### External Integration Testing Model` subsection within Section 7. This subsection must not be omitted in favour of integration testing coverage appearing inside per-workstream bullets. Named sections are evaluator-visible; workstream bullets are not. The subsection must cover:
+- Integration boundary inventory: list named external systems and APIs under test scope.
+- Contract and API testing approach (REST/SOAP/messaging as applicable).
+- Service virtualisation strategy where downstream/upstream systems are unavailable in test environments.
+- Cross-system end-to-end validation: named integration flows, entry/exit points, and data validation approach.
+
+**RBAC Validation as a Security Control (conditional sub-section in §7 — IP-MAN-03):**
+Trigger: `scope-completeness-validator` Category 2 (RBAC / Access Control) resolves as `Present` — i.e., RBAC validation is confirmed in scope. Suppressed when RBAC validation is not in scope.
+
+When triggered, render a named `### RBAC Validation as a Security Control` subsection within the Security Testing pillar in Section 7. This subsection must not be omitted in favour of RBAC coverage appearing inside per-workstream functional testing bullets. RBAC must be framed as a **security and compliance control layer**, not solely as a functional testing activity. The subsection must cover:
+- Role entitlement verification: confirm authorised roles have correct access.
+- Access denial validation: confirm unauthorised roles are denied access as per access matrix.
+- Privilege escalation testing: verify no horizontal or vertical privilege escalation paths exist.
+- Audit log verification: confirm access events are logged as required by compliance framework (e.g., MAS-TRM, SOC2).
+
 ### Section 8 — Transformation Roadmap
 Phase-based delivery roadmap. Phasing driven by `engagement_type` and `application_count` from Stage 0.
 - Source: Stage 6 delivery planning output + Stage 4 architecture pillars.
@@ -133,6 +159,16 @@ When triggered, render a "Sprint-Lifecycle QE Integration" sub-section within §
 - **Definition of Done Change:** What new or modified DoD criterion applies from this sprint onward.
 - This model bridges the macro phase roadmap (executive audience) with micro sprint integration (delivery teams) — it answers "what changes in my sprint next month?"
 - Source: Stage 4 automation deployment sequence + Stage 6 delivery planning phase milestones. Do not fabricate sprint activities without a corresponding Stage 4/6 output.
+
+**Environment Capacity Planning Note (conditional — IP-MAN-06):**
+Trigger: Engagement has 3+ concurrent workstreams running simultaneously (e.g., Tranche-based delivery with 3+ Tier A workstreams active at the same time). Suppressed for sequential delivery or engagements with fewer than 3 concurrent workstreams.
+
+When triggered, include an environment capacity planning note within or immediately after the Parallel Execution Assurance content in Section 8. The note must:
+1. Name the assumption: concurrent test cycle execution across [N] simultaneous workstreams assumes sufficient test environment capacity.
+2. Confirm validation: environment capacity is validated during Phase 0 discovery and documented in the environment readiness baseline.
+3. Name the resolution mechanism: where environment contention arises, workstream test cycle sequencing is coordinated through the joint governance framework to protect tranche delivery milestones without compromising quality gates.
+
+Do not present this as a separate major heading. A paragraph within or immediately after Parallel Execution Assurance is the correct structural placement.
 
 ### Section 9 — Tooling Recommendations
 All tooling must use the three-tier framing defined at Stage 4 (Confirmed / Suggested / Proposed — Vendor Platform). Table columns: Tool | Tier | Capability Layer | AI Tier (if applicable) | Rationale.
@@ -164,6 +200,17 @@ Derive RACI from: (1) Stage 4 pillar ownership declarations; (2) Stage 6 governa
 - Specific role names do NOT appear in the RACI — role names belong in the POD model (Section 12).
 - RACI assignments are engagement-specific — derive from RFP context. Do not hardcode default assignments across engagements.
 - Placement: Governance section body, or Appendix C if sectioning requires it.
+
+**Delivery Risk Ownership subsection (conditional — IP-MAN-05):**
+Trigger: `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` > 3 (i.e., 3+ concurrent workstreams).
+
+When triggered, produce a `### Delivery Risk Ownership` subsection immediately after the RACI table. This subsection must:
+- Name the **QA Lead** explicitly as the single accountable owner for delivery risk visibility.
+- List the 4 monitoring responsibilities: (1) continuous monitoring of workstream readiness signals against tranche milestones; (2) early identification of schedule deviations or dependency risks before they breach milestone boundaries; (3) escalation of cross-workstream delivery risks through the joint escalation framework; (4) reporting of release readiness status to the joint steering committee.
+- State that this model ensures delivery risk is actively monitored and escalated — not reactively discovered at milestone reviews.
+- Do **not** duplicate TaaS Governance & Ownership row text (Section 16). The TaaS row covers operational framework; the Delivery Risk Ownership subsection answers the procurement single-owner accountability expectation. Both are required.
+
+Suppression: Suppress for `standalone_project` and `qa_audit` engagement types, or where `application_count` ≤ 3.
 
 ### Section 12 — Team Structure / POD Model
 Invokes `estimation-sizing-thinking` for team POD sizing.
