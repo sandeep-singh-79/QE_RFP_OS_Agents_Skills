@@ -425,3 +425,86 @@
 - **Decision:** Do NOT add a generic dependency failure narrative section. The existing per-dependency "Impact if Missed" column is the correct mechanism. If escalation is insufficiently visible, strengthen the cross-reference from Section 18 to Section 11 (escalation path) rather than adding abstraction.
 - **Status:** Closed — design decision (no OS implementation)
 - **Priority:** N/A
+
+---
+
+## Phase 17 Improvements — March 24, 2026
+
+Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream proposal (4-lens: Review & Challenge Thinking). Seven new OS-layer gaps identified — 5 pure gaps (no rule exists), 2 partial gaps (prior IP partially addressed but incomplete).
+
+---
+
+### Improvement Proposal: IP-MAN-09
+- **Observation:** The Stage 9 output rules have no guardrail preventing internal staff first names from appearing in client-facing submission sections. In the Manulife proposal, OC-001 contained "Sandeep / Praveen (Presales Lead)" and R-009 contained "Presales Lead (Praveen)" — both referencing internal R Systems staff by first name. Enterprise procurement panels treat this as unprofessional and it exposes internal org structure unnecessarily.
+- **Root Cause:** No output hygiene rule exists for role designation vs. personal names. The OS produces output that names whoever is contextually referenced without sanitizing for client-facing submission context.
+- **Suggested Change:** Add a **Submission Hygiene Rule** to `stage-9-output-structure.md` (and to `review-challenge-thinking/SKILL.md` as a review check): "All internal staff references in client-facing sections (OC, Risk Register, Team Structure, Governance Model) must use role designations only — e.g., 'R Systems QA Practice Lead', 'R Systems Presales Lead', 'R Systems Programme Delivery Lead'. First names and informal staff references must not appear in any section that will be read by client procurement, evaluation panel, or steering committee."
+- **Impact:** Medium — credibility and professionalism risk; straightforward to enforce as a final-pass rule
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-01)
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-MAN-10
+- **Observation:** IP-MAN-05 added a Delivery Risk Ownership subsection naming the QA Lead as the single accountable owner. However, the proposal also has OC-002, R-007, and D-10 disclosing that the QA Lead is not yet confirmed. These disclosures appear in Sections 17, 19, and 18 respectively — 12+ sections after the ownership claim in Section 11. An evaluator reading Section 11 will not cross-reference to Section 17. The accountability claim contradicts its own disclosed risk without a co-located caveat.
+- **Root Cause:** IP-MAN-05 specified producing the ownership statement and listing 4 monitoring responsibilities, but did not require a co-located parenthetical linking the ownership claim to the unconfirmed-role disclosure. These are independent pieces of content produced at different sections of the output, with no wiring between them.
+- **Suggested Change:** Add to the IP-MAN-05 rule in `stage-9-output-structure.md`: "If OC-002 (or equivalent open condition for named QA Lead) is active at output time, include a parenthetical immediately following the QA Lead ownership statement: '*(QA Lead to be confirmed within 5 business days of award — see OC-002; interim pre-kick-off accountability: R Systems Programme Delivery Lead.)*' This disclosure must be co-located with the ownership claim — not separated by more than one section."
+- **Impact:** High — an accountability claim that contradicts an undisclosed risk is a credibility landmine for evaluators. Co-location is the minimum required fix; downstream disclosure is insufficient.
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-02)
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-MAN-11
+- **Observation:** Section 8 of the Manulife proposal stated "Phase 0 kick-off: Week of March 30, 2026 (indicative)" — a hard calendar date when the proposal submission was March 23. This assumes a 7-day procurement cycle including evaluation, selection, negotiation, and contract execution. If award arrives in April (realistic), the entire WS-4 milestone chain collapses, yet the absolute date carries no assumption label declaring it is relative to award.
+- **Root Cause:** The Stage 6 (Project Manager) and Stage 9 roadmap rules do not prohibit absolute calendar dates for Phase 0 kick-off. The OS has no rule requiring that Phase 0 start dates be expressed as relative to award date. When an agent populates a date, it anchors to the current date — which is always wrong for a competitive proposal because award timing is unknown.
+- **Suggested Change:** Add a rule to Stage 6 Project Manager and Stage 9 Transformation Roadmap output rules in `stage-9-output-structure.md`: "Phase 0 kick-off dates must never be expressed as absolute calendar dates in RFP submissions. Use relative form: '[Award + N business days] (indicative)'. If absolute framing is required for a milestone table, add an explicit assumption label: '[ASSUMPTION-BASED — relative to award receipt; confirmed no later than Day 3 of Phase 0]'. All downstream milestone dates that are derived from Phase 0 kick-off inherit this relativity."
+- **Impact:** High — absolute kick-off dates in competitive proposals are always wrong and can undermine every calendar-dependent commitment downstream
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-03)
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-MAN-12
+- **Observation:** IP-MAN-07 correctly refined Phase 0 Exit Criterion Condition 4 to specify measurable dimensions: "automation coverage % per workstream, critical path coverage completeness (pass/fail), and regression suite readiness level (ready / conditional / not ready)." However, the condition still has no pass threshold — Phase 0 can technically exit with 0% automation coverage and 'not ready' regression status as long as these are documented. Documenting a failing state is not the same as passing a gate.
+- **Root Cause:** IP-MAN-07 (Insight 12) addressed the "what is measured" question but not the "what constitutes a PASS" question. These are two distinct requirements for a verifiable gate: a measurement definition and a pass/fail threshold. Specifying only the measurement produces a reporting condition, not a gate condition.
+- **Suggested Change:** Extend IP-MAN-07's rule to require both (a) measurement specification AND (b) pass/fail threshold for every Phase 0 exit criterion. For the coverage condition specifically: "Phase 0 cannot exit if any Tier A workstream records 'not ready' on regression suite readiness without a Manulife-approved recovery plan, or if critical path coverage completeness is 'fail' without an agreed remediation path." Apply the principle universally: all Phase 0 exit criteria must specify the condition under which the criterion passes — not only what is measured.
+- **Impact:** High — an exit criterion without a threshold is a reporting activity, not a governance gate. Any governance-oriented evaluator will recognise this immediately.
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-04); extends IP-MAN-07
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-MAN-13
+- **Observation:** When the Risk Register names a workstream-specific dedicated sub-team (e.g., "dedicated SDET team for WS-7 from Phase 1; separate from WS-5/WS-6 resourcing"), Section 12 (Team Structure) does not automatically reflect this as a separate pool in the headcount summary. The Manulife proposal's Section 12 stated "4–6 SDETs" without disclosing the additional 2–3 dedicated WS-7 SDETs — understating real team commitment by up to 40%.
+- **Root Cause:** The Team Structure section production rule and the Risk Register production rule operate independently. There is no cross-section coherence rule requiring that risk mitigations involving dedicated resource sub-pools be reflected as explicit allocations in the Team Structure section. When a risk register entry says "dedicated team," the System produces it in isolation without checking whether Section 12 accounts for it.
+- **Suggested Change:** Add a cross-section coherence rule to the Stage 9 Team Structure section production logic in `stage-9-output-structure.md`: "Before finalizing the Team Structure section headcount summary, scan all Risk Register entries for dedications, pools, or workstream-specific resource commitments. If any risk mitigation names a dedicated sub-team separate from the primary pool, that sub-pool must appear as a named allocation in Section 12. Produce the full headcount as a sum: primary pool + all named sub-pools. If Tranche 1 and Tranche 2 have separate pools, show the rollup and the per-tranche split."
+- **Impact:** High — understating team size in the Team Structure section while citing dedicated pools in the Risk Register is an internal contradiction that evaluators will catch; it also weakens the proposal's delivery credibility
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-05)
+- **Status:** Proposed
+- **Priority:** High
+
+---
+
+### Improvement Proposal: IP-MAN-14
+- **Observation:** IP-MAN-05 added the Programme Governance Forum sentence (weekly meeting during active execution phases, comprising QA and Delivery Leads from both organisations). However, no Manulife role was named in the forum description, and no dependency was added to the Dependency Register covering Manulife's participation commitment. Without a named Manulife participant or a dependency entry, the governance forum is a unilateral vendor commitment — it cannot function as a joint forum if the client hasn't committed to attending.
+- **Root Cause:** IP-MAN-05 specified the forum's membership in abstract terms ("QA leads and Delivery Leads from both organisations") without requiring a named Manulife role or a corresponding dependency. The forum exists in narrative text only — there is no governance mechanism ensuring Manulife's participation is a tracked and mutual commitment.
+- **Suggested Change:** Extend IP-MAN-05's Delivery Risk Ownership rule to require two additions: (1) Name the client-side participant by role in the forum description — e.g., "specifically, the R Systems QA Lead and the Manulife Test Manager or nominated Delivery Lead." If the Manulife role is not yet confirmed, use "Manulife-nominated Delivery Lead." (2) Add a corresponding entry to the Dependency Register (Stage 9 Section 18 rule): "D-[n]: Manulife Governance Forum participant nominated — Owner: Manulife — Status: Open — Phase 0 Day 1 confirmation required — Impact if missed: Weekly forum cannot convene with joint authority; governance escalation path is weakened."
+- **Impact:** Medium — joint governance without a named client-side participant is a structural gap; adding the dependency makes it a trackable commitment rather than an assumed one
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-07); extends IP-MAN-05
+- **Status:** Proposed
+- **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-MAN-15
+- **Observation:** The Application Clustering Framework (Section 14) presents a per-workstream component breakdown table. In the Manulife proposal, the component sum (199) was materially larger than the application count used for estimation (41) — a 4.85× difference. No sentence in Section 14 explained the relationship between the two figures. An evaluator reading Section 4 (effort based on 41 applications) and then Section 14 (199 components with the same scope label) will legitimately challenge the estimation basis.
+- **Root Cause:** The Section 14 production rule has no requirement to reconcile the component-level view with the application-level view used for estimation. The two figures are produced independently by different agents (Estimation sizing produces the application count; Application Clustering produces the component breakdown) with no cross-reference rule.
+- **Suggested Change:** Add a rule to the Application Clustering Framework section production in `stage-9-output-structure.md`: "If the per-workstream component sum in the clustering table differs from the application count stated in Section 4, include a reconciliation sentence immediately after the scope header: '[Component count] components above represent the full microservice and application decomposition of the [application count] named in-scope applications. Effort estimates were sized at workstream level against this component surface; the [application count]-application figure reflects the application-ownership layer, not the component count.' This prevents evaluators from treating the component count as the estimation basis."
+- **Impact:** Medium — without reconciliation, the proposal creates an exploitable ambiguity about what the estimate was actually based on; a two-sentence addition eliminates this risk entirely
+- **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-09)
+- **Status:** Proposed
+- **Priority:** Medium
