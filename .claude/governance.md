@@ -71,6 +71,17 @@ Resolution: F[ID]
 - Finding IDs referenced in the output but absent from `memory.md` are flagged as phantom references
 - The Evidence Reconciliation skill checks all resolutions for Finding ID references at Stage 8
 
+### Traceability Format Disambiguation
+
+Two traceability formats reference Finding IDs in different contexts. Both are required — they are not interchangeable:
+
+| Format | Where Used | Purpose |
+|---|---|---|
+| `Resolution: F[ID]` | Solution output (Stages 4–7 → staged-proposal.md) | Declares that a finding has been addressed in the solution |
+| `Evidence: F[ID]` | Architecture recommendations (Stage 4 — Test Architect) | Declares the evidence basis for a recommendation |
+
+The evidence-reconciliation skill (Stage 8) checks the `Resolution: F[ID]` format when scanning for addressed findings. The `Evidence: F[ID]` format in recommendation blocks is not a resolution — it is a traceability citation. A finding cited via `Evidence:` but not addressed via `Resolution:` remains unresolved.
+
 ## Proposal Quality Rules
 Outputs intended for client submission must:
 - Pass the Review & Challenge Thinking quality gate (Stage 9)

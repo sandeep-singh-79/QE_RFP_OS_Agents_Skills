@@ -35,6 +35,7 @@ This skill may load **only**:
 - `claude-memory/memory.md` — to check for existing findings before writing (avoid overwriting)
 - `claude-memory/notes.md` — to check for in-progress context from earlier stages
 - `.claude/references/domain-regulatory-map.md` — for implicit domain detection and regulatory framework inference (Steps 10 and 12 of Responsibilities)
+- `plan.md` — conditional: load only in full-workflow mode (Stage 0 completed) to read Regulatory Context at Step 12. Not loaded in Mode 2.
 
 It must **not** load other memory files (`claude-memory/insights.md`, `claude-memory/decisions.md`, `claude-memory/improvements.md`) unless a specific extraction task requires them. Context must be minimal and purposeful.
 
