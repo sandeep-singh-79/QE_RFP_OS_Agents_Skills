@@ -39,6 +39,9 @@ The following is the mandatory section order for all QA transformation proposal 
 
 > Apply to every client-facing output before final delivery. These rules cannot be overridden by section-level instructions.
 
+**Output Type Declaration (mandatory — governance.md):**
+The final output document must include an `Output Type:` header before any content section. Value is typically `Client Facing` for Stage 9 proposal outputs. If producing a working draft, declare `Working Draft` explicitly. The Review & Challenge Thinking skill defaults to `Client Facing` if absent, but explicit declaration is required for governance traceability.
+
 **Staff Name Hygiene (IP-MAN-09):** All references to internal staff in client-facing sections (Open Conditions, Risk Register, Dependency Register, Team Structure, Governance Model, Delivery Risk Ownership) must use formal role designations only. Examples: "R Systems QA Practice Lead", "R Systems Presales Lead", "R Systems Programme Delivery Lead". First names, informal handles, and "Name / Role" combinations must not appear in any section read by client procurement, evaluation panel, or steering committee.
 
 - **Pass test:** No internal staff personal first name is visible in OC, Risk Register, Dependency Register, Team Structure, or Governance sections.
@@ -241,7 +244,7 @@ Derive RACI from: (1) Stage 4 pillar ownership declarations; (2) Stage 6 governa
 - Placement: Governance section body, or Appendix C if sectioning requires it.
 
 **Delivery Risk Ownership subsection (conditional — IP-MAN-05):**
-Trigger: `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` > 3 (i.e., 3+ concurrent workstreams).
+Trigger: `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` >= 3 (i.e., 3+ concurrent workstreams).
 
 When triggered, produce a `### Delivery Risk Ownership` subsection immediately after the RACI table. This subsection must:
 - Name the **QA Lead** explicitly as the single accountable owner for delivery risk visibility.
@@ -251,7 +254,7 @@ When triggered, produce a `### Delivery Risk Ownership` subsection immediately a
 - **Co-location disclosure (IP-MAN-10):** If OC-002 (or equivalent open condition for the named QA Lead) is active at output time, include a parenthetical immediately following the QA Lead ownership statement: *(QA Lead to be confirmed within [N] business days of award — see OC-[n]; interim pre-kick-off accountability: R Systems Programme Delivery Lead.)* This caveat must appear in the Delivery Risk Ownership subsection itself — not only in the Risk Register or Open Conditions appendix. Distance between an accountability claim and its caveat is functionally equivalent to silence.
 - **Governance Forum participant (IP-MAN-14):** If the Delivery Risk Ownership subsection references a Programme Governance Forum or equivalent joint review cadence, the client-side participant must be named by role — e.g., "specifically, the R Systems QA Lead and the [Client] Test Manager or nominated Delivery Lead." Generic descriptions ("leads from both organisations") do not satisfy joint governance accountability. Before rendering Section 18, verify a governance forum participation dependency entry has been logged to `claude-memory/notes.md` during Stages 4–6; if absent, flag `⚠ MISSING DEPENDENCY — client governance forum participation not tracked in Dependency Register` at the Section 18 rendering step.
 
-Suppression: Suppress for `standalone_project` and `qa_audit` engagement types, or where `application_count` ≤ 3.
+Suppression: Suppress for `standalone_project` and `qa_audit` engagement types, or where `application_count` < 3.
 
 ### Section 12 — Team Structure / POD Model
 Invokes `estimation-sizing-thinking` for team POD sizing.
@@ -318,7 +321,7 @@ Always-on. Renders the `## Dependency Register` progressively built at Stages 4,
 - All Open entries must be cross-referenced in Section 19 Appendix Open Conditions where they represent unresolved pre-award risks.
 
 ### Section 19 — Appendices
-Always-on. Two mandatory appendices.
+Always-on. Mandatory appendices (Appendix C included when unverified findings exist; Appendix D included when regulatory control mapping is triggered).
 
 **Appendix A — Finding Traceability Table:**
 - Renders all High-confidence findings from `claude-memory/memory.md` with their resolution status from the Stage 8 gap coverage check.
@@ -329,3 +332,15 @@ Always-on. Two mandatory appendices.
 - Lists all Open Conditions raised across Stages 0–8, including OCs raised at Stage 0 for regulatory context and incumbent vendor status.
 - Format: `OC-[n] | Stage Raised | Condition Description | Resolution Required By | Owner`
 - Open Conditions that affect the validity of a section output must carry a cross-reference to that section.
+
+**Appendix C — Unresolved or Unverified Findings (conditional):**
+- Renders all Medium-confidence findings from `claude-memory/memory.md` that were not fully resolved during Stages 4–8.
+- Purpose: Governance requires medium-confidence findings to remain visible in client-facing outputs — they must not be silently dropped.
+- Format: `Finding ID | Confidence | Description | Why Unverified | Recommended Phase 0 Action`
+- Suppression: If zero medium-confidence findings remain unresolved after Stage 8, omit this appendix and note in Appendix A: "No unverified findings — all medium-confidence findings resolved during analysis."
+
+**Appendix D — Regulatory Control Mapping (conditional):**
+- Trigger: Produced only when Stage 8 Regulatory Control Mapping sub-check fires (any finding with Evidence Type = `Compliance Requirement` AND Regulatory Context = `Explicit`).
+- Source: Control Mapping Table produced at Stage 8 governance validation.
+- Format: `Regulation / Framework | Control Objective | Proposal Mechanism | Evidence Source | Gap / Confirmed`
+- Suppression: Omit entirely when Regulatory Context ≠ `Explicit` or no Compliance Requirement findings exist.

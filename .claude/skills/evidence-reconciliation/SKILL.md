@@ -67,6 +67,8 @@ Introduce CI/CD pipeline QA gates at the build and release stages to address the
 
 If a finding is addressed but the resolution does not reference the Finding ID, it is treated as **unresolved** until the ID reference is added.
 
+**Disambiguation:** When scanning for resolved findings, match only `Resolution: F[ID]` blocks. `Evidence: F[ID]` citations in recommendation blocks (Stage 4 — Recommendation Traceability Format) are traceability references, not resolution claims. A finding cited via `Evidence:` but not addressed via `Resolution:` remains unresolved.
+
 Multiple findings may reference the same resolution if a single architectural change addresses them.
 
 ```

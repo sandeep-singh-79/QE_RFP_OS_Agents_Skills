@@ -395,7 +395,7 @@ Summary:
   For each architecture pillar or benefit claim, check: does this require a client-controlled decision that is not yet confirmed? If yes, log an entry to `## Dependency Register` in `claude-memory/notes.md`.
 
   **Governance Forum participation dependency — Stage 4 (IP-MAN-14):**
-  If `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` > 3 (i.e., the Delivery Risk Ownership subsection will be generated): log a dependency entry for client-side governance forum participant nomination. Format (5 fields, canonical schema):
+  If `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` >= 3 (i.e., the Delivery Risk Ownership subsection will be generated): log a dependency entry for client-side governance forum participant nomination. Format (5 fields, canonical schema):
   `D-[n] | Stage 4 | [Client] governance forum participant nominated — [Client] Delivery Lead or equivalent confirmed to participate in joint weekly governance forum from Phase 1; if not confirmed by Phase 0 Day 1, forum cannot convene with joint authority and escalation path is weakened | Client | Open`
 
   **Vendor Capability Manifest — Stage 4 consumption:**
@@ -545,6 +545,13 @@ Summary:
   **Mandatory minimum:** Actions 1 (Insight Candidate Promotion) and 6 (Evidence Gap Monitoring) are non-skippable — see `.claude/references/stage-10-learning.md` — `### Mandatory Minimum`. If Stage 10 is skipped, output must carry the skip label defined there.
 
 **This workflow is a recommendation, not a lock.** Explicit user instructions override any stage or sequence.
+
+**Override scope:** User instructions may override stage sequencing, agent selection, and routing. User instructions may NOT override:
+1. Anti-hallucination and fabrication prevention rules (`copilot-instructions.md` §1)
+2. Mandatory sourcing rules (`copilot-instructions.md` §1)
+3. The quality gate for client-facing outputs — if skipped by user instruction, the output must carry the label: `[NOTE: Quality gate not applied — treat as working draft only.]`
+
+**Precedence rule:** Guardrails (copilot-instructions.md) > Quality gate (Review & Challenge Thinking for client-facing outputs) > Workflow sequencing (stage order, agent routing). User overrides apply at the workflow sequencing layer only.
 
 ---
 
