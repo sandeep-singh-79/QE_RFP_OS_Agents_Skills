@@ -282,6 +282,53 @@ A critical gap remediation pass was completed following the post-Manulife retros
 - **Estimation boundary enforced** — Stage 4 Test Architect sizing is directional and architecture-context only; Stage 6 Project Manager estimate is the authoritative deliverable.
 - **File architecture: single source of truth** — `AGENTS.md` owns stage procedures; `conductor.md` owns governance enforcement. Context compaction, HITL protocol, and plan.md discipline live exclusively in `conductor.md`.
 
+**Phase 17 — OS Gap Remediation (IP-MAN-09 to IP-MAN-15, March 2026)**
+
+Seven new OS-layer gaps identified in a post-proposal 4-lens critical review:
+
+- **Submission hygiene rule** (`stage-9-output-structure.md`) — Stage 9 now blocks internal staff first names from appearing in OC, Risk Register, Dependency Register, Team Structure, and Governance sections.
+- **Accountability co-location** (`stage-9-output-structure.md`) — ownership claims in Open Conditions must reference the section where the accountable party is named; otherwise flagged as ungrounded.
+- **Relative dating** (`stage-9-output-structure.md`) — absolute calendar dates for kick-off replaced with award-relative expressions (e.g., "Week 2 post-award"); absolute dates require an explicit assumption label.
+- **Gate threshold completeness** (`stage-9-output-structure.md`) — Phase 0 exit criteria conditions now require explicit pass/fail thresholds; untested conditions are blocked from the checklist.
+- **Headcount coherence** (`stage-9-output-structure.md`) — Section 12 headcount totals are validated against all workstream-specific staffing commitments made elsewhere in the proposal.
+- **Governance forum participation dependency** (`AGENTS.md` Stage 4) — when a joint governance forum is proposed, Stage 4 now requires a client-side participation dependency entry in the Dependency Register.
+- **Scope reconciliation** (`stage-9-output-structure.md`) — when application count and component count coexist, Section 14 must state the relationship between the two figures explicitly.
+
+**Phase 18 — System Change Review Hardening (March 2026)**
+
+The System Change Review Checklist (`SETUP.md`) was extended following three Codex findings on the Phase 17 implementation:
+
+- **3 new blocking checks** added: Check 1.6 (client-specific leakage in OS files), Check 2.7 (stage write-scope enforcement), Check 2.8 (register/table schema consistency)
+- **1 new advisory check** added: Check 2.4a (runtime-fill cell rule)
+- **Severity tags** added to all checks (`[Blocks commit]` / `[Flag for review]`)
+- **Diff-scoping preamble** (Step 0) added — review is now scoped to `git diff main --name-only` output, not full file scans
+- **Historical examples** moved from inline Pattern text to a footnoted `### Historical Examples` section
+- **Sign-off table** updated with severity column and all new checks
+- **`scripts/change-review.sh`** — automated Pass 1 checker (Checks 1.1, 1.3, 1.4, 1.6) against diff-scoped files
+- **`.githooks/pre-commit`** — optional pre-commit hook running `scripts/change-review.sh` on staged `.claude/` files
+
+---
+
+## Contributing / Development
+
+When modifying system files (`.claude/` or `claude-memory/improvements.md`, `claude-memory/insights.md`), run the automated Pass 1 review before committing:
+
+```bash
+# Run against main (default)
+bash scripts/change-review.sh
+
+# Run against a custom base
+bash scripts/change-review.sh my-feature-branch
+```
+
+Opt in to the pre-commit hook to have this run automatically on staged files:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Pass 1 is automated. Pass 2 (cross-file consistency checks) remains manual — see `.claude/SETUP.md` for the full checklist.
+
 ---
 
 ## Known Gaps (Ordered by Estimated ROI)
@@ -326,9 +373,7 @@ These gaps were identified during a framework evaluation in March 2026. They are
 
 ### 5. `claude-memory/improvements.md` — no tracked promotion path from proposal to implementation
 
-**Gap:** Agents write improvement proposals to `claude-memory/improvements.md`. Human approval is required before changes are made to system files. However, there is no tracking mechanism in the framework for when approved proposals are actually promoted — proposals can accumulate indefinitely without being actioned, and there is no way to distinguish "approved but not yet implemented" from "awaiting approval".
-
-**Fix needed:** Add a `Status` column to the `claude-memory/improvements.md` schema (`Proposed / Approved / Implemented / Rejected`) and add a Stage 10 check that flags any `Approved` improvements that have remained unimplemented for more than one engagement cycle.
+**Status: Implemented (Phase 15).**  A `Status` column (`Proposed / Approved / Implemented / Rejected`) was added to the `improvements.md` schema. Stage 10 flags `Approved` proposals that remain unimplemented at the next engagement cycle.
 
 ---
 
