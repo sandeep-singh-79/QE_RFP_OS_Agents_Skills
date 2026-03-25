@@ -440,7 +440,7 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Add a **Submission Hygiene Rule** to `stage-9-output-structure.md` (and to `review-challenge-thinking/SKILL.md` as a review check): "All internal staff references in client-facing sections (OC, Risk Register, Team Structure, Governance Model) must use role designations only — e.g., 'R Systems QA Practice Lead', 'R Systems Presales Lead', 'R Systems Programme Delivery Lead'. First names and informal staff references must not appear in any section that will be read by client procurement, evaluation panel, or steering committee."
 - **Impact:** Medium — credibility and professionalism risk; straightforward to enforce as a final-pass rule
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-01)
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Submission Hygiene Rules; `review-challenge-thinking/SKILL.md` Completeness Checklist (Phase 17, Task A1)
 - **Priority:** Medium
 
 ---
@@ -451,7 +451,7 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Add to the IP-MAN-05 rule in `stage-9-output-structure.md`: "If OC-002 (or equivalent open condition for named QA Lead) is active at output time, include a parenthetical immediately following the QA Lead ownership statement: '*(QA Lead to be confirmed within 5 business days of award — see OC-002; interim pre-kick-off accountability: R Systems Programme Delivery Lead.)*' This disclosure must be co-located with the ownership claim — not separated by more than one section."
 - **Impact:** High — an accountability claim that contradicts an undisclosed risk is a credibility landmine for evaluators. Co-location is the minimum required fix; downstream disclosure is insufficient.
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-02)
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 11 Delivery Risk Ownership, Co-location Disclosure rule (Phase 17, Task A2)
 - **Priority:** High
 
 ---
@@ -462,7 +462,7 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Add a rule to Stage 6 Project Manager and Stage 9 Transformation Roadmap output rules in `stage-9-output-structure.md`: "Phase 0 kick-off dates must never be expressed as absolute calendar dates in RFP submissions. Use relative form: '[Award + N business days] (indicative)'. If absolute framing is required for a milestone table, add an explicit assumption label: '[ASSUMPTION-BASED — relative to award receipt; confirmed no later than Day 3 of Phase 0]'. All downstream milestone dates that are derived from Phase 0 kick-off inherit this relativity."
 - **Impact:** High — absolute kick-off dates in competitive proposals are always wrong and can undermine every calendar-dependent commitment downstream
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-03)
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 8 Phase 0 Kick-off Date Rule (Phase 17, Task A3)
 - **Priority:** High
 
 ---
@@ -473,7 +473,7 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Extend IP-MAN-07's rule to require both (a) measurement specification AND (b) pass/fail threshold for every Phase 0 exit criterion. For the coverage condition specifically: "Phase 0 cannot exit if any Tier A workstream records 'not ready' on regression suite readiness without a Manulife-approved recovery plan, or if critical path coverage completeness is 'fail' without an agreed remediation path." Apply the principle universally: all Phase 0 exit criteria must specify the condition under which the criterion passes — not only what is measured.
 - **Impact:** High — an exit criterion without a threshold is a reporting activity, not a governance gate. Any governance-oriented evaluator will recognise this immediately.
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-04); extends IP-MAN-07
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 8 Phase 0 Exit Criteria Pass/Fail Threshold Requirement (Phase 17, Task A4)
 - **Priority:** High
 
 ---
@@ -484,7 +484,7 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Add a cross-section coherence rule to the Stage 9 Team Structure section production logic in `stage-9-output-structure.md`: "Before finalizing the Team Structure section headcount summary, scan all Risk Register entries for dedications, pools, or workstream-specific resource commitments. If any risk mitigation names a dedicated sub-team separate from the primary pool, that sub-pool must appear as a named allocation in Section 12. Produce the full headcount as a sum: primary pool + all named sub-pools. If Tranche 1 and Tranche 2 have separate pools, show the rollup and the per-tranche split."
 - **Impact:** High — understating team size in the Team Structure section while citing dedicated pools in the Risk Register is an internal contradiction that evaluators will catch; it also weakens the proposal's delivery credibility
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-05)
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 12 Cross-Section Headcount Coherence (Phase 17, Task A5)
 - **Priority:** High
 
 ---
@@ -495,7 +495,7 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Extend IP-MAN-05's Delivery Risk Ownership rule to require two additions: (1) Name the client-side participant by role in the forum description — e.g., "specifically, the R Systems QA Lead and the Manulife Test Manager or nominated Delivery Lead." If the Manulife role is not yet confirmed, use "Manulife-nominated Delivery Lead." (2) Add a corresponding entry to the Dependency Register (Stage 9 Section 18 rule): "D-[n]: Manulife Governance Forum participant nominated — Owner: Manulife — Status: Open — Phase 0 Day 1 confirmation required — Impact if missed: Weekly forum cannot convene with joint authority; governance escalation path is weakened."
 - **Impact:** Medium — joint governance without a named client-side participant is a structural gap; adding the dependency makes it a trackable commitment rather than an assumed one
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-07); extends IP-MAN-05
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 11 Delivery Risk Ownership, Governance Forum Participant rule + Dependency Register entry (Phase 17, Task A2)
 - **Priority:** Medium
 
 ---
@@ -506,5 +506,5 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Suggested Change:** Add a rule to the Application Clustering Framework section production in `stage-9-output-structure.md`: "If the per-workstream component sum in the clustering table differs from the application count stated in Section 4, include a reconciliation sentence immediately after the scope header: '[Component count] components above represent the full microservice and application decomposition of the [application count] named in-scope applications. Effort estimates were sized at workstream level against this component surface; the [application count]-application figure reflects the application-ownership layer, not the component count.' This prevents evaluators from treating the component count as the estimation basis."
 - **Impact:** Medium — without reconciliation, the proposal creates an exploitable ambiguity about what the estimate was actually based on; a two-sentence addition eliminates this risk entirely
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-09)
-- **Status:** Proposed
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 14 Component-to-Application Reconciliation (Phase 17, Task A6)
 - **Priority:** Medium

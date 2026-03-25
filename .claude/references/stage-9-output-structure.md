@@ -35,6 +35,18 @@ The following is the mandatory section order for all QA transformation proposal 
 
 ---
 
+## Submission Hygiene Rules
+
+> Apply to every client-facing output before final delivery. These rules cannot be overridden by section-level instructions.
+
+**Staff Name Hygiene (IP-MAN-09):** All references to internal staff in client-facing sections (Open Conditions, Risk Register, Dependency Register, Team Structure, Governance Model, Delivery Risk Ownership) must use formal role designations only. Examples: "R Systems QA Practice Lead", "R Systems Presales Lead", "R Systems Programme Delivery Lead". First names, informal handles, and "Name / Role" combinations must not appear in any section read by client procurement, evaluation panel, or steering committee.
+
+- **Pass test:** No personal first name is visible in OC, Risk Register, Dependency Register, Team Structure, or Governance sections.
+- **Failure mode:** "Sandeep / Praveen (Presales Lead)" in an OC row — must be replaced with "R Systems Presales Lead".
+- **Scope:** This rule applies even where the personal name appears incidentally (e.g., "Risk Owner: John") — replace with "R Systems [Role]".
+
+---
+
 ## Section Content Rules
 
 ### Section 1 — Our Understanding
@@ -139,6 +151,15 @@ Phase-based delivery roadmap. Phasing driven by `engagement_type` and `applicati
 - Standard phases: Phase 0 (Discovery & Foundations), Phase 1 (Pilot & Enablement), Phase 2 (Expand & Automate), Phase 3 (Optimise & Scale). Phases 4+ and the "Scale & Sustain" phase are generated only when the TaaS section (Section 16) is generated.
 - Each phase: named milestone list, FTE model, key deliverables.
 
+**Phase 0 Kick-off Date Rule (IP-MAN-11):**
+Phase 0 kick-off dates must never be expressed as absolute calendar dates in RFP or competitive tender submissions where award timing is unknown.
+
+- **Correct form:** "[Award + N business days] (indicative)" — where N is the mobilisation lead time (typically 5 business days).
+- **If absolute framing is required** (e.g., for a milestone table with fixed calendar columns), add the label: `[ASSUMPTION-BASED — relative to award receipt; confirmed no later than Day 3 of Phase 0]`
+- All downstream milestone dates derived from Phase 0 kick-off inherit this relativity. If Phase 0 kick-off is relative, every milestone column below it is also relative — do not mix absolute and relative dates in the same table without declaring the anchor.
+
+**Rationale:** Award timing is a client-controlled variable. An absolute kick-off date stated in a competitive submission assumes procurement cycle completion in a window the vendor cannot control — an assumption that, if wrong, collapses the entire downstream calendar chain.
+
 **In-Sprint Automation Definition of Done milestone — mandatory in Phase 1:**
 For `transformation_partnership`, `managed_service`, and `retained_qe_delivery` engagement types, Phase 1 must include the following named milestone:
 > "DoD update — in-sprint automation criteria approved and embedded in team working agreements."
@@ -169,6 +190,24 @@ When triggered, include an environment capacity planning note within or immediat
 3. Name the resolution mechanism: where environment contention arises, workstream test cycle sequencing is coordinated through the joint governance framework to protect tranche delivery milestones without compromising quality gates.
 
 Do not present this as a separate major heading. A paragraph within or immediately after Parallel Execution Assurance is the correct structural placement.
+
+**Phase 0 Exit Criteria — Pass/Fail Threshold Requirement (IP-MAN-12):**
+Every Phase 0 exit criterion must specify three elements — not just one:
+1. **What is measured** — the specific metric, artefact, or status dimension (per IP-MAN-07)
+2. **Who confirms it** — the named role or joint sign-off required
+3. **The pass condition** — the specific threshold or state that constitutes a PASS, and the consequence if not met
+
+A condition that states only what will be documented (e.g., "automation coverage % documented") is a reporting criterion, not a gate criterion. A gate criterion states the threshold — e.g., "Phase 0 cannot exit if any Tier A workstream records 'not ready' on regression suite readiness without a Manulife-approved recovery plan."
+
+**Minimum required Phase 0 exit conditions** (adapt per engagement):
+- Test strategies approved by named stakeholders (pass: signed-off artefact confirmed in shared repository)
+- Integration dependencies confirmed (pass: all Open items in Dependency Register with "Phase 0" resolution date are Confirmed or have a documented exception)
+- Environment readiness validated (pass: all Tier A workstream environments confirmed accessible and stable per environment readiness baseline)
+- Automation coverage baseline established — documenting coverage % per workstream, critical path completeness (pass/fail), and regression suite readiness (ready / conditional / not ready). **Pass threshold:** No Tier A workstream may record "not ready" without a client-approved recovery plan; no critical path completeness may be "fail" without an agreed remediation path.
+- Test data availability confirmed (pass: named data sets available in SIT environment for all Tier A workstreams)
+- Refined estimates approved (pass: effort range acknowledged by client delivery lead in writing)
+
+Do not use Phase 0 exit criteria as reporting checkpoints. Each criterion is a gate — Phase 1 does not begin if any criterion does not pass.
 
 ### Section 9 — Tooling Recommendations
 All tooling must use the three-tier framing defined at Stage 4 (Confirmed / Suggested / Proposed — Vendor Platform). Table columns: Tool | Tier | Capability Layer | AI Tier (if applicable) | Rationale.
@@ -209,6 +248,8 @@ When triggered, produce a `### Delivery Risk Ownership` subsection immediately a
 - List the 4 monitoring responsibilities: (1) continuous monitoring of workstream readiness signals against tranche milestones; (2) early identification of schedule deviations or dependency risks before they breach milestone boundaries; (3) escalation of cross-workstream delivery risks through the joint escalation framework; (4) reporting of release readiness status to the joint steering committee.
 - State that this model ensures delivery risk is actively monitored and escalated — not reactively discovered at milestone reviews.
 - Do **not** duplicate TaaS Governance & Ownership row text (Section 16). The TaaS row covers operational framework; the Delivery Risk Ownership subsection answers the procurement single-owner accountability expectation. Both are required.
+- **Co-location disclosure (IP-MAN-10):** If OC-002 (or equivalent open condition for the named QA Lead) is active at output time, include a parenthetical immediately following the QA Lead ownership statement: *(QA Lead to be confirmed within [N] business days of award — see OC-[n]; interim pre-kick-off accountability: R Systems Programme Delivery Lead.)* This caveat must appear in the Delivery Risk Ownership subsection itself — not only in the Risk Register or Open Conditions appendix. Distance between an accountability claim and its caveat is functionally equivalent to silence.
+- **Governance Forum participant (IP-MAN-14):** If the Delivery Risk Ownership subsection references a Programme Governance Forum or equivalent joint review cadence, the client-side participant must be named by role — e.g., "specifically, the R Systems QA Lead and the [Client] Test Manager or nominated Delivery Lead." Generic descriptions ("leads from both organisations") do not satisfy joint governance accountability. Additionally, add a corresponding entry to the Dependency Register (Section 18) for client-side forum participation: `D-[n] | Stage 9 | [Client] Governance Forum participant nominated — [Client] Test Manager or nominated Delivery Lead confirmed to participate from Phase 1 | Client | Open — Phase 0 Day 1 | Weekly governance forum cannot convene with joint authority; escalation path weakened`
 
 Suppression: Suppress for `standalone_project` and `qa_audit` engagement types, or where `application_count` ≤ 3.
 
@@ -216,6 +257,18 @@ Suppression: Suppress for `standalone_project` and `qa_audit` engagement types, 
 Invokes `estimation-sizing-thinking` for team POD sizing.
 - Inputs: `engagement_type` and `application_count` (from Stage 0 `plan.md`), automation maturity (Stage 3.5), delivery model scope.
 - Output format: Named POD with role title, FTE count, and brief responsibility per role. Differentiate by phase if scope varies materially.
+
+**Cross-Section Headcount Coherence (IP-MAN-13):**
+Before finalising the Team Structure headcount summary, scan all Risk Register entries (Section 17) for dedications, pools, or workstream-specific resource commitments. If any risk mitigation names a dedicated sub-team separate from the primary pool (e.g., "dedicated SDET pool for WS-7 from Phase 1, separate from primary resourcing"), that sub-pool must appear as a named allocation in Section 12.
+
+Produce the full team headcount as an explicit sum:
+- Primary pool: [role composition by phase]
+- Named sub-pools: [workstream] dedicated pool (Phase [n] through [milestone]): [N]–[M] [roles]
+- **Total:** [sum of primary + all sub-pools]
+
+If Tranche 1 and Tranche 2 have materially different allocations, show the rollup and the per-tranche split.
+
+**Failure mode to avoid:** A Section 12 that shows only the primary pool while the Risk Register declares a dedicated workstream-specific pool understates the real team commitment — creating an internal contradiction evaluators will identify and probe.
 
 ### Section 13 — KPI / Metrics Dashboard
 Invoke `kpi-baseline` directly with task "produce client-facing delivery KPI framework".
@@ -231,6 +284,13 @@ Trigger: Stage 0 `application_count` > 1.
 - Clustering criteria per application: risk level, automation maturity, integration complexity, business criticality — rated High / Med / Low.
 - Tier model: Tier A = complex/high-risk (later waves); Tier B = mid-complexity; Tier C = stable/low-risk (first waves, quick-win candidates).
 - Population: Named apps from Stage 1 findings (via technology landscape, Section 3) populate tier assignments where possible. Unknowns: "Phase 0 — to be confirmed during discovery".
+
+**Component-to-Application Reconciliation (IP-MAN-15):**
+If the per-workstream component sum in the clustering table differs by more than 2× from the application count stated in Section 4 (Executive Summary or scope declaration), include a reconciliation sentence immediately after the section scope header and before the tier table:
+
+> *"The [N] components above represent the full microservice and application decomposition of the [M] named in-scope applications. Effort estimates were sized at workstream level against this component surface; the [M]-application figure reflects the application-ownership layer, not the component count."*
+
+This sentence is mandatory when component count ≠ application count by more than 2×. It prevents evaluators from treating the component total as the estimation basis and challenging whether estimates were based on [M] things or [N] things.
 
 ### Section 15 — Transition Model (Conditional)
 Trigger: Stage 0 `Engagement Signals` include any of: `incumbent_vendor_present`, `distributed_delivery_consolidation`, `vendor_transition`.
