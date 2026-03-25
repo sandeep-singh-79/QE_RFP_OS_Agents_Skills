@@ -141,8 +141,8 @@ The conductor applies compaction to `claude-memory/notes.md` at stage boundaries
 
 | Trigger | Section | Terminal Consumer | Compacted Form |
 |---|---|---|---|
-| After Stage 3 completes | `## Missing Artifacts` | Stage 0 (Document Intake) | One-line summary: "Missing Artifacts: N categories resolved, M outstanding" |
-| After Stage 6 completes | `## Application Clustering Draft` | Stage 6 (PM Agent) | Tier assignment table only — remove rationale prose |
+| After Stage 3 completes | `## Missing Artifacts` | Stage 0 — Artifact Discovery | One-line summary: "Missing Artifacts: N categories resolved, M outstanding" |
+| After Stage 6 completes | `## Application Clustering Draft` | Stage 6 — Delivery Validation | Tier assignment table only — remove rationale prose |
 | After Stage 9 reads §15 | `## Transition Planning Stub` | Stage 9 §15 | One-line marker: "Transition Planning: rendered in §15" |
 | After Stage 9 reads §10 | `## Benefit Claim Classification` | Stage 9 §10 | Count + conditional-only list: "N claims classified (M conditional)" |
 

@@ -12,7 +12,7 @@ Governance rules supplement (not replace) the guardrails in `copilot-instruction
 ---
 
 ## Gap Coverage Enforcement (Stage 3 + Stage 8)
-- All High-confidence findings in `memory.md` must be either:
+- All High-confidence findings in `claude-memory/memory.md` must be either:
   - **Addressed** in the solution design, or
   - **Explicitly acknowledged** as out of scope with stated rationale
 - No known gap may disappear silently between evidence extraction and output generation
@@ -20,9 +20,9 @@ Governance rules supplement (not replace) the guardrails in `copilot-instruction
 
 ### Stage 3 Gap Coverage Enforcement Algorithm
 
-The conductor executes Stage 3 by applying the following classification logic to every finding in `memory.md`:
+The conductor executes Stage 3 by applying the following classification logic to every finding in `claude-memory/memory.md`:
 
-**Step 1 — Load findings.** Retrieve all entries from `memory.md` with a Finding ID. Separate into High-confidence and Medium/Low-confidence groups.
+**Step 1 — Load findings.** Retrieve all entries from `claude-memory/memory.md` with a Finding ID. Separate into High-confidence and Medium/Low-confidence groups.
 
 **Step 2 — Classify each High-confidence finding** using this decision tree:
 
@@ -53,7 +53,7 @@ Medium-confidence findings do not require full reconciliation but must remain vi
 
 ## Evidence Reconciliation (Stage 8)
 Before producing final outputs, verify:
-- Every High-confidence finding from `memory.md` has a traceable resolution
+- Every High-confidence finding from `claude-memory/memory.md` has a traceable resolution
 - Findings that were present in evidence but absent from the solution are flagged
 - Unresolved findings are surfaced under *"Unresolved Findings — Decision Required"*
 - Cross-finding consistency is verified — contradictory findings from different stages must be flagged and resolved before output generation proceeds
@@ -69,7 +69,7 @@ Resolution: F[ID]
 
 **Enforcement rules:**
 - A finding addressed without a Finding ID reference is treated as unresolved until the reference is added
-- Finding IDs referenced in the output but absent from `memory.md` are flagged as phantom references
+- Finding IDs referenced in the output but absent from `claude-memory/memory.md` are flagged as phantom references
 - The Evidence Reconciliation skill checks all resolutions for Finding ID references at Stage 8
 
 ### Traceability Format Disambiguation
@@ -121,7 +121,7 @@ Agents must **never directly modify** system files:
 Instead, agents record proposed changes in `claude-memory/improvements.md`. System file updates occur **only after explicit human approval**.
 
 ## Memory Integrity Rule
-Findings written to `memory.md` by one agent must not be modified or deleted by another agent.
+Findings written to `claude-memory/memory.md` by one agent must not be modified or deleted by another agent.
 
 - Agents must only **append** new findings — never overwrite or delete existing entries
 - If a new finding contradicts an existing finding, record it as a conflicting finding:
@@ -139,7 +139,7 @@ Conflicting findings are resolved at Stage 8 by the Evidence Reconciliation skil
 
 ## Evidence-First Reasoning Rule
 Every major conclusion must trace back to one of three sources:
-- **Evidence** — a sourced Finding ID from `memory.md`
+- **Evidence** — a sourced Finding ID from `claude-memory/memory.md`
 - **Capability Baseline** — a named domain from `.claude/references/qe-capability-map.md`
 - **Explicit Assumption** — declared per the `assumption-dependency-management` skill
 
@@ -158,7 +158,7 @@ Action Required: Provide traceability or reclassify as assumption
 ```
 
 ## Regulatory Context Consistency Check
-Regulatory framing in outputs must align with the `Regulatory Context` stored in `memory.md`.
+Regulatory framing in outputs must align with the `Regulatory Context` stored in `claude-memory/memory.md`.
 
 | Regulatory Context | Permitted Output Framing |
 | ------------------ | ------------------------ |
@@ -166,7 +166,7 @@ Regulatory framing in outputs must align with the `Regulatory Context` stored in
 | Implicit           | Generic regulatory exposure phrasing only (no named regulations) |
 | Unknown            | Regulatory framing prohibited — omit Compliance / Regulatory Risk dimension |
 
-**Enforcement:** The Evidence Reconciliation skill checks for violations at Stage 8 using the `⚠ REGULATORY EVIDENCE GAP` marker. Any output referencing a named regulation not present as a Compliance Requirement finding in `memory.md` is flagged before Stage 9 proceeds.
+**Enforcement:** The Evidence Reconciliation skill checks for violations at Stage 8 using the `⚠ REGULATORY EVIDENCE GAP` marker. Any output referencing a named regulation not present as a Compliance Requirement finding in `claude-memory/memory.md` is flagged before Stage 9 proceeds.
 
 ---
 
@@ -230,7 +230,7 @@ Required: [what confirmation is needed to proceed]
 ### HITL Scope
 - HITL pauses apply during Stages 4–8 of the workflow (agent analysis and governance)
 - HITL does not apply to memory operations (Stages 0–3) or system learning (Stage 10)
-- User may explicitly waive HITL for specific decisions, but this must be logged in `decisions.md`
+- User may explicitly waive HITL for specific decisions, but this must be logged in `claude-memory/decisions.md`
 
 ### HITL Trigger Types
 
