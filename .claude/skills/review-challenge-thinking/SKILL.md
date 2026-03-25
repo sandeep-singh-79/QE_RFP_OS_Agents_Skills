@@ -182,6 +182,6 @@ Run this checklist before declaring the quality gate passed. Any criterion not m
 | KPIs | Client targets addressed OR `⚠ NO CLIENT KPI TARGETS FOUND` flag explicitly present | |
 | Risk | Risk register entries present OR risk narrative with named risks present | |
 | Assumptions | All assumptions surfaced AND each has an owner and resolution path | |
-| Submission Hygiene | No internal staff first names in client-facing sections (OC, Risk Register, Dependency Register, Team Structure, Governance, Delivery Risk Ownership) — role designations only | Pass / ⚠ HYGIENE VIOLATION |
+| Submission Hygiene | No internal staff first names in client-facing sections (OC, Risk Register, Dependency Register, Team Structure, Governance, Delivery Risk Ownership) — role designations only. Failure label: `⚠ HYGIENE VIOLATION` | |
 
 **Rule:** Do not mark the checklist as passed speculatively. Each criterion must be verified in the actual output content before being marked Pass.

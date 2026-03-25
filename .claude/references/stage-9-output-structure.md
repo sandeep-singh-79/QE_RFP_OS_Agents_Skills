@@ -272,7 +272,7 @@ If Tranche 1 and Tranche 2 have materially different allocations, show the rollu
 
 ### Section 13 — KPI / Metrics Dashboard
 Invoke `kpi-baseline` directly with task "produce client-facing delivery KPI framework".
-- Inputs: pillars (Stage 4), gap findings (Stage 3), client-stated KPI targets (Stage 1 `kpi-baseline` run in `memory.md`).
+- Inputs: pillars (Stage 4), gap findings (Stage 3), client-stated KPI targets (Stage 1 `kpi-baseline` run in `claude-memory/memory.md`).
 - Table format: Metric Name | Current Baseline | Target by Phase | Measurement Mechanism
 - Baseline: use Stage 1 evidence where available; "To be baselined in Phase 0" where not.
 - Standard metrics to include: DRE, defect leakage, cycle time, automation coverage, Release Confidence Index.
