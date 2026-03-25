@@ -394,6 +394,10 @@ Summary:
   **Dependency Register — Stage 4 contribution:**
   For each architecture pillar or benefit claim, check: does this require a client-controlled decision that is not yet confirmed? If yes, log an entry to `## Dependency Register` in `claude-memory/notes.md`.
 
+  **Governance Forum participation dependency — Stage 4 (IP-MAN-14):**
+  If `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` > 3 (i.e., the Delivery Risk Ownership subsection will be generated): log a dependency entry for client-side governance forum participant nomination. Format (5 fields, canonical schema):
+  `D-[n] | Stage 4 | [Client] governance forum participant nominated — [Client] Delivery Lead or equivalent confirmed to participate in joint weekly governance forum from Phase 1; if not confirmed by Phase 0 Day 1, forum cannot convene with joint authority and escalation path is weakened | Client | Open — Phase 0 Day 1`
+
   **Vendor Capability Manifest — Stage 4 consumption:**
   If `## Vendor Capability Manifest` is present in `claude-memory/memory.md`, the Test Architect reads it and populates relevant architecture pillars with vendor tool names and tier-appropriate phases. Tier assignments in the manifest are accepted for named vendor tools and do not require independent reclassification unless conflicting evidence exists.
 
