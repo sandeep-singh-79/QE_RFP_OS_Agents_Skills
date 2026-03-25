@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Pre-commit hook for System Change Review automated checks.
+#
+# Opt-in setup:
+#   git config core.hooksPath .githooks
+#
+# This hook runs scripts/change-review.sh on staged files.
+# Only blocks commit if a "Blocks commit" check fails.
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="$REPO_ROOT/scripts/change-review.sh"
+
+if [[ ! -x "$SCRIPT" ]]; then
+  echo "⚠ change-review.sh not found or not executable. Skipping pre-commit checks."
+  echo "  Run: chmod +x scripts/change-review.sh"
+  exit 0
+fi
+
+# Check if any staged files are in scope
+STAGED_IN_SCOPE=$(git diff --cached --name-only -- .claude/ claude-memory/improvements.md claude-memory/insights.md 2>/dev/null || true)
+
+if [[ -z "$STAGED_IN_SCOPE" ]]; then
+  # No in-scope files staged — skip
+  exit 0
+fi
+
+echo "Running System Change Review automated checks on staged files..."
+echo ""
+
+# Run against HEAD (staged changes vs last commit)
+"$SCRIPT" HEAD

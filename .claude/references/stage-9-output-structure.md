@@ -41,9 +41,9 @@ The following is the mandatory section order for all QA transformation proposal 
 
 **Staff Name Hygiene (IP-MAN-09):** All references to internal staff in client-facing sections (Open Conditions, Risk Register, Dependency Register, Team Structure, Governance Model, Delivery Risk Ownership) must use formal role designations only. Examples: "R Systems QA Practice Lead", "R Systems Presales Lead", "R Systems Programme Delivery Lead". First names, informal handles, and "Name / Role" combinations must not appear in any section read by client procurement, evaluation panel, or steering committee.
 
-- **Pass test:** No personal first name is visible in OC, Risk Register, Dependency Register, Team Structure, or Governance sections.
+- **Pass test:** No internal staff personal first name is visible in OC, Risk Register, Dependency Register, Team Structure, or Governance sections.
 - **Failure mode:** "Sandeep / Praveen (Presales Lead)" in an OC row — must be replaced with "R Systems Presales Lead".
-- **Scope:** This rule applies even where the personal name appears incidentally (e.g., "Risk Owner: John") — replace with "R Systems [Role]".
+- **Scope:** This rule applies even where an internal staff personal name appears incidentally (e.g., "Risk Owner: John") — replace with "R Systems [Role]". Client-side names referenced in dependency descriptions or governance sections are not subject to this rule.
 
 ---
 
