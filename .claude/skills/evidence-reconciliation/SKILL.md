@@ -127,6 +127,27 @@ Medium-confidence findings must appear in a section titled **"Unresolved or Unve
 
 ---
 
+## Cross-Finding Consistency Check (Stage 8)
+
+After completing the finding-to-output reconciliation scan, perform a cross-finding consistency check:
+
+1. **Group findings by topic:** Identify findings that address the same domain, capability, or architectural concern (e.g., multiple findings about CI/CD, multiple findings about environment strategy).
+2. **Check for contradictions within each group:**
+   - Findings that recommend opposite actions (e.g., F12 says "introduce CI/CD gates" while F27 says "CI/CD pipeline is mature — no changes needed")
+   - Findings from different agents that assign conflicting risk levels to the same concern
+   - Architecture recommendations from Stage 4 that contradict adoption risk findings from Stage 5
+3. **Flag contradictions:**
+   ```
+   ⚠ CROSS-FINDING CONFLICT
+   Finding A: F[ID] — [summary]
+   Finding B: F[ID] — [summary]
+   Conflict: [what they disagree on]
+   Resolution Required: [which agent/stage should reconcile]
+   ```
+4. Any `⚠ CROSS-FINDING CONFLICT` with no resolution blocks Stage 8 clearance — raise Blocking HITL.
+
+---
+
 ## Guardrails
 
 This skill must not:
