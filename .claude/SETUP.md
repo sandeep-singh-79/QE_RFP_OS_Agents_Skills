@@ -56,6 +56,14 @@ Initial sections on first creation:
 
 ## Insight Candidates
 [Populated progressively during Stages 1–8. Format: `> INSIGHT CANDIDATE [Stage N]: [observation]. Carry-forward: [why this recurs / what to watch for]`. Reviewed and promoted (or discarded) at Stage 10.]
+
+## Cross-Agent Flags
+| Flag ID | Source Stage | Source Agent | Target Agent | Severity (Blocking/Advisory) | Description | Resolution |
+|---|---|---|---|---|---|---|
+
+## Execution Trace
+| Stage | Agent/Skill | Started | Files Read | Files Written | Findings | HITL | Status |
+|---|---|---|---|---|---|---|---|
 ```
 
 **outputs/staged-proposal.md** — Header: `# Staged Proposal Output` + `> Progressive output staging file. Written by Stages 4–7. Read by Stage 8 (evidence-reconciliation skill).`

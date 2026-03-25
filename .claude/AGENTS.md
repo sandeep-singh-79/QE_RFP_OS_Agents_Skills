@@ -133,6 +133,48 @@ If `claude-memory/memory.md` grows beyond approximately 200 lines:
 
 Context compaction procedure, pre-compaction checklist, safe compaction points, and summary preservation requirements are defined in `agents/conductor.md — ## Context Compaction Trigger`. The Conductor is the sole owner of compaction decisions. Compaction is triggered at stage boundaries only — never mid-stage.
 
+### notes.md Stage-Based Compaction
+
+The conductor applies compaction to `claude-memory/notes.md` at stage boundaries. Each section is compressed only after its **terminal consumer** (the last stage that reads it) has completed.
+
+#### Compaction Schedule
+
+| Trigger | Section | Terminal Consumer | Compacted Form |
+|---|---|---|---|
+| After Stage 3 completes | `## Missing Artifacts` | Stage 0 (Document Intake) | One-line summary: "Missing Artifacts: N categories resolved, M outstanding" |
+| After Stage 6 completes | `## Application Clustering Draft` | Stage 6 (PM Agent) | Tier assignment table only — remove rationale prose |
+| After Stage 9 reads §15 | `## Transition Planning Stub` | Stage 9 §15 | One-line marker: "Transition Planning: rendered in §15" |
+| After Stage 9 reads §10 | `## Benefit Claim Classification` | Stage 9 §10 | Count + conditional-only list: "N claims classified (M conditional)" |
+
+#### Never-Compact Sections
+
+The following sections remain uncompacted for the entire engagement:
+- `## Gap Coverage` — consumed incrementally through Stage 8 reconciliation
+- `## Dependency Register` — consumed by Stage 9 §18 and referenced by multiple agents
+- `## Cross-Agent Flags` — active inter-agent communication channel
+- `## Insight Candidates` — consumed by Stage 10 cross-engagement learning
+- `## Execution Trace` — observability log, append-only
+
+#### Compaction Rules
+
+1. Compaction preserves **section headings** — the `##` line is never removed.
+2. All **IDs** (Finding IDs, D-nn, OC-nn, CAF-nn) must survive compaction.
+3. Key **data tables** are preserved; prose rationale and narrative context may be compressed.
+4. The conductor logs each compaction event in `## Execution Trace`.
+
+### Inter-Agent Communication
+
+#### Cross-Agent Flags
+When an agent identifies a concern that requires attention from a different agent or a prior stage, it must not attempt to resolve it silently. Instead:
+
+1. Write a flag entry to `claude-memory/notes.md` under `## Cross-Agent Flags`
+2. Format: `CAF-[n] | Stage [N] | [Source Agent] | [Target Agent] | [Blocking/Advisory] | [Description] | [Pending]`
+3. Severity levels:
+   - **Blocking** — the flagging agent believes downstream output will be structurally flawed without resolution. The conductor must surface this as a HITL before the current stage clears.
+   - **Advisory** — the flagging agent notes a concern but does not believe it blocks progress. The target agent should review when its stage begins.
+4. The conductor checks `## Cross-Agent Flags` before advancing to each stage. Any `Blocking` flag targeting the next stage's agent must be surfaced as an Advisory HITL before that stage begins.
+5. Flags with Resolution = `Pending` must be reviewed by the target agent at stage start. The target agent updates Resolution to `Addressed` (with brief note) or `Deferred` (with rationale).
+
 ---
 
 ## Artifact Index (artifacts.md)
@@ -254,7 +296,7 @@ Agent invocation starts at Stage 4. The conductor prepares the workspace (Stages
 
 ### Conductor Responsibilities
 
-The conductor manages Stages 0–3 and oversees Stage 7 pre-processing, Stage 8 coordination, and Stage 9 quality gate sequencing. Full conductor responsibilities, HITL escalation protocol, plan.md update discipline, and context compaction procedures are defined in `agents/conductor.md`.
+The conductor manages Stages 0–3 and oversees Stage 7 pre-processing, Stage 8 coordination, and Stage 9 quality gate sequencing. Full conductor responsibilities, HITL escalation protocol, plan.md update discipline, context compaction procedures, and stage failure recovery are defined in `agents/conductor.md`.
 
 Summary:
 1. **Update `plan.md` after each stage** — set stage status to `Complete`; set to `In Progress` during a stage.
@@ -302,6 +344,8 @@ Summary:
   | [name] | [description] | [claim] | [1/2] | [phase] |
   ```
   If no manifest is provided, skip this step — absence of a manifest does not block workflow progress.
+
+  **Client Q&A responses:** If Q&A responses arrive after Stage 0 closes, they are registered as new artifacts and processed via the Stage Re-Entry — New Evidence Integration procedure. Q&A responses do not require re-running Stage 0 — they are appended to `claude-memory/artifacts.md` and processed through Stage 1 re-entry.
 
 ### Stage 1 — Evidence Extraction
   Purpose:    Extract structured findings from all registered artifacts
@@ -564,6 +608,42 @@ Summary:
 - **If skipped on client-facing output:** State explicitly that the quality gate was not applied.
 
 For definitions of client-facing vs. working draft, see `.claude/references/quality-gate-reference.md`.
+
+---
+
+## Stage Re-Entry
+
+When the user instructs re-execution of a prior stage (e.g., "go back to Stage 4 and revise the architecture"), or when new evidence arrives that invalidates a completed stage's output:
+
+### Re-Entry Procedure
+1. **Identify the re-entry stage** — the stage that must re-run.
+2. **Invalidate downstream outputs:**
+   - Mark the re-entry stage and all subsequent stages as `Invalidated — Re-Entry` in `plan.md` Stage Status
+   - Do NOT delete downstream outputs from `outputs/staged-proposal.md` — mark them with `[INVALIDATED — pending re-run after Stage N re-entry]`
+3. **Preserve upstream outputs:**
+   - Stages before the re-entry stage retain their `Complete` status
+   - Memory files written by upstream stages are not modified
+4. **Re-run the stage:**
+   - The re-entry stage's agent re-reads current memory state (which now includes all findings up to the point of re-entry)
+   - The agent produces updated output, replacing the invalidated section in `staged-proposal.md`
+   - Checkpoint condition must be re-satisfied before advancement
+5. **Cascade re-runs:**
+   - After the re-entry stage completes, each subsequent invalidated stage must re-run in sequence
+   - Agents at each subsequent stage read the updated outputs from prior stages
+   - The conductor manages the cascade — it does not skip stages even if prior output "looks unchanged"
+
+### New Evidence Integration (Mid-Workflow)
+When new artifacts arrive after Stage 1 (e.g., client Q&A responses, additional documentation):
+1. Register the new artifact in `claude-memory/artifacts.md` with status `Pending Review`
+2. Re-enter Stage 1 for the new artifact only — extract findings and append to `claude-memory/memory.md`
+3. Re-run Stage 3 (Gap Coverage) to reassess with the expanded evidence base
+4. If new High-confidence findings alter the gap picture, cascade re-entry from Stage 4 onward
+5. If no material change, record in `claude-memory/notes.md`: "New artifact [name] processed — no material findings change. Stages 4+ output remains valid."
+
+### Re-Entry Constraints
+- Re-entry is user-initiated or conductor-recommended — agents do not self-trigger re-entry
+- The conductor must confirm re-entry scope with the user before invalidating downstream outputs
+- Stage 0 (Artifact Discovery) and Stage 2 (Memory Initialization) are never re-entered — they are additive by nature (new artifacts are appended, memory is extended)
 
 ---
 

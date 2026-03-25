@@ -56,6 +56,7 @@ Before producing final outputs, verify:
 - Every High-confidence finding from `memory.md` has a traceable resolution
 - Findings that were present in evidence but absent from the solution are flagged
 - Unresolved findings are surfaced under *"Unresolved Findings — Decision Required"*
+- Cross-finding consistency is verified — contradictory findings from different stages must be flagged and resolved before output generation proceeds
 
 ## Evidence Traceability (Stage 8)
 All outputs that address extracted findings must reference the corresponding Finding ID. Resolution without a Finding ID reference is not considered traceable.

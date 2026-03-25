@@ -205,6 +205,82 @@ Compact at stage boundaries only — never mid-stage.
 
 ---
 
+## Stage Recovery Protocol
+
+If a stage fails mid-execution (session disconnection, context overflow, partial output), the conductor follows this recovery procedure before resuming.
+
+### Detection
+A stage is in a failed state when:
+- `plan.md` shows `Stage N (In Progress)` AND the current session has no active work on Stage N
+- `outputs/staged-proposal.md` contains a partial Stage N section (incomplete content, mid-sentence cutoff)
+- `claude-memory/notes.md` or `claude-memory/memory.md` contains findings without stage completion markers
+
+### Recovery Procedure
+1. **Identify the failed stage** from `plan.md` Current Stage field
+2. **Assess output integrity:**
+   - Read `outputs/staged-proposal.md` — is the Stage N section complete or partial?
+   - Read `claude-memory/notes.md` — were cross-stage handoff sections (Gap Coverage, Dependency Register, etc.) written?
+   - Read `claude-memory/memory.md` — were findings from this stage written?
+3. **Decide recovery action:**
+
+| Output State | Recovery Action |
+|---|---|
+| No Stage N output written | Re-run stage from beginning |
+| Partial output (incomplete sections) | Delete partial Stage N section from `staged-proposal.md`; re-run stage |
+| Complete output but checkpoint not confirmed | Run checkpoint validation only; advance if satisfied |
+
+4. **Inform the user:** State which stage failed, what was recovered, and what was re-run.
+5. **Do not advance** until the recovered stage's checkpoint is fully satisfied.
+
+### Partial Memory Writes
+If Stage 1 (Evidence Extraction) fails mid-write to `claude-memory/memory.md`:
+- Count findings written vs. artifacts registered in `claude-memory/artifacts.md`
+- If partial: set `Extraction status = Partial` with list of unprocessed artifacts; resume extraction for remaining artifacts only
+- Do not re-extract artifacts that already have findings in memory
+
+---
+
+## notes.md Stage-Based Compaction Discipline
+
+The conductor applies notes.md compaction at stage boundaries per the schedule defined in `AGENTS.md — ### notes.md Stage-Based Compaction`. This section governs the execution procedure.
+
+### Compaction Execution
+At each stage boundary listed in the compaction schedule:
+1. Read the target section from `claude-memory/notes.md`
+2. Verify the terminal consumer stage has completed (check `plan.md` Stage Status)
+3. Replace the section content with the compacted form — preserve the `##` heading
+4. Preserve all IDs (Finding IDs, D-nn, OC-nn, CAF-nn) within the compacted content
+5. Log the compaction event in `## Execution Trace`: `[timestamp] | Compacted ## [Section Name] — terminal consumer Stage N complete`
+
+### Compaction must not occur:
+- Mid-stage (only at stage boundaries)
+- Before the terminal consumer has read the section
+- On never-compact sections (Gap Coverage, Dependency Register, Cross-Agent Flags, Insight Candidates, Execution Trace)
+
+---
+
+## Execution Trace Discipline
+
+The conductor writes one row to `claude-memory/notes.md` `## Execution Trace` at the start and completion of each stage.
+
+### At Stage Start
+| Stage N — [Name] | [Agent] | [timestamp] | [files loaded] | — | — | — | In Progress |
+
+### At Stage Completion
+Update the row:
+| Stage N — [Name] | [Agent] | [timestamp] | [files loaded] | [files written] | [count of new findings] | [HITL raised: yes/no] | Complete |
+
+### Purpose
+- Enables root-cause analysis when Stage 8 reconciliation fails
+- Provides at-a-glance visibility into workflow progression
+- Captures which files each stage actually accessed (useful for scope audit)
+
+### Rules
+- Do not skip execution trace entries. If a stage is re-entered (Stage Re-Entry protocol), add a new row prefixed with `RE-ENTRY:`.
+- Compaction events are also logged here (see notes.md Stage-Based Compaction Discipline above).
+
+---
+
 ## Mode-Aware Activation Protocol
 
 The Conductor operates in two modes defined in `AGENTS.md — Operating Modes`. Mode is determined at invocation time based on the presence or absence of an active workflow context.
