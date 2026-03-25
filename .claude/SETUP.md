@@ -166,9 +166,21 @@ If you cannot confirm this, do not begin the new engagement. Re-run Steps 1–3.
 
 **Audience:** This checklist is for the **human developer or system author** making changes to system files. It is not an agent-runtime check. Run it before every commit to `.claude/` or `claude-memory/improvements.md`.
 
-Each check is derived from a real failure pattern found during post-implementation review. The **Found in:** note in each Pattern field names historical examples where that violation was first discovered — those files have since been fixed. Do not interpret the historical examples as indicating current violations in those files.
+Each check is derived from a real failure pattern found during post-implementation review. Footnote markers (e.g., [^1]) in each Pattern field link to the **Historical Examples** section at the bottom of this checklist, which names the files where that violation was first discovered — those files have since been fixed. Do not interpret the historical examples as indicating current violations in those files.
 
 The checklist is divided into two passes. Run Pass 1 first (structural — grep-based, exhaustive). Run Pass 2 second (consistency — cross-file, reasoning-based).
+
+---
+
+### Step 0 — Diff Scoping (Run First)
+
+Before running any check, produce the exact file list that this review covers:
+
+```bash
+git diff main --name-only -- .claude/ claude-memory/improvements.md claude-memory/insights.md
+```
+
+All subsequent checks scope to this file list only. Do not run checks against unchanged files.
 
 ---
 
@@ -176,8 +188,8 @@ The checklist is divided into two passes. Run Pass 1 first (structural — grep-
 
 These checks are mechanical. Every item must return zero violations before Pass 2 begins.
 
-#### Check 1.1 — Bare Memory File References
-**Pattern:** Files in `claude-memory/` referenced without the `claude-memory/` prefix. Found in: AGENTS.md (Stages 1–3 action lines, Stage 0 Constrained note), capability-coverage SKILL.md, evidence-extraction SKILL.md, evidence-reconciliation SKILL.md (frontmatter `description:` field), kpi-baseline SKILL.md, pert-estimation SKILL.md, SETUP.md file templates.
+#### Check 1.1 — Bare Memory File References [Blocks commit]
+**Pattern:** Files in `claude-memory/` referenced without the `claude-memory/` prefix. [^1]
 
 **How to check:** Search every changed file for bare references to these filenames without a directory prefix:
 ```
@@ -197,12 +209,12 @@ memory.md, notes.md, artifacts.md, insights.md, decisions.md, improvements.md
 - The reference is inside a ` ``` ` code block illustrating user-facing file structure (e.g., a template or schema)
 - The file is `plan.md` — it lives at workspace root, not in `claude-memory/`
 - The text is a section heading or prose that *describes the file itself* (e.g., `## Artifact Index (artifacts.md)` or `memory.md header fields:`) — these are explanatory labels, not access instructions. If in doubt: does the line instruct an agent to load or access the file? If yes, it must have the prefix.
-- The text is a historical violation example or pattern description (e.g., `**Pattern:** ... Found in: ... improvements.md`) — these are documentation sentences naming files as examples, not agent instructions. This exemption applies to entries in this checklist itself.
+- The text is a historical violation example or footnote reference (e.g., `[^1]` markers or entries in the Historical Examples section) — these are documentation references, not agent instructions. This exemption applies to entries in this checklist itself.
 
 ---
 
-#### Check 1.2 — Stage Name Accuracy
-**Pattern:** Stage names used in labels, templates, or tables drifted from the canonical names defined in AGENTS.md. Found in: SETUP.md `plan.md` template (Stage 5 named "Estimation", Stage 6 "Delivery Planning", Stage 7 "Risk & Assumptions").
+#### Check 1.2 — Stage Name Accuracy [Blocks commit]
+**Pattern:** Stage names used in labels, templates, or tables drifted from the canonical names defined in AGENTS.md. [^2]
 
 **How to check:** Search every changed file for any Stage N label (e.g., `Stage 5`, `Stage 6`, `Stage 7`). Verify each name matches the canonical set below exactly:
 
@@ -225,8 +237,8 @@ memory.md, notes.md, artifacts.md, insights.md, decisions.md, improvements.md
 
 ---
 
-#### Check 1.3 — Duplicate Content
-**Pattern:** Duplicate list items or structural dividers introduced during editing. Found in: estimation-sizing-thinking SKILL.md (duplicate output item 7), improvements.md (double `---` divider before Archive).
+#### Check 1.3 — Duplicate Content [Flag for review]
+**Pattern:** Duplicate list items or structural dividers introduced during editing. [^3]
 
 **How to check:** Scan changed files for:
 - Repeated `---` dividers (two in sequence with no content between them)
@@ -237,8 +249,8 @@ memory.md, notes.md, artifacts.md, insights.md, decisions.md, improvements.md
 
 ---
 
-#### Check 1.4 — Malformed File Paths
-**Pattern:** File path strings that are syntactically incorrect — double-prefix, missing directory, wrong separator. Found in: evidence-extraction SKILL.md Context Scope with `claude-memory/claude-memory/artifacts.md` (double-prefix introduced during editing).
+#### Check 1.4 — Malformed File Paths [Blocks commit]
+**Pattern:** File path strings that are syntactically incorrect — double-prefix, missing directory, wrong separator. [^4]
 
 **How to check:** Search every changed file for any path string containing:
 - Double directory prefix — in instructions or scope declarations: `claude-memory/claude-memory/` or `.claude/.claude/`
@@ -256,8 +268,8 @@ Scan particularly in:
 
 ---
 
-#### Check 1.5 — Frontmatter Integrity (Agent and Skill Files)
-**Pattern:** YAML frontmatter in agent or skill files missing required fields, or `description:` field becoming stale after body edits. Found in: evidence-reconciliation SKILL.md frontmatter `description:` field contained a bare memory ref and described stale scope after the Context Scope section was updated.
+#### Check 1.5 — Frontmatter Integrity (Agent and Skill Files) [Blocks commit]
+**Pattern:** YAML frontmatter in agent or skill files missing required fields, or `description:` field becoming stale after body edits. [^5]
 
 **When this check applies:** Run on every changed `.md` file inside `.claude/agents/` or `.claude/skills/*/`.
 
@@ -271,14 +283,32 @@ Scan particularly in:
 
 ---
 
+#### Check 1.6 — Client-Specific Leakage [Blocks commit]
+**Pattern:** Client names, project-specific proper nouns, or branded terms hardcoded in global OS files (`.claude/` directory or `claude-memory/insights.md`, `claude-memory/improvements.md`). OS files must use generic placeholders (`client`, `[Client]`, `client-approved`) so they are reusable across engagements. [^6]
+
+**How to check:** Search every changed file in `.claude/` and `claude-memory/insights.md` and `claude-memory/improvements.md` for:
+- Known client names from current or recent engagements
+- Any proper noun that identifies a specific company, product, or branded team name that is not R Systems
+
+**Exceptions — client names are valid only when:**
+- The reference is inside `claude-memory/memory.md`, `claude-memory/notes.md`, `claude-memory/artifacts.md`, `claude-memory/decisions.md`, or any file in `outputs/` — these are engagement-scoped, not reusable
+- The reference is inside the `**Derived from:**` line of an improvement proposal (attribution is allowed)
+- The reference is inside a historical example footnote in this checklist
+
+**Pass condition:** Zero client-specific names in `.claude/` files or in the reusable fields of cross-engagement memory files. Specifically:
+- `improvements.md` **Suggested Change** text must use generic placeholders — Observation, Root Cause, Status, and Derived from fields are engagement-scoped and may reference the client
+- `insights.md` **Insight body text** must use generic placeholders — section headings providing engagement attribution (e.g., `## Phase 15 — [Client] Proposal Review Insights`) and `Derived from` lines may reference the client
+
+---
+
 ### Pass 2 — Consistency Check (Cross-File, Reasoning-Based)
 
 These checks require comparing related files against each other. Run after Pass 1 is clean.
 
 ---
 
-#### Check 2.1 — Context Scope Completeness
-**Pattern:** A stage or skill's Context Scope section did not list all files it actually reads or writes. Found in: Conductor (Stages 0–3) scope missing `plan.md` even though Stage 3 explicitly reads Discovery Maturity from it.
+#### Check 2.1 — Context Scope Completeness [Blocks commit]
+**Pattern:** A stage or skill's Context Scope section did not list all files it actually reads or writes. [^7]
 
 **How to check:** For every changed stage definition or changed SKILL.md:
 1. Read every instruction that contains: *load*, *read*, *populate*, *write to*, *update*, *check*, *verify*
@@ -289,8 +319,8 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
-#### Check 2.2 — New File Propagation
-**Pattern:** When a new file was introduced (e.g., `governance.md`, Gap Coverage routed to `notes.md`), not all references to the old location or all references that should now include the new file were updated. Found in: System File Protection path in AGENTS.md still used bare `improvements.md` after governance.md was extracted; deferral gate in evidence-reconciliation SKILL.md still pointed to memory.md instead of notes.md.
+#### Check 2.2 — New File Propagation [Blocks commit]
+**Pattern:** When a new file was introduced (e.g., `governance.md`, Gap Coverage routed to `notes.md`), not all references to the old location or all references that should now include the new file were updated. [^8]
 
 **How to check:** When any of the following occurs — a new file is created, a file is renamed, or a section's storage location changes:
 1. Search all system files for all references to the old file name or old location
@@ -301,8 +331,8 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
-#### Check 2.3 — Stage Procedure ↔ Governance ↔ Skill Handoff Alignment
-**Pattern:** Stage definitions in AGENTS.md, governance obligations in conductor.md, and the corresponding SKILL.md contradict each other on inputs, outputs, or storage targets. Found in: Stage 3 in AGENTS.md wrote gap coverage to `claude-memory/notes.md`, but evidence-reconciliation SKILL.md's Deferred Validation Gate read from `claude-memory/memory.md` — a mismatch that broke the Stage 3 → Stage 8 data flow.
+#### Check 2.3 — Stage Procedure ↔ Governance ↔ Skill Handoff Alignment [Blocks commit]
+**Pattern:** Stage definitions in AGENTS.md, governance obligations in conductor.md, and the corresponding SKILL.md contradict each other on inputs, outputs, or storage targets. [^9]
 
 **Three-way check** (AGENTS.md owns procedure; conductor.md owns governance enforcement; SKILL.md owns execution logic):
 
@@ -316,8 +346,8 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
-#### Check 2.4 — Schema Consistency Across Descriptions
-**Pattern:** The same template or format was described in multiple places with inconsistent field names or rules. Found in: Stage 9 completeness checklist existed in both AGENTS.md and review-challenge-thinking SKILL.md; Deferred to Transition required fields stated in AGENTS.md did not fully match governance.md wording.
+#### Check 2.4 — Schema Consistency Across Descriptions [Blocks commit]
+**Pattern:** The same template or format was described in multiple places with inconsistent field names or rules. [^10]
 
 **How to check:** When a template, schema, or validation rule is changed in any file, search for every other place that template is described or referenced:
 - If the same format is described in two files: designate one as source of truth; the other carries only a pointer
@@ -325,10 +355,12 @@ These checks require comparing related files against each other. Run after Pass 
 
 **Pass condition:** No format or rule exists in two places with different wording. If duplication is intentional, the non-authoritative copy carries an explicit source-of-truth reference.
 
+**Addendum — Runtime-Fill Cell Rule [Flag for review]:** In checklist or template tables where a column is explicitly filled at runtime (e.g., Pass/Fail status column in the Completeness Checklist), that column must be blank at commit time. Pre-filled content in a runtime column is a violation. [^11]
+
 ---
 
-#### Check 2.5 — Agent Roster and Context Scope Table Completeness
-**Pattern:** A new agent is added to the Agent Roster table but its corresponding file does not exist, or the Agent Context Scope table is not updated to include a row for the new agent. Found in: conductor agent added to Agent Roster without a conductor-specific row in prior Context Scope iterations.
+#### Check 2.5 — Agent Roster and Context Scope Table Completeness [Blocks commit]
+**Pattern:** A new agent is added to the Agent Roster table but its corresponding file does not exist, or the Agent Context Scope table is not updated to include a row for the new agent. [^12]
 
 **When this check applies:** Run when AGENTS.md Agent Roster or Agent Context Scope table is changed, or when a new agent file is created.
 
@@ -342,8 +374,8 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
-#### Check 2.6 — Cross-File Pointer Correctness
-**Pattern:** Files that reference sections or headings in other files by name can silently break when the target file is renamed or restructured. Found in: conductor.md uses `Procedure: Follow AGENTS.md — Stage N — [Name]` references; skill files reference other skill files and AGENTS.md sections by heading name.
+#### Check 2.6 — Cross-File Pointer Correctness [Blocks commit]
+**Pattern:** Files that reference sections or headings in other files by name can silently break when the target file is renamed or restructured. [^13]
 
 **When this check applies:** Run when conductor.md Stage Responsibilities are changed, or when any file adds a cross-file section reference (e.g., `See [file] — [## Section Name]`).
 
@@ -356,22 +388,74 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
+#### Check 2.7 — Stage Write-Scope Enforcement [Blocks commit]
+**Pattern:** A stage rule in AGENTS.md or `stage-9-output-structure.md` instructs a write action (`add`, `log`, `write`, `update`) to a memory file that is not within that stage's declared write scope in the Agent Context Scope table. [^14]
+
+**How to check:** For every changed stage rule that contains a write-action verb (`add`, `log`, `write`, `update`, `populate`) targeting a `claude-memory/` file:
+1. Identify which stage the rule belongs to
+2. Look up that stage's row in the Agent Context Scope table in AGENTS.md
+3. Verify the target file appears in the stage's write-permitted list
+4. If it does not, either move the write instruction to the correct stage or add the file to the stage's scope (with justification)
+
+**Pass condition:** Every write instruction in a stage rule targets a file within that stage's declared write scope. No stage writes to a file it does not own.
+
+---
+
+#### Check 2.8 — Register/Table Schema Consistency [Blocks commit]
+**Pattern:** An example row added to a stage rule or improvement proposal has a different field count from the canonical schema for that register or table. [^15]
+
+**How to check:** When a change adds or modifies a table row example (Dependency Register, Risk Register, OC table, or any structured register):
+1. Count the fields (pipe-delimited columns) in the example row
+2. Look up the canonical schema for that register in SETUP.md File Templates section or the authoritative definition in AGENTS.md
+3. Verify the field count matches exactly
+4. If the example has extra fields, fold the additional information into an existing field (typically Description) rather than extending the schema in one place
+
+**Pass condition:** Every example row matches the canonical field count for its register type. No ad-hoc schema extensions.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
 
-| Check | Description | Status |
-|---|---|---|
-| 1.1 | Bare memory file references — zero found (including frontmatter fields) | Pass / ⚠ Fail |
-| 1.2 | Stage names match canonical set exactly | Pass / ⚠ Fail |
-| 1.3 | No duplicate content or structural dividers (within same list scope) | Pass / ⚠ Fail |
-| 1.4 | No malformed file paths (double-prefix, wrong separator) | Pass / ⚠ Fail |
-| 1.5 | Frontmatter present and valid on all changed agent/skill files | Pass / ⚠ Fail |
-| 2.1 | Context scope lists every file accessed by stage/skill | Pass / ⚠ Fail |
-| 2.2 | New/moved files propagated to all reference points | Pass / ⚠ Fail |
-| 2.3 | Stage ↔ skill handoff file paths align end-to-end | Pass / ⚠ Fail |
-| 2.4 | Shared templates/rules have single source of truth | Pass / ⚠ Fail |
-| 2.5 | Agent Roster files exist; Context Scope table has row for every agent | Pass / ⚠ Fail |
-| 2.6 | Cross-file section pointers resolve to existing headings | Pass / ⚠ Fail |
+| Check | Description | Severity | Status |
+|---|---|---|---|
+| 1.1 | Bare memory file references — zero found (including frontmatter fields) | Blocks commit | |
+| 1.2 | Stage names match canonical set exactly | Blocks commit | |
+| 1.3 | No duplicate content or structural dividers (within same list scope) | Flag for review | |
+| 1.4 | No malformed file paths (double-prefix, wrong separator) | Blocks commit | |
+| 1.5 | Frontmatter present and valid on all changed agent/skill files | Blocks commit | |
+| 1.6 | No client-specific names in global OS or cross-engagement memory files | Blocks commit | |
+| 2.1 | Context scope lists every file accessed by stage/skill | Blocks commit | |
+| 2.2 | New/moved files propagated to all reference points | Blocks commit | |
+| 2.3 | Stage ↔ skill handoff file paths align end-to-end | Blocks commit | |
+| 2.4 | Shared templates/rules have single source of truth | Blocks commit | |
+| 2.4a | Runtime-fill columns blank at commit time | Flag for review | |
+| 2.5 | Agent Roster files exist; Context Scope table has row for every agent | Blocks commit | |
+| 2.6 | Cross-file section pointers resolve to existing headings | Blocks commit | |
+| 2.7 | Stage write actions target only files within declared write scope | Blocks commit | |
+| 2.8 | Example rows match canonical field count for their register type | Blocks commit | |
 
-Any `⚠ Fail` blocks commit. Resolve before pushing.
+Any `⚠ Fail` on a **Blocks commit** check blocks the commit. **Flag for review** failures produce a warning but do not block — document the justification if proceeding.
+
+---
+
+### Historical Examples
+
+The footnotes below record the files where each check's pattern was first discovered. All listed files have since been fixed.
+
+[^1]: **Check 1.1** — AGENTS.md (Stages 1–3 action lines, Stage 0 Constrained note), capability-coverage SKILL.md, evidence-extraction SKILL.md, evidence-reconciliation SKILL.md (frontmatter `description:` field), kpi-baseline SKILL.md, pert-estimation SKILL.md, SETUP.md file templates.
+[^2]: **Check 1.2** — SETUP.md `plan.md` template (Stage 5 named "Estimation", Stage 6 "Delivery Planning", Stage 7 "Risk & Assumptions").
+[^3]: **Check 1.3** — estimation-sizing-thinking SKILL.md (duplicate output item 7), improvements.md (double `---` divider before Archive).
+[^4]: **Check 1.4** — evidence-extraction SKILL.md Context Scope with `claude-memory/claude-memory/artifacts.md` (double-prefix introduced during editing).
+[^5]: **Check 1.5** — evidence-reconciliation SKILL.md frontmatter `description:` field contained a bare memory ref and described stale scope after the Context Scope section was updated.
+[^6]: **Check 1.6** — `stage-9-output-structure.md` IP-MAN-12 gate example contained `Manulife-approved` instead of `client-approved`; `improvements.md` IP-MAN-14 Suggested Change contained `Manulife Test Manager` instead of `[Client] Test Manager`.
+[^7]: **Check 2.1** — Conductor (Stages 0–3) scope missing `plan.md` even though Stage 3 explicitly reads Discovery Maturity from it.
+[^8]: **Check 2.2** — System File Protection path in AGENTS.md still used bare `improvements.md` after governance.md was extracted; deferral gate in evidence-reconciliation SKILL.md still pointed to memory.md instead of notes.md.
+[^9]: **Check 2.3** — Stage 3 in AGENTS.md wrote gap coverage to `claude-memory/notes.md`, but evidence-reconciliation SKILL.md's Deferred Validation Gate read from `claude-memory/memory.md` — a mismatch that broke the Stage 3 → Stage 8 data flow.
+[^10]: **Check 2.4** — Stage 9 completeness checklist existed in both AGENTS.md and review-challenge-thinking SKILL.md; Deferred to Transition required fields stated in AGENTS.md did not fully match governance.md wording.
+[^11]: **Check 2.4a** — Submission Hygiene row in `review-challenge-thinking/SKILL.md` had pre-filled Pass/Fail text in the status column.
+[^12]: **Check 2.5** — conductor agent added to Agent Roster without a conductor-specific row in prior Context Scope iterations.
+[^13]: **Check 2.6** — conductor.md uses `Procedure: Follow AGENTS.md — Stage N — [Name]` references; skill files reference other skill files and AGENTS.md sections by heading name.
+[^14]: **Check 2.7** — IP-MAN-14 original implementation instructed Stage 9 to add an entry to the Dependency Register in `claude-memory/notes.md`, but only Stages 4, 5, and 6 have write access to that file for dependency logging.
+[^15]: **Check 2.8** — IP-MAN-14 example Dependency Register row had 6 fields (including a separate Impact column) vs the canonical 5-field schema defined in SETUP.md File Templates.

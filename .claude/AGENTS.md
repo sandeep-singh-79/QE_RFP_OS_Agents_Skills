@@ -225,7 +225,7 @@ Agents must load only the memory and workspace files relevant to their role. Loa
 | Conductor (Stages 0–3) | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `plan.md` | `evidence-extraction` |
 | Conductor (Stage 7 pre-processing) | `claude-memory/notes.md` | `outcome-risk-framing`, `structuring-consulting-thinking` |
 | Conductor (Stage 8) | `claude-memory/memory.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `evidence-reconciliation`, `.claude/governance.md` |
-| Conductor (Stage 9) | `plan.md`, `outputs/staged-proposal.md`, `outputs/estimation-proposal.md` (conditional — load only if the file exists), `.claude/references/stage-9-output-structure.md` | `review-challenge-thinking` |
+| Conductor (Stage 9) | `plan.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md`, `outputs/estimation-proposal.md` (conditional — load only if the file exists), `.claude/references/stage-9-output-structure.md` | `review-challenge-thinking` |
 | Test Architect | `claude-memory/memory.md`, `claude-memory/artifacts.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `qe-architect-thinking`, `capability-coverage`, `kpi-baseline` |
 | QA Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `outputs/staged-proposal.md` | `assumption-dependency-management` |
 | Project Manager | `claude-memory/memory.md`, `claude-memory/insights.md`, `claude-memory/notes.md`, `claude-memory/decisions.md`, `outputs/staged-proposal.md` | `estimation-sizing-thinking`; `scope-completeness-validator` + `pert-estimation` + `kpi-baseline` on-demand; `.claude/references/estimation-model.md` on-demand (loaded by `pert-estimation` when estimation is active — do not pre-load) |
@@ -396,7 +396,7 @@ Summary:
 
   **Governance Forum participation dependency — Stage 4 (IP-MAN-14):**
   If `engagement_type` ∈ {`transformation_partnership`, `managed_service`} AND `application_count` > 3 (i.e., the Delivery Risk Ownership subsection will be generated): log a dependency entry for client-side governance forum participant nomination. Format (5 fields, canonical schema):
-  `D-[n] | Stage 4 | [Client] governance forum participant nominated — [Client] Delivery Lead or equivalent confirmed to participate in joint weekly governance forum from Phase 1; if not confirmed by Phase 0 Day 1, forum cannot convene with joint authority and escalation path is weakened | Client | Open — Phase 0 Day 1`
+  `D-[n] | Stage 4 | [Client] governance forum participant nominated — [Client] Delivery Lead or equivalent confirmed to participate in joint weekly governance forum from Phase 1; if not confirmed by Phase 0 Day 1, forum cannot convene with joint authority and escalation path is weakened | Client | Open`
 
   **Vendor Capability Manifest — Stage 4 consumption:**
   If `## Vendor Capability Manifest` is present in `claude-memory/memory.md`, the Test Architect reads it and populates relevant architecture pillars with vendor tool names and tier-appropriate phases. Tier assignments in the manifest are accepted for named vendor tools and do not require independent reclassification unless conflicting evidence exists.
@@ -539,7 +539,7 @@ Summary:
 
 ### Stage 10 — System Learning
   Purpose:    Improve the QE OS based on engagement experience
-  Actions:    Load `.claude/references/stage-10-learning.md` for full protocol: insight candidate promotion, evidence gap monitoring, engagement pattern promotion, insights vs. improvements discipline, and `improvements.md` schema + backlog governance.
+  Actions:    Load `.claude/references/stage-10-learning.md` for full protocol: insight candidate promotion, evidence gap monitoring, engagement pattern promotion, insights vs. improvements discipline, and `claude-memory/improvements.md` schema + backlog governance.
   Output:     Insight candidates reviewed and promoted or discarded; improvement proposals recorded in `claude-memory/improvements.md`; reusable patterns promoted to `claude-memory/insights.md`
   Rule:       Agents propose improvements only — they do not directly modify system files
   **Mandatory minimum:** Actions 1 (Insight Candidate Promotion) and 6 (Evidence Gap Monitoring) are non-skippable — see `.claude/references/stage-10-learning.md` — `### Mandatory Minimum`. If Stage 10 is skipped, output must carry the skip label defined there.
