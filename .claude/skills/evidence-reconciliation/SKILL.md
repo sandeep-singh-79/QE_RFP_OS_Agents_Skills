@@ -39,9 +39,9 @@ It must not load `claude-memory/insights.md`, `claude-memory/improvements.md`, `
 
 When activated, this skill must:
 
-1. **Load all findings from `memory.md`** — retrieve every entry with a Finding ID (F1, F2, ...) regardless of confidence level
+1. **Load all findings from `claude-memory/memory.md`** — retrieve every entry with a Finding ID (F1, F2, ...) regardless of confidence level
 2. **Check if each finding is addressed** — review the solution output for explicit or traceable resolution of each finding
-3. **Identify unresolved findings** — findings present in `memory.md` with no corresponding resolution in the solution output
+3. **Identify unresolved findings** — findings present in `claude-memory/memory.md` with no corresponding resolution in the solution output
 4. **Detect conflicting findings** — findings flagged as `⚠ CONFLICTING FINDING` that have not been resolved or acknowledged
 5. **Enforce traceability** — all resolutions in the solution output must reference the Finding ID they address
 
@@ -85,7 +85,7 @@ The reconciliation output must always contain four sections. Sections with no it
 
 ### Resolved Findings
 
-List all findings from `memory.md` that have a traceable resolution with a Finding ID reference in the solution output.
+List all findings from `claude-memory/memory.md` that have a traceable resolution with a Finding ID reference in the solution output.
 
 ```
 | Finding ID | Description | Resolution Reference |
@@ -95,7 +95,7 @@ List all findings from `memory.md` that have a traceable resolution with a Findi
 
 ### Unresolved Findings
 
-List all findings from `memory.md` that have no traceable resolution in the solution output.
+List all findings from `claude-memory/memory.md` that have no traceable resolution in the solution output.
 
 ```
 | Finding ID | Confidence | Description | Action Required |
@@ -105,7 +105,7 @@ List all findings from `memory.md` that have no traceable resolution in the solu
 
 ### Conflicting Findings
 
-List all findings flagged as `⚠ CONFLICTING FINDING` in `memory.md` that have not been resolved or acknowledged.
+List all findings flagged as `⚠ CONFLICTING FINDING` in `claude-memory/memory.md` that have not been resolved or acknowledged.
 
 ```
 | Original Finding ID | Conflicting Source | Resolution Status |
@@ -153,19 +153,19 @@ After completing the finding-to-output reconciliation scan, perform a cross-find
 This skill must not:
 
 - Mark a finding as **Resolved** without a traceable Finding ID reference in the solution output
-- Delete any finding from `memory.md` — findings are append-only
+- Delete any finding from `claude-memory/memory.md` — findings are append-only
 - Ignore Medium-confidence findings — they must appear in the output even if reconciliation is not required
 - Treat a conflicting finding as resolved unless a human has explicitly approved the resolution
 
-If a finding ID referenced in the solution output does not exist in `memory.md`, flag it as a **phantom reference** and require correction before output is delivered.
+If a finding ID referenced in the solution output does not exist in `claude-memory/memory.md`, flag it as a **phantom reference** and require correction before output is delivered.
 
 ## Deferred to Transition — Validation Gate
 
-**This skill MUST read deferral status from `claude-memory/notes.md` (`## Gap Coverage`) for each Finding ID. Do not assume a `status` field exists in `memory.md` — the canonical finding schema does not define one.**
+**This skill MUST read deferral status from `claude-memory/notes.md` (`## Gap Coverage`) for each Finding ID. Do not assume a `status` field exists in `claude-memory/memory.md` — the canonical finding schema does not define one.**
 
-**Discovery Maturity read:** Before validating any deferred findings, read the `Discovery Maturity:` header line from the `## Gap Coverage` section in `notes.md` (written by the conductor at Stage 3). When Discovery Maturity = `Constrained`, expected gaps are candidates for deferral — but the three required fields are still mandatory and must still be verified. If the `Discovery Maturity:` line is absent from the notes, treat as `Moderate`.
+**Discovery Maturity read:** Before validating any deferred findings, read the `Discovery Maturity:` header line from the `## Gap Coverage` section in `claude-memory/notes.md` (written by the conductor at Stage 3). When Discovery Maturity = `Constrained`, expected gaps are candidates for deferral — but the three required fields are still mandatory and must still be verified. If the `Discovery Maturity:` line is absent from the notes, treat as `Moderate`.
 
-When a finding in `memory.md` has a corresponding entry in `claude-memory/notes.md` under the `## Gap Coverage` section whose status is `Deferred to Transition — Explicitly Declared`, this skill must verify that all three required fields are present before accepting it as resolved:
+When a finding in `claude-memory/memory.md` has a corresponding entry in `claude-memory/notes.md` under the `## Gap Coverage` section whose status is `Deferred to Transition — Explicitly Declared`, this skill must verify that all three required fields are present before accepting it as resolved:
 
 1. `Discovery Limitation` — what access or evidence was not available pre-award
 2. `Pre-award constraint rationale` — why validation was not possible before award
@@ -190,15 +190,15 @@ An `⚠ INCOMPLETE DEFERRAL` triggers Governance HITL — the finding is treated
 
 During reconciliation, also verify regulatory framing correctness:
 
-1. Check the `Regulatory Context` field in `memory.md` (`Explicit`, `Implicit`, or `Unknown`)
+1. Check the `Regulatory Context` field in `claude-memory/memory.md` (`Explicit`, `Implicit`, or `Unknown`)
 2. Check the solution output for any references to named regulations (e.g., GDPR, PCI DSS, HIPAA)
-3. If the output references a named regulation **not present in `memory.md`** as a Compliance Requirement finding, flag with:
+3. If the output references a named regulation **not present in `claude-memory/memory.md`** as a Compliance Requirement finding, flag with:
 
 ```
 ⚠ REGULATORY EVIDENCE GAP
 Output references: [regulation name]
-Evidence found: None in memory.md Compliance Requirement findings
-Regulatory Context in memory.md: [Explicit / Implicit / Unknown]
+Evidence found: None in claude-memory/memory.md Compliance Requirement findings
+Regulatory Context in claude-memory/memory.md: [Explicit / Implicit / Unknown]
 Action Required: Remove the regulation reference or provide the artifact source that justifies it
 ```
 
@@ -213,9 +213,9 @@ This check does not block Stage 9 if the regulatory context is `Implicit` and ge
 
 This check runs in addition to the Regulatory Validation Check above.
 
-If **any** finding in `memory.md` meets **both** of these conditions:
+If **any** finding in `claude-memory/memory.md` meets **both** of these conditions:
 - Evidence Type = `Compliance Requirement`
-- The `Regulatory Context` field in `memory.md` = `Explicit`
+- The `Regulatory Context` field in `claude-memory/memory.md` = `Explicit`
 
 ...then a **Control Mapping Table** is required before Stage 9 is cleared.
 
