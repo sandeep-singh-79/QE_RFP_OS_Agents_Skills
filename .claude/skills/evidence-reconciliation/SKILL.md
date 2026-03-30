@@ -127,6 +127,50 @@ Medium-confidence findings must appear in a section titled **"Unresolved or Unve
 
 ---
 
+## Phased Finding Sets
+
+When findings were extracted in multiple phases (e.g., an initial RFP extraction followed by a vendor questionnaire phase), reconciliation MUST report coverage **per phase**, not only in aggregate.
+
+### Phase Identification
+
+Findings tagged with `Phase:` in `claude-memory/memory.md` belong to a named phase. If no `Phase:` tag exists on a finding, it belongs to the default phase (`Phase: Initial`).
+
+Before running standard reconciliation, identify all distinct phase labels present in `claude-memory/memory.md` and list them:
+
+```
+Phases detected: [Phase 1 label], [Phase 2 label], ...
+```
+
+### Phase Coverage Summary
+
+After completing the standard reconciliation scan, append a Phase Coverage Summary to the reconciliation output:
+
+```
+## Phase Coverage Summary
+| Phase | Total Findings | Addressed | Partially Addressed | Not Addressed | Not Required |
+|---|---|---|---|---|---|
+| [Phase label] | N | N | N | N | N |
+```
+
+Each phase must have its own row. A phase with zero findings must not appear.
+
+### Inter-Phase Contradiction Report
+
+After completing the cross-finding consistency check, append an Inter-Phase Contradiction Report if any findings carry a `SUPERSEDED` or `CONTRADICTED` relationship tag:
+
+```
+## Inter-Phase Contradictions
+| Later Finding | Earlier Finding | Relationship | Resolution |
+|---|---|---|---|
+| F[new ID] | F[prior ID] | SUPERSEDED / CONTRADICTED | [how the conflict is handled in the output] |
+```
+
+If no inter-phase contradictions exist, state: `Inter-Phase Contradictions: None`.
+
+An unresolved `CONTRADICTED` relationship (where neither finding has been acknowledged as superseded) blocks Stage 8 clearance — raise Blocking HITL.
+
+---
+
 ## Cross-Finding Consistency Check (Stage 8)
 
 After completing the finding-to-output reconciliation scan, perform a cross-finding consistency check:
@@ -161,7 +205,7 @@ If a finding ID referenced in the solution output does not exist in `claude-memo
 
 ## Deferred to Transition — Validation Gate
 
-**This skill MUST read deferral status from `claude-memory/notes.md` (`## Gap Coverage`) for each Finding ID. Do not assume a `status` field exists in `claude-memory/memory.md` — the canonical finding schema does not define one.**
+**This skill MUST read deferral status from `claude-memory/notes.md` (`## Gap Coverage`) for each Finding ID. Do not assume a `status` field exists in `claude-memory/memory.md` for deferral purposes — the canonical finding schema does not define a deferral status field. Note: evidence-extraction may append relationship-tracking `Status:` annotations (e.g., `Status: SUPERSEDED — see [Finding ID]`) to individual finding blocks when new evidence supersedes or contradicts an existing finding. These are relationship annotations, not deferral status fields, and are valid additions to `claude-memory/memory.md`.**
 
 **Discovery Maturity read:** Before validating any deferred findings, read the `Discovery Maturity:` header line from the `## Gap Coverage` section in `claude-memory/notes.md` (written by the conductor at Stage 3). When Discovery Maturity = `Constrained`, expected gaps are candidates for deferral — but the three required fields are still mandatory and must still be verified. If the `Discovery Maturity:` line is absent from the notes, treat as `Moderate`.
 
