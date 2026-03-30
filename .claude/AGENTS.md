@@ -662,6 +662,8 @@ New evidence warrants re-entry when it meets **at least one** of the following c
 | Blocker introduced | `BLOCKER` | New evidence introduces a dependency that blocks one or more workstreams |
 | Inference confirmed | `REFINED` | New evidence replaces an inference-based finding with confirmed data |
 
+> **Vocabulary note:** The Tags above (`CONTRADICTED`, `REMOVED`, `BLOCKER`, `REFINED`) are **re-entry trigger conditions** — they describe why a workflow re-entry is warranted. They are distinct from the **finding-level Relationship tags** in `evidence-extraction/SKILL.md` (`SUPERSEDED`, `CONTRADICTED`, `CONFIRMED`, `REFINED`). Although `CONTRADICTED` and `REFINED` appear in both vocabularies, their scope differs: here they classify the *impact on the output*; in evidence-extraction they classify the *relationship between two specific findings*. Do not conflate the two.
+
 If the new evidence only adds detail that is consistent with existing output and introduces no contradictions, scope changes, blockers, or inference refinements — record it in `claude-memory/notes.md` and do not re-enter.
 
 ### Impact Analysis Step

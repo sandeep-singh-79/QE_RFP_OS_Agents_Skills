@@ -508,3 +508,72 @@ Derived from: Post-Phase 16 critical re-evaluation of Manulife 7-workstream prop
 - **Derived from:** Manulife 7-workstream proposal Phase 17 review, March 24, 2026 (RC-09)
 - **Status:** Implemented — `stage-9-output-structure.md` § Section 14 Component-to-Application Reconciliation (Phase 17, Task A6)
 - **Priority:** Medium
+
+---
+
+## Phase 21 Deferred Items — March 30, 2026
+
+Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionnaire integration). Deferred from Phase 21 scope as MEDIUM severity. CRITICAL and HIGH gaps (GAP-1 through GAP-7) were implemented in Phase 21 Commits A and B.
+
+### Improvement Proposal: IP-MAN-16
+- **Observation:** No rule requires confirmation of current automation coverage percentages before citing them in proposals. During Phase 20, the automation coverage baseline (0% for Angular upgrade apps) was inferred from the absence of evidence rather than confirmed from a client-supplied artefact.
+- **Root Cause:** GAP-8 — No automation baseline confirmation protocol in the OS extraction or Stage 0 discovery rules.
+- **Suggested Change:** Add a rule to Stage 0 or Stage 1 extraction: "If the proposal will cite automation coverage as a baseline figure, the figure must be sourced from a confirmed artefact (test management report, CI dashboard export, client declaration). If no artefact is available, the coverage baseline must be declared as `[UNCONFIRMED — to be validated in Phase 0]` and must not be cited as a known figure in the proposal body."
+- **Impact:** Low frequency — only affects initial engagement scoping where baseline data is absent; partially mitigated by `[INFERENCE-BASED]` annotation rule (GAP-3, Phase 21 Commit B)
+- **Derived from:** Phase 20 vendor questionnaire integration, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
+
+### Improvement Proposal: IP-MAN-17
+- **Observation:** Environment count (e.g., DEV, SIT, UAT, UAT-DR) is not tracked as a proposal-wide constant. During Phase 20, the environment count was mentioned inconsistently across sections — NFR testing referenced 4 environments while other sections implied 3.
+- **Root Cause:** GAP-9 — No OS rule establishing environment count as a tracked, proposal-wide variable checked for consistency.
+- **Suggested Change:** Add environment count to the list of proposal-wide constants tracked in `claude-memory/notes.md` at Stage 1 (alongside application count, component count). Add a cross-section consistency check to Stage 7 Pre-Processing: "Verify environment count is consistent across Sections 7 (NFR), 8 (Roadmap), and 13 (KPIs). Flag any discrepancy as a Stale Reference Sweep finding."
+- **Impact:** Medium — partially mitigated by the Stale Reference Sweep lens (GAP-5, Phase 21 Commit B), which will catch numeric constant inconsistencies during post-edit review
+- **Derived from:** Phase 20 vendor questionnaire integration, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
+
+### Improvement Proposal: IP-MAN-18
+- **Observation:** No rule defines how quickly new client artefacts must be integrated once received. During Phase 20, vendor questionnaire responses arrived mid-engagement and were integrated on the same day, but there is no OS-enforced deadline or integration SLA.
+- **Root Cause:** GAP-10 — No client-response integration deadline rule in the OS. This is a process discipline gap rather than a system rule gap.
+- **Suggested Change:** Add a note to Stage 0 Artifact Discovery (or a client engagement checklist): "When new client artefacts arrive after Stage 0 closes, the operator must register them in `claude-memory/artifacts.md` within the same working session and trigger the re-entry protocol (see `AGENTS.md` — Evidence Re-Entry Protocol) within one session of receipt. Artefacts not integrated within one session must be flagged in `claude-memory/notes.md` as `[PENDING INTEGRATION — received YYYY-MM-DD]`."
+- **Impact:** Low — process discipline issue; the Evidence Re-Entry Protocol (GAP-1, Phase 21 Commit A) addresses the integration mechanics; this adds a timeliness expectation
+- **Derived from:** Phase 20 vendor questionnaire integration, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
+
+### Improvement Proposal: IP-MAN-19
+- **Observation:** Section 7 (Risks & Assumptions) lacks a formal escalation pattern for dependencies that block multiple workstreams simultaneously. During Phase 20, the Syncsort/Kafka decommission dependency blocked 4 workstreams but was only recorded as a single dependency entry with no cross-workstream impact signal.
+- **Root Cause:** GAP-11 — No blocker dependency escalation pattern in Section 7 or the Dependency Register rules. Single-entry dependencies with multi-workstream impact are indistinguishable from single-workstream dependencies.
+- **Suggested Change:** Add a rule to Section 18 (Dependency Register) production: "If a dependency impacts 2 or more workstreams, annotate it with `[CROSS-WORKSTREAM BLOCKER — N workstreams affected]` and add a corresponding risk entry to Section 17 (Risk Register) with Impact = High. The risk entry must name the affected workstreams explicitly." This can be folded into the next Section 7/18 rules revision.
+- **Impact:** Medium — cross-workstream blocker dependencies are high-visibility risks for client evaluation panels; making them structurally distinct from single-workstream dependencies improves proposal defensibility
+- **Derived from:** Phase 20 vendor questionnaire integration, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
+
+### Improvement Proposal: IP-MAN-20
+- **Observation:** No rule requires explicit declaration of mobile testing scope (in-scope, out-of-scope, or deferred to Phase 0) when mobile apps or mobile channels are mentioned in RFP artefacts. During Phase 20, the Manulife recruitment platform RFP mentioned candidate-facing portal access but did not specify whether a mobile app existed — this was left unaddressed.
+- **Root Cause:** GAP-12 — No mobile testing scope declaration rule in the OS. Mobile scope is a common Unresolved Condition that evaluators expect to see addressed.
+- **Suggested Change:** Add a check to `scope-completeness-validator/SKILL.md`: "If RFP artefacts mention a candidate-facing, customer-facing, or employee-facing portal or application, verify whether mobile access is in scope. If no explicit mobile scope declaration is found, add an Open Condition: `OC-[n]: Mobile testing scope not declared — to be confirmed during Phase 0 discovery. In-scope mobile testing will be accommodated within the existing team structure; out-of-scope mobile testing will be scoped separately if required.`"
+- **Impact:** Low-Medium — absence of mobile scope declaration is a common evaluator flag; one-line OC eliminates the ambiguity without over-committing
+- **Derived from:** Phase 20 vendor questionnaire integration, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
+
+### Improvement Proposal: IP-MAN-21
+- **Observation:** The Cross-Reference Update Rule in `AGENTS.md` (Post-Output Evidence Re-Entry Protocol) mandates "All cross-references in `claude-memory/notes.md` that cite superseded findings MUST be updated" but provides no search strategy. For a 150+ finding engagement, this is operationally intractable without a defined approach — practitioners have no guidance on how to discover all affected references.
+- **Root Cause:** Phase 21 Commit A added the Cross-Reference Update Rule but focused on what must be done, not how to discover affected references at scale. Discovery mechanism was implicit.
+- **Suggested Change:** Add an operational note to the Cross-Reference Update Rule: "To identify all cross-references to a superseded finding, search `claude-memory/notes.md` for the superseded Finding ID (e.g., `F-12`). If more than 20 references are found, raise a HITL checkpoint before bulk-updating — confirm scope of change with user before proceeding. Document all updated references in the Re-Entry Impact Assessment."
+- **Impact:** Medium — without a search strategy, operators may miss references, leaving stale Finding IDs in notes.md that mispoint to superseded findings
+- **Derived from:** Phase 21 R&C quality gate review, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
+
+### Improvement Proposal: IP-MAN-22
+- **Observation:** The `## Phased Finding Sets` section in `evidence-reconciliation/SKILL.md` blocks Stage 8 clearance when an unresolved `CONTRADICTED` relationship exists, but does not define what constitutes "resolved". Practitioners cannot consistently determine when a contradiction has been sufficiently addressed to clear the block.
+- **Root Cause:** Phase 21 Commit A defined the blocking rule but omitted resolution criteria. The three acceptable resolution paths (supersede one finding, reclassify confidence, or accept both with explicit acknowledgement in an Open Condition) were not codified.
+- **Suggested Change:** Add a resolution definition to the blocking rule in `evidence-reconciliation/SKILL.md`: "A `CONTRADICTED` relationship is resolved when: (a) one finding is marked `Status: SUPERSEDED — see [new Finding ID]`, or (b) both findings are re-examined and one is reclassified (e.g., downgraded from HIGH to LOW confidence with documented rationale), or (c) the conductor explicitly acknowledges the unresolved contradiction in the proposal's Appendix as an Open Condition before Stage 8 clears."
+- **Impact:** Medium — without resolution criteria, Stage 8 blocks can become permanent, stalling engagement; the three-path resolution rule provides deterministic exit
+- **Derived from:** Phase 21 R&C quality gate review, March 30, 2026
+- **Status:** Deferred
+- **Priority:** Medium
