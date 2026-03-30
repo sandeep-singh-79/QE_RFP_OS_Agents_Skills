@@ -276,6 +276,48 @@ Conflicting findings must be surfaced at Stage 8 (Governance Validation) by the 
 
 ---
 
+## Prior-Finding Cross-Check (Phase-Aware Extraction)
+
+When processing artifacts that cover scope already analysed in a prior extraction phase (e.g., a vendor questionnaire response received after Stage 9, an Angular assessment following an initial RFP extraction), the extractor **MUST** check `claude-memory/memory.md` for existing findings on the same subject and declare the relationship explicitly.
+
+### Relationship Vocabulary
+
+Use one of the following four tags when a new finding references a prior finding:
+
+| Tag | Meaning |
+|---|---|
+| `SUPERSEDED` | New finding completely replaces the prior finding — the prior claim is no longer valid |
+| `CONTRADICTED` | New finding directly conflicts with the prior finding on a factual claim — both cannot be true |
+| `CONFIRMED` | New finding validates a prior inference or assumption with direct evidence |
+| `REFINED` | New finding adds precision to the prior finding without contradicting it (e.g., a confirmed count replacing an estimated count) |
+
+### Usage Format
+
+When a new finding references a prior finding, include the relationship inline in the finding block:
+
+```md
+Relationship: [TAG] — [Prior Finding ID]
+```
+
+**Example:**
+```md
+Finding ID: F-AA-07-03
+Relationship: CONFIRMED — F-AA-07-01
+Description: Karma test runner confirmed as active for APP-007; prior inference validated by Angular assessment artifact.
+```
+
+### Extraction Rule
+
+Before writing a new finding on a subject already covered in `claude-memory/memory.md`, the extractor must:
+1. Search `claude-memory/memory.md` for findings on the same application, component, or domain
+2. Assess whether the new evidence modifies, confirms, or contradicts the existing finding
+3. If a relationship exists, declare it using the vocabulary above
+4. If the new finding `SUPERSEDES` or `CONTRADICTS` the prior, mark the prior finding in `claude-memory/memory.md` with: `Status: SUPERSEDED — see [new Finding ID]` or `Status: CONTRADICTED — see [new Finding ID]`
+
+If no prior finding exists on the same subject, no relationship declaration is required.
+
+---
+
 ## Guardrails
 
 This skill must not:
@@ -302,6 +344,7 @@ The handoff artifact is `claude-memory/memory.md`, which must contain at minimum
 - Source artifact reference on every finding
 - `Client Domain` field (if detectable from artifacts, otherwise omit)
 - `Regulatory Context` field set to `Explicit`, `Inferred`, or `Unknown`
+- `Phase:` tag on every finding when extraction is part of a multi-phase engagement (e.g., `Phase: Initial`, `Phase: VQ-Response`). If extraction is a single-phase run, the `Phase:` tag may be omitted — evidence-reconciliation will treat untagged findings as `Phase: Initial`.
 
 **Extraction Completeness Declaration:**
 Write the following statement to `claude-memory/memory.md` before handoff. If an `## Extraction Completeness` section already exists (from a prior run), **overwrite it** — do not append a second instance.

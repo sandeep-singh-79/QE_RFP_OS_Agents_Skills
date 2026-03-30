@@ -647,6 +647,70 @@ When new artifacts arrive after Stage 1 (e.g., client Q&A responses, additional 
 
 ---
 
+## Post-Output Evidence Re-Entry Protocol
+
+This protocol governs the scenario where Stage 9 output (a final or near-final proposal) already exists and new evidence arrives — such as vendor questionnaire responses, client clarifications, or supplementary technical assessments. This is distinct from mid-workflow re-entry (above), which assumes Stage 9 has not yet run.
+
+### Materiality Threshold
+
+New evidence warrants re-entry when it meets **at least one** of the following conditions:
+
+| Condition | Tag | Description |
+|---|---|---|
+| Factual conflict | `CONTRADICTED` | New evidence directly contradicts a claim in the existing output |
+| Scope removal | `REMOVED` | An application, environment, capability, or component is removed from scope |
+| Blocker introduced | `BLOCKER` | New evidence introduces a dependency that blocks one or more workstreams |
+| Inference confirmed | `REFINED` | New evidence replaces an inference-based finding with confirmed data |
+
+If the new evidence only adds detail that is consistent with existing output and introduces no contradictions, scope changes, blockers, or inference refinements — record it in `claude-memory/notes.md` and do not re-enter.
+
+### Impact Analysis Step
+
+Before any stage re-run, the conductor MUST produce a brief impact assessment:
+
+```
+## Re-Entry Impact Assessment — [date]
+**New Artifact(s):** [list]
+**Findings Changed:** [list finding IDs — new, contradicted, refined]
+**Sections Affected:** [list proposal sections]
+**Stages Requiring Re-Run:** [list stages with reason]
+**Scope Changes:** [describe any added/removed scope elements]
+```
+
+This assessment must be confirmed by the user (HITL checkpoint) before re-entry begins.
+
+### Selective Stage Re-Run Rules
+
+| Stage | Re-Run When |
+|---|---|
+| Stage 1 — Evidence Extraction | Always — extraction is additive; new findings appended to `claude-memory/memory.md` |
+| Stage 2 — Cross-Reference Analysis | Only if new findings contradict or supersede existing ones; skip if all new findings are additive |
+| Stage 3 — Gap Coverage | Only if scope changed (apps added/removed, environments changed, capability domains affected) |
+| Stage 3.5 — Capability Coverage | Only if new evidence covers previously unassessed capability domains |
+| Stage 4–6 — Architecture/Solution/Delivery | Only if contradictions or scope changes affect architecture decisions or delivery assumptions |
+| Stage 7 — Pre-Processing | Always — aggregation must incorporate all new findings before output updates |
+| Stage 8 — Governance Validation | Always — reconciliation must cover all finding phases including the new phase |
+| Stage 9 — Output | Selective section updates only — update only the sections identified in the impact assessment |
+
+### Phase Tagging Rule
+
+When findings arrive in phases (e.g., an initial extraction followed by a vendor questionnaire phase), each phase's findings MUST be tagged with a phase identifier in `claude-memory/memory.md`:
+
+```
+Phase: [Phase Label]   (e.g., "Phase: Initial", "Phase: VQ-Response", "Phase: Angular-Assessment")
+```
+
+Phase tags enable per-phase reconciliation coverage (see `evidence-reconciliation/SKILL.md`) and contradiction tracking (see `evidence-extraction/SKILL.md`).
+
+### Cross-Reference Update Rule
+
+After re-entry is complete:
+1. All cross-references in `claude-memory/notes.md` that cite superseded findings MUST be updated to reference the superseding finding ID
+2. Superseded findings in `claude-memory/memory.md` MUST be marked: `Status: SUPERSEDED — see [new Finding ID]`
+3. The proposal section(s) affected by contradicted or refined findings MUST be reviewed for any residual references to the old framing
+
+---
+
 ## Governance Layer
 
 Governance rules are defined in `.claude/governance.md`. Load this file at Stage 8 and whenever governance enforcement, HITL decisions, evidence traceability, conflict resolution, or sequencing rules need to be applied.
