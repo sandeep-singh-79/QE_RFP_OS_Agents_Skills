@@ -709,6 +709,24 @@ After re-entry is complete:
 2. Superseded findings in `claude-memory/memory.md` MUST be marked: `Status: SUPERSEDED — see [new Finding ID]`
 3. The proposal section(s) affected by contradicted or refined findings MUST be reviewed for any residual references to the old framing
 
+### Scope-Change Propagation Rule
+
+When any scope element changes mid-engagement (application added or removed, environment changed, technology superseded, date shifted, strategy reframed), the operator MUST produce a **Scope Delta List** before editing the proposal output.
+
+**Scope Delta List — Mandatory Contents:**
+
+| Delta Type | Examples |
+|---|---|
+| Removed terms | Application names no longer in scope, decommissioned tools, eliminated environments |
+| Superseded terms | Prior strategy framing (e.g., "build-on" replaced by "greenfield"), superseded tool names |
+| Changed numerical constants | App count, component count, environment count, FTE count, test case estimates |
+| Changed dates | Milestone dates, go-live targets, engagement start dates |
+| Changed framing | Risk levels, maturity scores, tier assignments modified by new evidence |
+
+**Enforcement:** The Scope Delta List is a prerequisite for Stage 9 re-entry. Without a declared Scope Delta List, Stage 8 (Governance Validation) MUST flag the output: `⚠ SCOPE DELTA NOT DECLARED — proposal sections may contain stale references`.
+
+**Post-edit sweep:** After all edits are complete, the full proposal MUST be swept against the Scope Delta List to confirm no residual references to removed or superseded terms remain. This sweep is operationalised by the Stale Reference Sweep lens in `.claude/skills/review-challenge-thinking/SKILL.md`.
+
 ---
 
 ## Governance Layer

@@ -50,6 +50,30 @@ The final output document must include an `Output Type:` header before any conte
 
 ---
 
+## Revision History Rule
+
+Any Stage 9 output that is revised after initial production MUST include a `## Revision History` section at the top of the document — after the Output Type declaration and before Section 1 (Our Understanding).
+
+**When mandatory:** The Revision History section is required whenever the Stage 9 output has been modified after its initial production (e.g., new evidence integrated, scope changed, findings revised post-delivery).
+
+**For first-time outputs:** The Revision History section contains only the `1.0` row and is not required to be present for outputs that have never been revised.
+
+**Format:**
+
+| Rev | Date | Trigger | Summary | Findings Δ |
+|---|---|---|---|---|
+| 1.0 | YYYY-MM-DD | Initial Stage 9 output | — | +N |
+| 1.1 | YYYY-MM-DD | [Phase label] — [evidence type] | [sections updated, scoring changes] | +N / −N |
+
+**Field definitions:**
+- `Rev` — Sequential revision number. `1.0` is always the initial Stage 9 output.
+- `Date` — Date the revision was produced (not the date evidence arrived).
+- `Trigger` — The phase label and event that caused the revision (e.g., "Phase 20 — Vendor questionnaire integration").
+- `Summary` — Brief description of what changed: sections updated, scoring changes, scope delta applied.
+- `Findings Δ` — Net change in finding count: `+N` for new findings added, `−N` for findings removed, both if applicable.
+
+---
+
 ## Section Content Rules
 
 ### Section 1 — Our Understanding
@@ -294,6 +318,18 @@ If the per-workstream component sum in the clustering table differs by more than
 > *"The [N] components above represent the full microservice and application decomposition of the [M] named in-scope applications. Effort estimates were sized at workstream level against this component surface; the [M]-application figure reflects the application-ownership layer, not the component count."*
 
 This sentence is mandatory when component count ≠ application count by more than 2×. It prevents evaluators from treating the component total as the estimation basis and challenging whether estimates were based on [M] things or [N] things.
+
+**Per-App Inference Flagging Rule:**
+When a per-app score or tier assignment in the clustering table (or any per-app scoring section of the proposal) is derived from portfolio-level evidence rather than per-app assessment data, the value MUST be annotated with `[INFERENCE-BASED]`. This annotation indicates the score is directional but not confirmed for that specific application.
+
+- **When to label:** Annotate any cell where the score was derived by applying a portfolio-level finding, portfolio-level average, or cross-portfolio inference to a specific application for which no per-app primary evidence exists.
+- **When to remove:** When per-app data becomes available (e.g., from a subsequent evidence phase), replace the annotated value with the confirmed score and remove the `[INFERENCE-BASED]` tag.
+- **Example:**
+
+  | App | Automation Coverage | Test Maturity |
+  |---|---|---|
+  | APP-001 | 45% | Level 2 |
+  | APP-007 | 30% `[INFERENCE-BASED]` | Level 1 `[INFERENCE-BASED]` |
 
 ### Section 15 — Transition Model (Conditional)
 Trigger: Stage 0 `Engagement Signals` include any of: `incumbent_vendor_present`, `distributed_delivery_consolidation`, `vendor_transition`.

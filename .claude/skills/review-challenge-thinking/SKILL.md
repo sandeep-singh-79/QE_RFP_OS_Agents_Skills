@@ -32,7 +32,7 @@ If the content being reviewed does not include an `Output Type:` header, classif
 
 ---
 
-## Apply All Four Lenses — Do Not Skip Any
+## Apply All Five Lenses — Do Not Skip Any
 
 ### 1. Stakeholder Challenge Lens
 Evaluate from the perspective of the people who will actually read and score this:
@@ -62,6 +62,22 @@ Validate that:
 - No contradictions exist between sections
 - Priorities stated in one section are consistent with risk levels in another
 - Claims are internally consistent across the full document
+
+### 5. Stale Reference Sweep
+
+**Trigger:** Activated after any bulk edit session that modifies ≥5 sections or integrates new evidence into an existing output. Also activated whenever a Scope Delta List has been declared (see `AGENTS.md` Scope-Change Propagation Rule).
+
+**Checklist — verify each item against actual output content:**
+- [ ] All removed scope terms (apps, environments, tools) — no residual mentions remain
+- [ ] All superseded dates — no prior timeline dates remain without update
+- [ ] All contradicted framing (e.g., "build-on" → "greenfield") — no prior framing persists
+- [ ] All changed numerical constants (app count, component count, environment count, FTE count) — consistent throughout
+- [ ] All draft or placeholder labels removed from headings and body text
+- [ ] Phase-specific internal language (e.g., "Phase 20 findings") does not appear in client-facing sections
+
+**Severity classification:**
+- Stale terms in document headings or section titles: **CRITICAL** — visible to evaluators on first scan
+- Stale terms in body text: **HIGH** — undermines client confidence on detailed review
 
 ---
 
@@ -133,7 +149,7 @@ Before the quality gate clears, declare a confidence level for each major output
 
 | Confidence | Meaning |
 |---|---|
-| `High` | All four lenses applied; no Strategic or Execution gaps found; evidence-backed throughout |
+| `High` | All five lenses applied; no Strategic or Execution gaps found; evidence-backed throughout |
 | `Medium` | Minor gaps found (Presentation or Evidence type); addressed or explicitly accepted by the team |
 | `Low` | One or more Strategic or Execution gaps found; submission risk remains until resolved |
 
@@ -183,5 +199,6 @@ Run this checklist before declaring the quality gate passed. Any criterion not m
 | Risk | Risk register entries present OR risk narrative with named risks present | |
 | Assumptions | All assumptions surfaced AND each has an owner and resolution path | |
 | Submission Hygiene | No internal staff first names in client-facing sections (OC, Risk Register, Dependency Register, Team Structure, Governance, Delivery Risk Ownership) — role designations only. Failure label: `⚠ HYGIENE VIOLATION` | |
+| Lenses Applied | All five lenses applied per trigger conditions (Stakeholder, Over-Commitment, Ownership, Logical Coherence, Stale Reference Sweep where triggered — ≥5 sections edited or Scope Delta List declared); no lens skipped without documented reason | |
 
 **Rule:** Do not mark the checklist as passed speculatively. Each criterion must be verified in the actual output content before being marked Pass.
