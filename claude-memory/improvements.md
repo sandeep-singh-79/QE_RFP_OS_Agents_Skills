@@ -548,7 +548,7 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Suggested Change:** Add a rule to Section 18 (Dependency Register) production: "If a dependency impacts 2 or more workstreams, annotate it with `[CROSS-WORKSTREAM BLOCKER — N workstreams affected]` and add a corresponding risk entry to Section 17 (Risk Register) with Impact = High. The risk entry must name the affected workstreams explicitly." This can be folded into the next Section 7/18 rules revision.
 - **Impact:** Medium — cross-workstream blocker dependencies are high-visibility risks for client evaluation panels; making them structurally distinct from single-workstream dependencies improves proposal defensibility
 - **Derived from:** Phase 20 vendor questionnaire integration, March 30, 2026
-- **Status:** Deferred
+- **Status:** Implemented — `stage-9-output-structure.md` § Section 18 Cross-Workstream Blocker Rule (Phase 22)
 - **Priority:** Medium
 
 ### Improvement Proposal: IP-MAN-20
@@ -566,7 +566,7 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Suggested Change:** Add an operational note to the Cross-Reference Update Rule: "To identify all cross-references to a superseded finding, search `claude-memory/notes.md` for the superseded Finding ID (e.g., `F-12`). If more than 20 references are found, raise a HITL checkpoint before bulk-updating — confirm scope of change with user before proceeding. Document all updated references in the Re-Entry Impact Assessment."
 - **Impact:** Medium — without a search strategy, operators may miss references, leaving stale Finding IDs in notes.md that mispoint to superseded findings
 - **Derived from:** Phase 21 R&C quality gate review, March 30, 2026
-- **Status:** Deferred
+- **Status:** Implemented — `AGENTS.md` § Cross-Reference Update Rule — Discovery Mechanism (Phase 22)
 - **Priority:** Medium
 
 ### Improvement Proposal: IP-MAN-22
@@ -575,5 +575,5 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Suggested Change:** Add a resolution definition to the blocking rule in `evidence-reconciliation/SKILL.md`: "A `CONTRADICTED` relationship is resolved when: (a) one finding is marked `Status: SUPERSEDED — see [new Finding ID]`, or (b) both findings are re-examined and one is reclassified (e.g., downgraded from HIGH to LOW confidence with documented rationale), or (c) the conductor explicitly acknowledges the unresolved contradiction in the proposal's Appendix as an Open Condition before Stage 8 clears."
 - **Impact:** Medium — without resolution criteria, Stage 8 blocks can become permanent, stalling engagement; the three-path resolution rule provides deterministic exit
 - **Derived from:** Phase 21 R&C quality gate review, March 30, 2026
-- **Status:** Deferred
+- **Status:** Implemented — `evidence-reconciliation/SKILL.md` § Phased Finding Sets — CONTRADICTED Resolution Criteria (Phase 22)
 - **Priority:** Medium
