@@ -711,6 +711,8 @@ After re-entry is complete:
 2. Superseded findings in `claude-memory/memory.md` MUST be marked: `Status: SUPERSEDED — see [new Finding ID]`
 3. The proposal section(s) affected by contradicted or refined findings MUST be reviewed for any residual references to the old framing
 
+**Discovery mechanism for step 1:** Search `claude-memory/notes.md` for the superseded Finding ID (e.g., search `F-12` to find all cross-references). If more than 20 references are found, raise a HITL checkpoint before bulk-updating — confirm scope of change with the user before proceeding. Document all updated references in the Re-Entry Impact Assessment under a `**Cross-References Updated:**` field.
+
 ### Scope-Change Propagation Rule
 
 When any scope element changes mid-engagement (application added or removed, environment changed, technology superseded, date shifted, strategy reframed), the operator MUST produce a **Scope Delta List** before editing the proposal output.

@@ -356,6 +356,13 @@ Always-on. Renders the `## Dependency Register` progressively built at Stages 4,
 - Format: `D-[n] | Stage Identified | Description | Owner (Client/Vendor/Joint) | Status (Open/Confirmed/Mitigated)`
 - All Open entries must be cross-referenced in Section 19 Appendix Open Conditions where they represent unresolved pre-award risks.
 
+**Cross-Workstream Blocker Rule (IP-MAN-19):** If a dependency impacts 2 or more workstreams simultaneously, annotate it with `[CROSS-WORKSTREAM BLOCKER — N workstreams affected]` immediately after the Description field. A corresponding risk entry MUST also appear in Section 17 (Risk Register) with Impact = High, naming the affected workstreams explicitly. Without the paired risk entry, the blast radius of the blocking dependency is invisible to the evaluation panel.
+- **Logging timing:** The annotation and its paired Section 17 risk entry MUST be logged at the same stage the dependency is first recorded (Stages 4–6). If the cross-workstream impact is identified later (e.g., during Stage 8 reconciliation), add both the annotation and the risk entry at that point before proceeding.
+- **Stage 8 validation:** Evidence-reconciliation skill must verify that every annotated `[CROSS-WORKSTREAM BLOCKER]` dependency entry has a corresponding Section 17 risk entry. Any annotated dependency without a paired risk row blocks Stage 8 clearance.
+- **Scope:** "Workstreams" = named delivery workstreams as defined in Section 8 (Transformation Roadmap) or Section 14 (Application Clustering). Single-workstream blocking dependencies use the standard dependency format with no annotation — they rely on their Section 17 Impact rating for visibility.
+- **Pass test:** Any dependency entry with 2+ workstream impact has the annotation AND a matching Section 17 row.
+- **Failure mode:** Single dependency entry for a platform decommission (e.g., Kafka) that blocks 4 workstreams with no cross-workstream signal — evaluators read it as a single-workstream risk.
+
 ### Section 19 — Appendices
 Always-on. Mandatory appendices (Appendix C included when unverified findings exist; Appendix D included when regulatory control mapping is triggered).
 

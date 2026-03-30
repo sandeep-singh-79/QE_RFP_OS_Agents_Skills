@@ -169,6 +169,13 @@ If no inter-phase contradictions exist, state: `Inter-Phase Contradictions: None
 
 An unresolved `CONTRADICTED` relationship (where neither finding has been acknowledged as superseded) blocks Stage 8 clearance — raise Blocking HITL.
 
+**CONTRADICTED is resolved when any one of the following conditions is met:**
+1. One finding is marked `Status: SUPERSEDED — see [new Finding ID]` (the superseding finding becomes the authoritative record)
+2. Both findings are re-examined and one is reclassified — e.g., downgraded from HIGH to LOW confidence with documented rationale in `claude-memory/notes.md`. Executor: evidence-reconciliation skill re-examines; Conductor validates and updates the finding record.
+3. The conductor explicitly acknowledges the unresolved contradiction and adds it to the proposal as an Open Condition in Appendix B — format: `OC-[n]: Conflicting findings [F-ID-A] and [F-ID-B] on [subject] — both retained; client input required in Phase 0 to determine authoritative position.` **Stage 8 clears on the act of acknowledgement (OC logged), not on Phase 0 confirmation.** The OC carries the contradiction forward as a tracked delivery-phase item; it does not remain a workflow blocker after acknowledgement.
+
+Once any one condition is met, the Blocking HITL may be cleared.
+
 ---
 
 ## Cross-Finding Consistency Check (Stage 8)
