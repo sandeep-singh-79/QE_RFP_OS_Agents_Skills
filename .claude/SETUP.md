@@ -464,6 +464,6 @@ The footnotes below record the files where each check's pattern was first discov
 [^10]: **Check 2.4** — Stage 9 completeness checklist existed in both AGENTS.md and review-challenge-thinking SKILL.md; Deferred to Transition required fields stated in AGENTS.md did not fully match governance.md wording.
 [^11]: **Check 2.4a** — Submission Hygiene row in `review-challenge-thinking/SKILL.md` had pre-filled Pass/Fail text in the status column.
 [^12]: **Check 2.5** — conductor agent added to Agent Roster without a conductor-specific row in prior Context Scope iterations.
-[^13]: **Check 2.6** — conductor.md uses `Procedure: Follow AGENTS.md — Stage N — [Name]` references; skill files reference other skill files and AGENTS.md sections by heading name.
+[^13]: **Check 2.6** — conductor.md uses `Procedure: Follow stage-workflow.md — Stage N — [Name]` references; skill files reference other skill files and AGENTS.md/stage-workflow.md sections by heading name.
 [^14]: **Check 2.7** — IP-MAN-14 original implementation instructed Stage 9 to add an entry to the Dependency Register in `claude-memory/notes.md`, but only Stages 4, 5, and 6 have write access to that file for dependency logging.
 [^15]: **Check 2.8** — IP-MAN-14 example Dependency Register row had 6 fields (including a separate Impact column) vs the canonical 5-field schema defined in SETUP.md File Templates.

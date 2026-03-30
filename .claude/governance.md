@@ -194,9 +194,16 @@ Capability Baseline: CI/CD Integration domain — automated quality enforcement 
 
 ## Decision-Centric Human-in-the-Loop (HITL) Model
 
-Human intervention is triggered based on **decision risk**, not workflow position. Any agent at any stage may trigger a HITL pause.
+> **Canonical reference:** Load `.claude/references/hitl-protocol.md` for the full HITL taxonomy, all trigger conditions, Blocking / Advisory / Governance HITL formats, and the Governance HITL 5-step pause protocol. This section provides the governance scope rules that complement the canonical formats.
+
+### HITL Scope
+- HITL pauses apply during Stages 4–8 of the workflow (agent analysis and governance)
+- HITL does not apply to memory operations (Stages 0–3) or system learning (Stage 10)
+- User may explicitly waive HITL for specific decisions, but this must be logged in `claude-memory/decisions.md`
 
 ### Decision Risk Categories
+
+Any agent at any stage may trigger a Governance HITL when a decision touches **any** of the following categories and the agent cannot confirm from provided inputs that the decision is safe:
 
 | Category | Description | Example |
 |---|---|---|
@@ -207,77 +214,6 @@ Human intervention is triggered based on **decision risk**, not workflow positio
 | Release Risk | Decision affects release timing, rollback capability, or deployment | Recommending a big-bang cutover vs. phased rollout |
 | Data Sensitivity | Decision involves handling of PII, financial data, or credentials | Proposing test data strategies that use production data |
 | Traceability Impact | Decision breaks or weakens audit trail or requirement traceability | Removing traceability links between requirements and test cases |
-
-### HITL Rule
-If a decision touches **any** of the above categories and the agent cannot confirm from provided inputs that the decision is safe, the system must:
-
-1. **Pause** — do not proceed with the decision
-2. **State the decision** — what is being decided
-3. **State the risk category** — which category applies
-4. **State what is needed** — what confirmation or approval is required
-5. **Wait** — do not assume approval; require explicit human confirmation
-
-Format:
-```
-⚠ GOVERNANCE HITL — Decision Requires Human Approval
-
-Decision: [what is being decided]
-Risk Category: [which category]
-Why: [why this exceeds the threshold]
-Required: [what confirmation is needed to proceed]
-```
-
-### HITL Scope
-- HITL pauses apply during Stages 4–8 of the workflow (agent analysis and governance)
-- HITL does not apply to memory operations (Stages 0–3) or system learning (Stage 10)
-- User may explicitly waive HITL for specific decisions, but this must be logged in `claude-memory/decisions.md`
-
-### HITL Trigger Types
-
-Two types of HITL pause exist. Both require human resolution before the affected work can proceed.
-
-**Type 1 — Blocking HITL**
-Occurs when the workflow cannot continue due to conflicting or unresolvable information. Prevents stage advancement until a human decision is provided.
-
-Triggers:
-- Conflicting architectural findings that cannot be resolved by evidence alone
-- Undefined delivery dependency that blocks planning
-- Contradictory constraints in the source artifacts
-
-**Type 2 — Governance HITL**
-Occurs at Stage 8 when governance validation identifies a condition requiring human approval before output can be released.
-
-Triggers:
-- Unresolved high-confidence findings not addressed in the solution
-- Evidence gaps on recommendations going to client-facing output
-- Compliance conflicts requiring explicit human sign-off
-
-**Relationship:** Blocking HITL is a harder stop than Governance HITL — it prevents stage advancement entirely. Governance HITL permits output to proceed only after explicit human approval at Stage 8. The existing 5-step HITL pause protocol (pause, state decision, state risk category, state what is needed, wait) applies to both types.
-
-### Blocking HITL Format
-
-When a Blocking HITL condition is detected, the system must output the following format and halt stage advancement:
-
-```
-⚠ BLOCKING HITL — Stage Advancement Blocked
-
-Issue: [what is conflicting or unresolvable]
-Impact: [what cannot proceed and why]
-Required Decision: [the specific human decision needed to unblock]
-```
-
-**Example:**
-```
-⚠ BLOCKING HITL — Stage Advancement Blocked
-
-Issue: Conflicting findings between F04 (Stage 4 automation sprint 1) and F07 (6-week change governance constraint) cannot be resolved by evidence alone.
-Impact: Stage 6 delivery planning cannot proceed — any timeline produced would be built on an unresolved conflict.
-Required Decision: Confirm whether change governance applies to QA tooling. If yes, automation start must be deferred to Week 7 or later.
-```
-
-**Rule:** Blocking HITL must halt all stage advancement until the human provides an explicit decision. The system must not assume a default resolution.
-
----
 
 ## Inter-Agent Conflict Resolution
 

@@ -1,7 +1,7 @@
 # Memory Protocol Reference
 
-> **Used by:** Conductor (Stages 0–3) and any agent handling artifact registration or memory initialization.
-> Load this file when artifact schema is needed or when memory handling questions arise during workspace setup.
+> **Used by:** Conductor (Stages 0–3) and any agent handling artifact registration, context prioritization, or memory compaction questions.
+> Load this file when artifact schema, context priority ordering, notes.md compaction schedule, or cross-agent flag format is needed.
 
 ---
 
@@ -33,3 +33,81 @@ When knowledge sources enter the system, register them in `claude-memory/artifac
 | Status | Pending Review / Evidence Extracted / Not Applicable |
 
 The system must function even if **only an RFP document exists** as the sole artifact — absence of supporting artifacts does not block workflow progress.
+
+---
+
+## Context Loading Priority
+
+When context budget is constrained, load files in this priority order:
+
+1. `claude-memory/memory.md` — highest priority (structured findings)
+2. Primary artifact (RFP document or content being analyzed)
+3. `claude-memory/artifacts.md` — artifact inventory
+4. `claude-memory/insights.md` — prior engagement patterns
+5. `claude-memory/notes.md` — working context
+6. `claude-memory/decisions.md` — decision trail
+7. `claude-memory/improvements.md` — lowest priority (system improvement proposals)
+
+---
+
+## Context Summarization
+
+If `claude-memory/memory.md` grows beyond approximately 200 lines:
+
+1. Summarize findings from completed workflow stages.
+2. Move summarized findings to `claude-memory/insights.md`.
+3. Retain only active or unresolved findings in `claude-memory/memory.md`.
+4. Preserve all Finding IDs for traceability.
+
+---
+
+## Context Compaction
+
+Context compaction procedure, pre-compaction checklist, safe compaction points, and summary preservation requirements are defined in `agents/conductor.md — ## Context Compaction Trigger`. The Conductor is the sole owner of compaction decisions. Compaction is triggered at stage boundaries only — never mid-stage.
+
+---
+
+## notes.md Stage-Based Compaction
+
+The conductor applies compaction to `claude-memory/notes.md` at stage boundaries. Each section is compressed only after its **terminal consumer** (the last stage that reads it) has completed.
+
+### Compaction Schedule
+
+| Trigger | Section | Terminal Consumer | Compacted Form |
+|---|---|---|---|
+| After Stage 3 completes | `## Missing Artifacts` | Stage 0 — Artifact Discovery | One-line summary: "Missing Artifacts: N categories resolved, M outstanding" |
+| After Stage 6 completes | `## Application Clustering Draft` | Stage 6 — Delivery Validation | Tier assignment table only — remove rationale prose |
+| After Stage 9 reads §15 | `## Transition Planning Stub` | Stage 9 §15 | One-line marker: "Transition Planning: rendered in §15" |
+| After Stage 9 reads §10 | `## Benefit Claim Classification` | Stage 9 §10 | Count + conditional-only list: "N claims classified (M conditional)" |
+
+### Never-Compact Sections
+
+The following sections remain uncompacted for the entire engagement:
+- `## Gap Coverage` — consumed incrementally through Stage 8 reconciliation
+- `## Dependency Register` — consumed by Stage 9 §18 and referenced by multiple agents
+- `## Cross-Agent Flags` — active inter-agent communication channel
+- `## Insight Candidates` — consumed by Stage 10 cross-engagement learning
+- `## Execution Trace` — observability log, append-only
+
+### Compaction Rules
+
+1. Compaction preserves **section headings** — the `##` line is never removed.
+2. All **IDs** (Finding IDs, D-nn, OC-nn, CAF-nn) must survive compaction.
+3. Key **data tables** are preserved; prose rationale and narrative context may be compressed.
+4. The conductor logs each compaction event in `## Execution Trace`.
+
+Compaction execution procedure: see `agents/conductor.md — ## notes.md Stage-Based Compaction Discipline`.
+
+---
+
+## Inter-Agent Communication — Cross-Agent Flags
+
+When an agent identifies a concern that requires attention from a different agent or a prior stage, it must not attempt to resolve it silently. Instead:
+
+1. Write a flag entry to `claude-memory/notes.md` under `## Cross-Agent Flags`
+2. Format: `CAF-[n] | Stage [N] | [Source Agent] | [Target Agent] | [Blocking/Advisory] | [Description] | [Pending]`
+3. Severity levels:
+   - **Blocking** — the flagging agent believes downstream output will be structurally flawed without resolution. The conductor must surface this as a HITL before the current stage clears.
+   - **Advisory** — the flagging agent notes a concern but does not believe it blocks progress. The target agent should review when its stage begins.
+4. The conductor checks `## Cross-Agent Flags` before advancing to each stage. Any `Blocking` flag targeting the next stage's agent must be surfaced as an Advisory HITL before that stage begins.
+5. Flags with Resolution = `Pending` must be reviewed by the target agent at stage start. The target agent updates Resolution to `Addressed` (with brief note) or `Deferred` (with rationale).

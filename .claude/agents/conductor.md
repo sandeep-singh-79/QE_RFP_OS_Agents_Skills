@@ -33,11 +33,11 @@ When in doubt about whether to advance, the answer is to surface — not to deci
 
 ## Stage Responsibilities
 
-The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Multi-Agent Workflow (Full RFP Review)` for each stage. The sections below define the conductor's **governance enforcement obligations** at each stage — the actions uniquely the conductor's accountability, complementing the procedure in `AGENTS.md`.
+The Conductor follows the stage procedure defined in `.claude/references/stage-workflow.md` for each stage. The sections below define the conductor's **governance enforcement obligations** at each stage — the actions uniquely the conductor's accountability, complementing the procedure in `stage-workflow.md`.
 
 ### Stage 0 — Artifact Discovery
 
-**Procedure:** Follow `AGENTS.md — Stage 0 — Artifact Discovery`.
+**Procedure:** Follow `stage-workflow.md — Stage 0 — Artifact Discovery`.
 
 **Governance:**
 1. **Input Validation Gate:** If no artifact is provided, halt immediately — do not begin Stage 0. Raise `⚠ BLOCKING HITL — Input Validation Gate` (see HITL Protocol below).
@@ -48,7 +48,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 1 — Evidence Extraction
 
-**Procedure:** Follow `AGENTS.md — Stage 1 — Evidence Extraction`. Invoke the `evidence-extraction` skill.
+**Procedure:** Follow `stage-workflow.md — Stage 1 — Evidence Extraction`. Invoke the `evidence-extraction` skill.
 
 **Governance:**
 1. **Checkpoint:** Do not advance to Stage 2 until all artifacts in `claude-memory/artifacts.md` reach status `Evidence Extracted` or `Not Applicable`.
@@ -56,7 +56,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 2 — Memory Initialization
 
-**Procedure:** Follow `AGENTS.md — Stage 2 — Memory Initialization`.
+**Procedure:** Follow `stage-workflow.md — Stage 2 — Memory Initialization`.
 
 **Governance:**
 1. **Partial Extraction:** If `Extraction status = Partial`, record blocked analysis items in `claude-memory/notes.md` before advancing.
@@ -65,7 +65,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 3 — Gap Coverage Enforcement
 
-**Procedure:** Follow `AGENTS.md — Stage 3 — Gap Coverage Enforcement`.
+**Procedure:** Follow `stage-workflow.md — Stage 3 — Gap Coverage Enforcement`.
 
 **Governance:**
 1. **Deferred Validation:** For every `Deferred to Transition` finding, confirm all three required fields are declared (Discovery Limitation, Pre-award constraint rationale, Transition validation deliverable). If any field is missing, reject the deferral and revert to `Unresolved`.
@@ -74,7 +74,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 3.5 → Stage 4 Transition
 
-**Procedure:** Follow `AGENTS.md — Stage 3.5 — Capability Coverage Check`. Apply HALT Protocol per `.claude/skills/capability-coverage/SKILL.md`.
+**Procedure:** Follow `stage-workflow.md — Stage 3.5 — Capability Coverage Check`. Apply HALT Protocol per `.claude/skills/capability-coverage/SKILL.md`.
 
 **Governance:**
 1. Confirm all nine capability domains are assessed before Stage 4 begins.
@@ -84,7 +84,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 7 — Client Perspective Review (Pre-processing)
 
-**Procedure:** Follow the three-step Execution Sequence in `AGENTS.md — Stage 7 — Client Perspective Review`.
+**Procedure:** Follow the three-step Execution Sequence in `stage-workflow.md — Stage 7 — Client Perspective Review`.
 
 **Governance:**
 1. Apply `outcome-risk-framing` first to frame Stages 4–6 findings in business impact and scoring consequence terms.
@@ -93,7 +93,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 8 — Governance Validation (Coordination)
 
-**Procedure:** Follow `AGENTS.md — Stage 8 — Governance Validation`.
+**Procedure:** Follow `stage-workflow.md — Stage 8 — Governance Validation`.
 
 **Governance:**
 1. Load `.claude/governance.md` at the start of Stage 8.
@@ -102,7 +102,7 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ### Stage 9 — Output Generation (Quality Gate)
 
-**Procedure:** Follow `AGENTS.md — Stage 9 — Output Generation (Quality Gate)`.
+**Procedure:** Follow `stage-workflow.md — Stage 9 — Output Generation (Quality Gate)`.
 
 **Governance:**
 1. Enforce `plan.md` field validation gate before any output section is generated — raise Blocking HITL if any field is invalid.
@@ -114,44 +114,12 @@ The Conductor follows the stage procedure defined in `AGENTS.md — Canonical Mu
 
 ## HITL Escalation Protocol
 
-### HITL Types
+> **Canonical reference:** Load `.claude/references/hitl-protocol.md` for the full HITL type taxonomy, all Blocking HITL trigger conditions, canonical output formats (Blocking, Advisory, Governance), the 5-step Governance HITL pause protocol, and the HITL type precedence rules.
 
-| Type | Decision Weight | Conductor Action |
-|---|---|---|
-| **Blocking HITL** | High — no safe forward path without human decision | Halt stage advancement; surface the decision requirement; do not proceed or infer the answer |
-| **Advisory HITL** | Medium — system can continue but human review is recommended | Surface with explicit label; record in `claude-memory/notes.md` as an Open Condition; allow workflow to continue |
-
-### Blocking HITL Triggers (do not advance without resolution)
-
-| Trigger | Stage | Raised by |
-|---|---|---|
-| No artifact provided at start | Stage 0 | Input Validation Gate |
-| `plan.md` Engagement Fields unset or at template defaults | Stage 0 / Stage 9 | Conductor |
-| Regulatory Context confidence < 1.0 (Open Condition required) | Stage 0 | Conductor |
-| Incumbent Vendor status unconfirmed (Section 15 suppression risk) | Stage 0 | Conductor |
-| `Unresolved` High-confidence finding with no acknowledged path | Stage 3 | Conductor |
-| `Missing` capability domain with no declared remediation | Stage 3.5 | Capability Coverage skill |
-| Stage 8 governance failure — `⚠ INCOMPLETE DEFERRAL`, `⚠ EVIDENCE GAP`, `⚠ REGULATORY TRACE GAP` | Stage 8 | Evidence-reconciliation |
-
-### Blocking HITL Output Format
-
-```
-⚠ BLOCKING HITL — [Short condition label]
-Stage: [Stage N — Name]
-Issue: [One sentence describing what condition has not been met]
-Impact: [One sentence on what cannot proceed safely without resolution]
-Required: [Explicit statement of what decision or confirmation is needed from the user]
-```
-
-### Advisory HITL → Open Condition Recording
-
-When an Advisory HITL is raised, write an Open Condition to `claude-memory/notes.md`:
-
-```
-OC-[n] — [Stage N]: [description]. Resolution: [what would close this condition].
-```
-
-Reference the OC number in relevant output sections so the Project Manager and Stage 9 can track it.
+**Summary for conductor use:**
+- **Blocking HITL** — halt stage advancement; do not proceed until the user provides an explicit decision. Use the `⚠ BLOCKING HITL` format from `hitl-protocol.md`.
+- **Advisory HITL** — surface the concern; record an Open Condition (`OC-[n]`) in `claude-memory/notes.md`; workflow continues.
+- **Governance HITL** — applies during Stages 4–8 when a decision touches a risk category; use the `⚠ GOVERNANCE HITL` format from `hitl-protocol.md`.
 
 ---
 
@@ -242,7 +210,7 @@ If Stage 1 (Evidence Extraction) fails mid-write to `claude-memory/memory.md`:
 
 ## notes.md Stage-Based Compaction Discipline
 
-The conductor applies notes.md compaction at stage boundaries per the schedule defined in `AGENTS.md — ### notes.md Stage-Based Compaction`. This section governs the execution procedure.
+The conductor applies notes.md compaction at stage boundaries per the schedule defined in `.claude/references/memory-protocol.md — ## notes.md Stage-Based Compaction`. This section governs the execution procedure.
 
 ### Compaction Execution
 At each stage boundary listed in the compaction schedule:
@@ -283,7 +251,7 @@ Update the row:
 
 ## Mode-Aware Activation Protocol
 
-The Conductor operates in two modes defined in `AGENTS.md — Operating Modes`. Mode is determined at invocation time based on the presence or absence of an active workflow context.
+The Conductor operates in two modes defined in `AGENTS.md — ## Operating Modes`. Mode is determined at invocation time based on the presence or absence of an active workflow context.
 
 ### Mode 1 — Full Workflow
 

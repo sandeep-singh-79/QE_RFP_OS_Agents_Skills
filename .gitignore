@@ -1,3 +1,10 @@
 # Implementation plans — never committed
 *implementation-plan.md
 *implementation-plan*.md
+
+# VS Code workspace settings
+.vscode/
+
+# Local plan files
+*-plan.md
+phase*-plan.md

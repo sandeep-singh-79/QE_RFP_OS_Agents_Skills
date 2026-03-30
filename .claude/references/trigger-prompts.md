@@ -1,5 +1,7 @@
 # Trigger & Non-Trigger Prompt Reference
 
+> **OPERATOR REFERENCE ONLY — Do not load during workflow execution.** This file is for system testing, trigger verification, and user onboarding only. It is not referenced by any skill or agent and must not be included in active LLM context.
+
 This file provides example prompts that **should** trigger each skill or agent, and example prompts that **should not** trigger them — even when they appear superficially related.
 
 Use this reference to:
