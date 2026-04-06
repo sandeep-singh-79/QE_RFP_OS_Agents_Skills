@@ -116,6 +116,13 @@ Initial sections on first creation:
 | Stage 8 — Governance Validation | Not Started | |
 | Stage 9 — Output Generation | Not Started | |
 | Stage 10 — System Learning | Not Started | |
+
+## Contract Risk Overrides
+> Optional. Populated by conductor when engagement context warrants a different Risk Level
+> than the contract default. Downgrades require stated justification.
+
+| Contract ID | Default Risk Level | Override Level | Justification |
+|---|---|---|---|
 ```
 
 Update `Current Stage` in the header and the corresponding row in Stage Status after each stage completes.
@@ -407,6 +414,26 @@ Scan particularly in:
 
 ---
 
+#### Check 1.12 — Decision Outcome Completeness [Flag for review]
+**Rule ID:** LINT-A05
+
+**Pattern:** A Decision Contract in `.claude/references/decision-contracts.md` is missing an `Allowed Outcomes:` field, leaving the decision without bounded options and unable to drive deterministic or automatable governance.
+
+**How to check:** For every contract block (fenced ` ``` ` block) in `decision-contracts.md`, verify it contains an `Allowed Outcomes:` field with at least one outcome defined.
+
+**PASS examples:**
+- `Allowed Outcomes:  Approve / Reject`
+- `Allowed Outcomes:  Escalate / Flag`
+
+**FAIL examples:**
+- Contract block that ends with `Mode Applicability:` but has no `Allowed Outcomes:` field at all
+
+**Pass condition:** Every contract in `.claude/references/decision-contracts.md` defines `Allowed Outcomes:`. A contract without bounded outcomes cannot drive deterministic or automatable governance.
+
+**Scope:** Applies to `.claude/references/decision-contracts.md` only. Does not apply to `## Decision Authority` sections in agent files — those use role-variant verb lines, not contract blocks.
+
+---
+
 ### Pass 2 — Consistency Check (Cross-File, Reasoning-Based)
 
 These checks require comparing related files against each other. Run after Pass 1 is clean.
@@ -554,6 +581,7 @@ Before committing, confirm:
 | 1.9 | Every agent `Confirm that:` block has explicit failure-path action (LINT-A03) | Flag for review | |
 | 1.10 | Approval/authorization decisions reference the enabling skill (LINT-A04) | Flag for review | |
 | 1.11 | No escalation or rejection without named trigger condition (LINT-G02) | Flag for review | |
+| 1.12 | Every Decision Contract defines `Allowed Outcomes:` (LINT-A05) | Flag for review | |
 | 2.1 | Context scope lists every file accessed by stage/skill | Blocks commit | |
 | 2.2 | New/moved files propagated to all reference points | Blocks commit | |
 | 2.3 | Stage ↔ skill handoff file paths align end-to-end | Blocks commit | |
@@ -588,3 +616,4 @@ The footnotes below record the files where each check's pattern was first discov
 [^13]: **Check 2.6** — conductor.md uses `Procedure: Follow stage-workflow.md — Stage N — [Name]` references; skill files reference other skill files and AGENTS.md/stage-workflow.md sections by heading name.
 [^14]: **Check 2.7** — IP-MAN-14 original implementation instructed Stage 9 to add an entry to the Dependency Register in `claude-memory/notes.md`, but only Stages 4, 5, and 6 have write access to that file for dependency logging.
 [^15]: **Check 2.8** — IP-MAN-14 example Dependency Register row had 6 fields (including a separate Impact column) vs the canonical 5-field schema defined in SETUP.md File Templates.
+[^16]: **Check 1.12 / LINT-A05** — Preventive rule. No prior violation file — introduced proactively to enforce `Allowed Outcomes:` completeness in `.claude/references/decision-contracts.md` before any contract is written without bounded outcomes.

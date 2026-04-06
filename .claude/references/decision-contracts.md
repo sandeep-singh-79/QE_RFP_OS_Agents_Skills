@@ -5,6 +5,10 @@
 > Agent files reference this file via the `Decision Contracts →` line in each agent's `## Decision Authority` section.
 >
 > **Mode note:** Escalation paths marked `— Mode 1 only` are binding gates in full workflow mode. In Mode 2 (Spot-Task), those escalations become scope-limitation disclosures — the agent states what is missing or unresolved and qualifies output accordingly. No upstream agent or stage completion is required before an agent can produce output in Mode 2.
+>
+> **Risk Level default and override rule:** Each contract carries a default `Risk Level` (High / Medium / Low). This classification drives HITL routing: High → Blocking HITL, Medium → Advisory HITL, Low → no HITL required. The default is set at authoring time.
+>
+> Engagement-level overrides: The conductor may declare an override in `plan.md` under `## Contract Risk Overrides` when engagement context warrants a different classification. Overrides that reduce Risk Level below the default require a stated justification. Overrides that raise Risk Level above the default require no justification.
 
 ---
 
@@ -18,6 +22,7 @@ Trigger:           All four architecture assessment areas complete (§1 Layer Co
                    §2 Scalability, §3 Enterprise Integration, §4 Architectural Coherence)
 Required Evidence: QE Architect Thinking skill output confirming all layers addressed;
                    §1–§4 assessment results
+Risk Level:        High
 Allowed Outcomes:  Approve / Reject
 Escalation Path:   Approve → proceed to tooling validation (Contract TA-04)
                    Reject → raise to conductor — Mode 1 only;
@@ -32,6 +37,7 @@ Decision:          Scalability Gap Flag
 Trigger:           Any gap in enterprise scale, growth accommodation, or governance
                    scalability found in §2 Scalability Beyond Pilot
 Required Evidence: §2 assessment output identifying the specific scalability gap
+Risk Level:        Medium
 Allowed Outcomes:  Flag
 Escalation Path:   Flagged to proposal record — conductor decision on hold/proceed
                    in Mode 1; in Mode 2, state as scope limitation disclosure
@@ -45,6 +51,7 @@ Decision:          Integration Dependency Flag
 Trigger:           Any unresolved integration dependency with client ecosystems found
                    in §3 Enterprise Integration
 Required Evidence: §3 assessment output naming the specific unresolved dependency
+Risk Level:        Medium
 Allowed Outcomes:  Flag
 Escalation Path:   Flagged to proposal record — conductor decision on hold/proceed
                    in Mode 1; in Mode 2, state as scope limitation disclosure
@@ -58,6 +65,7 @@ Decision:          Tooling Validation Authorization
 Trigger:           All four architecture assessment areas complete with no Reject outcome
                    and no unresolved critical flags
 Required Evidence: Architecture assessment confirming §1–§4 complete and internally coherent
+Risk Level:        Low
 Allowed Outcomes:  Authorize
 Escalation Path:   Routes to Tooling & Technology Recommender — both modes
 Mode Applicability: Both
@@ -75,6 +83,7 @@ Trigger:           Team capability gaps identified in §1 that could delay adopt
                    reduce quality outcomes
 Required Evidence: §1 Adoption Realism and Skill Availability assessment output naming
                    specific gaps
+Risk Level:        Medium
 Allowed Outcomes:  Escalate / Flag
 Escalation Path:   Conductor — Mode 1 only;
                    in Mode 2, state as scope limitation disclosure
@@ -89,6 +98,7 @@ Trigger:           Operational sustainability concerns in §2 that exceed what t
                    can reasonably absorb
 Required Evidence: §2 Operational Sustainability and Maintenance Burden assessment output
                    naming specific concerns
+Risk Level:        Medium
 Allowed Outcomes:  Escalate / Flag
 Escalation Path:   Conductor — Mode 1 only;
                    in Mode 2, state as scope limitation disclosure
@@ -103,6 +113,7 @@ Trigger:           Proposed practices in §3 that depend on client-side behaviou
                    not within the vendor's control, or that face likely cultural resistance
 Required Evidence: §3 Adoption Resistance Risk assessment output naming the specific
                    resistance condition
+Risk Level:        Low
 Allowed Outcomes:  Flag
 Escalation Path:   Flagged to proposal record — not a blocking gate in either mode
 Mode Applicability: Both
@@ -121,6 +132,7 @@ Trigger:           One or more evaluation dimensions show Low confidence in the 
                    Gap, or Defensibility Concern in the Output Format taxonomy
 Required Evidence: Decision Readiness Matrix completed; Output Format taxonomy applied
                    to all findings
+Risk Level:        Medium
 Allowed Outcomes:  Surface / Flag
 Escalation Path:   Surfaced to proposal team — not a blocking gate; remediation decision
                    belongs to Test Architect (architecture gaps) or Project Manager
@@ -137,6 +149,7 @@ Trigger:           Finding meets the Red Flag category threshold — non-complia
                    or contradictory statement
 Required Evidence: Output Format finding explicitly labelled Red Flag with the specific
                    triggering text identified
+Risk Level:        High
 Allowed Outcomes:  Surface
 Escalation Path:   Surfaced to proposal team — potential disqualifier or major scoring
                    downgrade; remediation decision belongs to the responsible agent
@@ -155,6 +168,7 @@ Trigger:           Timelines, sequencing, or resource assumptions identified in 
                    that cannot be realistically met
 Required Evidence: §1 Sequencing & Dependency Mapping + §2 Timeline Realism assessment
                    output naming specific infeasibility
+Risk Level:        Medium
 Allowed Outcomes:  Flag / Escalate
 Escalation Path:   Conductor — Mode 1 only;
                    in Mode 2, state as scope limitation disclosure
@@ -169,6 +183,7 @@ Trigger:           Client-controlled dependencies present in the plan but not fl
                    as client-owned, creating post-award delivery risk
 Required Evidence: §1 Sequencing assessment + §4 Risk & Contingency Visibility output
                    naming the dependency and ownership gap
+Risk Level:        High
 Allowed Outcomes:  Escalate / Flag
 Escalation Path:   Conductor — Mode 1 only;
                    in Mode 2, state as scope limitation disclosure
@@ -187,6 +202,7 @@ Trigger:           Test Architect has provided confirmed capability requirements
                    architecture layers; all Invocation Protocol inputs are present
 Required Evidence: Confirmed capability requirements from QE Architect Thinking skill;
                    architecture layers defined by Test Architect; client constraints documented
+Risk Level:        Low
 Allowed Outcomes:  Recommend
 Escalation Path:   Handback summary returned to Test Architect — both modes
 Mode Applicability: Both
@@ -200,6 +216,7 @@ Trigger:           Request to recommend tools before capability requirements hav
                    defined by the Test Architect
 Required Evidence: Absence of confirmed capability requirements list — invocation inputs
                    checked per Invocation Protocol
+Risk Level:        Low
 Allowed Outcomes:  Decline
 Escalation Path:   Redirect to Test Architect to complete architecture definition first
                    — both modes
@@ -214,6 +231,7 @@ Trigger:           Capability requirements are present but too ambiguous to prod
                    credible tool recommendations
 Required Evidence: Invocation inputs reviewed — specific ambiguities or gaps in
                    capability definitions identified
+Risk Level:        Low
 Allowed Outcomes:  Escalate
 Escalation Path:   Return to Test Architect with a specific clarification request
                    — both modes; does not block output, qualifies recommendations

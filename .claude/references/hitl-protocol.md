@@ -123,3 +123,19 @@ Required: [what confirmation is needed to proceed]
 | Advisory HITL | No — workflow continues | After OC is logged; closes when stated condition is confirmed |
 
 **Precedence:** Blocking HITL > Governance HITL > Advisory HITL. If multiple HITL types apply to the same condition, raise the highest-precedence type only.
+
+---
+
+## Contract-Driven HITL Routing
+
+When a decision is governed by a contract in `.claude/references/decision-contracts.md`, the contract's `Risk Level` field determines the default HITL type to raise:
+
+| Risk Level | HITL Type | Behaviour |
+|---|---|---|
+| High | Blocking HITL | Halt stage advancement; require explicit human decision before proceeding |
+| Medium | Advisory HITL | Surface with label; log Open Condition in `claude-memory/notes.md`; workflow continues |
+| Low | No HITL required | Execute outcome directly; log decision to `claude-memory/decisions.md` |
+
+**Engagement-level overrides:** The conductor may declare a Risk Level override in `plan.md` under `## Contract Risk Overrides`. Overrides take precedence over the contract default for the duration of that engagement. Downgrades (reducing Risk Level below default) require a stated justification in `plan.md`.
+
+**Mode 2 (Spot-Task):** Contract Risk Level is treated as informational only. It qualifies the output with an appropriate disclosure rather than triggering a blocking gate — no upstream stage completion is required.
