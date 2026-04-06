@@ -174,8 +174,8 @@ After producing the capability coverage table, apply the following check before 
 ⚠ BLOCKING HITL — Stage 3.5 Capability Gap
 Domain(s): [list each Missing domain without declared remediation]
 Issue: One or more capability domains have no evidence and no declared remediation path.
-Impact: Stage 4 (Solution Design) cannot proceed — the Test Architect would design an architecture
-        with no baseline for these domains, producing a structurally incomplete output.
+Impact: Blocking HITL raised — Stage 4 progression requires conductor resolution
+        before the Test Architect designs an architecture for these domains.
 Required: Confirm one of the following for each listed domain before advancing:
   (a) "Out of scope — reason: [state reason]"
   (b) "Will be addressed in Stage 4 solution design"
@@ -207,7 +207,7 @@ A declaration that only acknowledges the gap (e.g., "we know this is missing") w
 
 **Stage 3.5 is not complete until every `Missing` domain has a declared remediation or human confirmation.**
 
-This skill must not pass control to Stage 4 while any `Missing` domain is undeclared.
+This skill raises Blocking HITL while any `Missing` domain is undeclared. Stage 4 progression is a conductor decision.
 
 ---
 

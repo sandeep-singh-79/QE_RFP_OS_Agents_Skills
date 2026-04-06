@@ -175,7 +175,7 @@ After section scores are assigned, declare an overall gate verdict:
 |---|---|---|
 | `Ready` | All sections scored High | Stage 9 may proceed |
 | `Conditional` | Any section scored Medium, none scored Low | Stage 9 may proceed — flagged items must be acknowledged |
-| `Not Ready` | Any section scored Low | Stage 9 blocked until Low-scored sections are resolved or explicitly accepted |
+| `Not Ready` | Any section scored Low | Blocking HITL raised — Stage 9 requires conductor resolution of Low-scored sections |
 
 **Format:**
 ```

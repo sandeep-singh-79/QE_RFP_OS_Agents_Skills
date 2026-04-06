@@ -167,12 +167,12 @@ After completing the cross-finding consistency check, append an Inter-Phase Cont
 
 If no inter-phase contradictions exist, state: `Inter-Phase Contradictions: None`.
 
-An unresolved `CONTRADICTED` relationship (where neither finding has been acknowledged as superseded) blocks Stage 8 clearance — raise Blocking HITL.
+An unresolved `CONTRADICTED` relationship (where neither finding has been acknowledged as superseded) raises Blocking HITL for conductor decision.
 
 **CONTRADICTED is resolved when any one of the following conditions is met:**
 1. One finding is marked `Status: SUPERSEDED — see [new Finding ID]` (the superseding finding becomes the authoritative record)
 2. Both findings are re-examined and one is reclassified — e.g., downgraded from HIGH to LOW confidence with documented rationale in `claude-memory/notes.md`. Executor: evidence-reconciliation skill re-examines; Conductor validates and updates the finding record.
-3. The conductor explicitly acknowledges the unresolved contradiction and adds it to the proposal as an Open Condition in Appendix B — format: `OC-[n]: Conflicting findings [F-ID-A] and [F-ID-B] on [subject] — both retained; client input required in Phase 0 to determine authoritative position.` **Stage 8 clears on the act of acknowledgement (OC logged), not on Phase 0 confirmation.** The OC carries the contradiction forward as a tracked delivery-phase item; it does not remain a workflow blocker after acknowledgement.
+3. The conductor explicitly acknowledges the unresolved contradiction and adds it to the proposal as an Open Condition in Appendix B — format: `OC-[n]: Conflicting findings [F-ID-A] and [F-ID-B] on [subject] — both retained; client input required in Phase 0 to determine authoritative position.` **Stage 8 HITL flag resolves on the act of acknowledgement (OC logged), not on Phase 0 confirmation. Clearance decision remains with the conductor.** The OC carries the contradiction forward as a tracked delivery-phase item; it does not remain a workflow blocker after acknowledgement.
 
 Once any one condition is met, the Blocking HITL may be cleared.
 
@@ -195,7 +195,7 @@ After completing the finding-to-output reconciliation scan, perform a cross-find
    Conflict: [what they disagree on]
    Resolution Required: [which agent/stage should reconcile]
    ```
-4. Any `⚠ CROSS-FINDING CONFLICT` with no resolution blocks Stage 8 clearance — raise Blocking HITL.
+4. Any `⚠ CROSS-FINDING CONFLICT` with no resolution raises Blocking HITL for conductor decision.
 
 ---
 
@@ -282,7 +282,7 @@ Format required: | Regulation / Framework | Control Objective | Proposal Mechani
 Action Required: Add Control Mapping Table to solution output, or reclassify Regulatory Context as Implicit with rationale
 ```
 
-An `⚠ REGULATORY TRACE GAP` blocks Stage 9 clearance. Governance HITL is required before output is released.
+An `⚠ REGULATORY TRACE GAP` raises Blocking HITL for Stage 9 conductor decision. Governance HITL is required before output is released.
 
 ---
 

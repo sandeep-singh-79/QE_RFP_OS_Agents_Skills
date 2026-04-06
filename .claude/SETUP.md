@@ -309,6 +309,32 @@ Scan particularly in:
 
 ---
 
+#### Check 1.7 — Behavior Leakage in Agent Files [Flag for review]
+**Pattern:** Agent files using reasoning/detection verbs instead of accountability verbs in instruction, FLAG, or output expectation lines.
+
+**How to check:** Search every changed file in `.claude/agents/` for these verbs in instruction lines (FLAG lines, Skill Usage policy, Output Expectations):
+- identify, assess, evaluate, determine, analyze, detect, calculate
+
+**Pass condition:** Agent instruction lines use accountability verbs: ensure, confirm, approve, authorize, escalate, flag. Reasoning verbs in prose paragraphs, Role Definition narrative, or YAML description fields are acceptable but should be reviewed for alignment.
+
+**Exceptions:**
+- `evaluate`/`evaluator` as a noun in client-rfp-evaluator.md (persona identity)
+- `evaluate` in client-rfp-evaluator.md evaluation dimension section headings §1–§12 (framework vocabulary)
+- `Check whether:` in project-manager.md planning assessment areas (verification language, not reasoning)
+
+---
+
+#### Check 1.8 — Responsibility Leakage in Skill Files [Flag for review]
+**Pattern:** Skill files claiming stage-control authority, clearance conditions, or decision ownership that belongs to the conductor.
+
+**How to check:** Search every changed file in `.claude/skills/*/` for:
+- `blocks Stage`, `clears Stage`, `cannot proceed`, `blocked until`, `must not pass control`
+- `approve`, `authorize`, `decision authority`, `accountable for` (where the skill claims the authority, not describing what a calling agent owns)
+
+**Pass condition:** Skills raise HITL flags and produce assessments/verdicts. All stage progression decisions explicitly reference conductor authority. The HALT detection pattern ("STOP — condition not met") is permitted; defining clearance conditions ("Stage N clears when...") is not.
+
+---
+
 ### Pass 2 — Consistency Check (Cross-File, Reasoning-Based)
 
 These checks require comparing related files against each other. Run after Pass 1 is clean.
@@ -434,6 +460,8 @@ Before committing, confirm:
 | 1.4 | No malformed file paths (double-prefix, wrong separator) | Blocks commit | |
 | 1.5 | Frontmatter present and valid on all changed agent/skill files | Blocks commit | |
 | 1.6 | No client-specific names in global OS or cross-engagement memory files | Blocks commit | |
+| 1.7 | No reasoning verbs in agent instruction/FLAG/output lines | Flag for review | |
+| 1.8 | No stage-control or clearance language in skill files | Flag for review | |
 | 2.1 | Context scope lists every file accessed by stage/skill | Blocks commit | |
 | 2.2 | New/moved files propagated to all reference points | Blocks commit | |
 | 2.3 | Stage ↔ skill handoff file paths align end-to-end | Blocks commit | |
