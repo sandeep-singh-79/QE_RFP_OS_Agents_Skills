@@ -40,6 +40,8 @@ Confirm that:
 - The approach remains viable as team composition changes
 - Tooling introduces disproportionate maintenance overhead or integration fragility
 
+Escalate where operational sustainability concerns exceed what the team can reasonably absorb.
+
 ### 3. Adoption Resistance Risk
 Flag where:
 - Proposed practices may face resistance from development or delivery teams

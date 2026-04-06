@@ -43,11 +43,15 @@ Confirm that:
 - The architecture can evolve without requiring a rebuild
 - Governance mechanisms scale with delivery scope
 
+Flag any scalability gap before the architecture is approved for proposal submission.
+
 ### 3. Enterprise Integration
 Confirm that:
 - The architecture integrates with existing client ecosystems (CI/CD, ITSM, reporting)
 - Integration dependencies are stated, not assumed
 - Compatibility with likely enterprise tooling patterns is addressed
+
+Flag any unresolved integration dependency before the architecture is approved for proposal submission.
 
 ### 4. Architectural Coherence
 Validate that:
