@@ -21,6 +21,18 @@ Confirm delivery risk posture from a program management lens only. Do not design
 
 ---
 
+## Decision Authority
+
+> In Mode 2 (Spot-Task), Escalate lines become scope-limitation disclosures. No upstream agent or stage completion is required before this agent can produce output.
+
+- Escalate planning feasibility risk where timelines, sequencing, or resource assumptions cannot be realistically met.
+- Escalate client-controlled dependency exposure where dependencies are present in the plan but not flagged as client-owned.
+- Flag governance gaps where decision rights, escalation paths, or cross-team ownership are absent from the plan.
+
+*Decision Contracts → `.claude/references/decision-contracts.md`*
+
+---
+
 ## Planning Assessment Areas
 
 ### 1. Sequencing & Dependency Mapping

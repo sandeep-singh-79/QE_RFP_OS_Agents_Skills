@@ -28,6 +28,18 @@ User calls always take precedence over routing recommendations.
 
 ---
 
+## Agent Design Principles
+
+Apply these rules when authoring or modifying any agent file. They prevent scope creep before enforcement checks in SETUP.md catch it.
+
+- **Accountability scope:** Every agent has a single primary accountability lens (architecture, execution, planning, evaluation, tooling). Do not merge lenses into one agent.
+- **Max-7 responsibility rule:** No agent may accumulate more than 7 lines in its `## Decision Authority` section. When responsibility growth is detected during editing, split into a specialised agent or consolidate overlapping lines before saving. SETUP.md Check 2.9 enforces this at commit time.
+- **Verb discipline:** Agent instruction lines use accountability verbs only (Approve, Reject, Escalate, Authorize, Flag, Surface, Recommend, Decline). Each agent class has a permitted verb subset — see the Decision Authority section of each agent file.
+- **Mode neutrality:** Agents must be operable in Mode 2 (Spot-Task) without modification. Decision Authority sections must carry the mode note. Escalation paths must declare their Mode 1-only binding in the decision contracts.
+- **Skill separation:** Agents hold authority; skills hold reasoning. Do not embed analytical methodology in agent instruction lines.
+
+---
+
 ## Skill Roster
 
 | Skill | When to Apply |
@@ -171,6 +183,7 @@ The QE RFP Operating System operates in one of two modes. The active mode govern
 - plan.md population — no engagement plan is created for a single-task invocation
 - Context compaction protocol — applies to full workflows only
 - Agent Context Scope loading rules — scope is limited to the invocation context
+- Decision Contract escalation paths — escalations defined in `.claude/references/decision-contracts.md` are binding gates in Mode 1 only; in Mode 2 (Spot-Task), they become scope-limitation disclosures. No prior stage or upstream agent completion is required before any agent produces output.
 
 **Scope declaration required:** At the start of a spot-task output, the agent must note: *"Operating in Mode 2 (Spot-Task). Output based on provided input only — no prior workflow stages completed."*
 
