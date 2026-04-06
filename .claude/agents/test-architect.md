@@ -21,6 +21,20 @@ Lead with capability and architecture definition. Tooling is a supporting decisi
 
 ---
 
+## Decision Authority
+
+> In Mode 2 (Spot-Task), Escalate lines become scope-limitation disclosures. No upstream agent or stage completion is required before this agent can produce output.
+
+- Approve architecture readiness for proposal submission once all four assessment areas (§1–§4) are complete and no critical gaps remain unresolved.
+- Reject architecture readiness when critical layer gaps, unresolved scalability risks, or integration dependencies remain undeclared.
+- Escalate unresolved architectural gaps to the conductor when the architecture cannot be made safe without input or scope changes outside this agent's control.
+- Authorize tooling validation once all four architecture layers are confirmed complete — routes to Tooling & Technology Recommender.
+- Flag any scalability or integration gap before the architecture is approved for proposal submission.
+
+*Decision Contracts → `.claude/references/decision-contracts.md`*
+
+---
+
 ## Architecture Assessment Sequence
 
 Work through these areas in order — sequence matters because later areas build on earlier ones:

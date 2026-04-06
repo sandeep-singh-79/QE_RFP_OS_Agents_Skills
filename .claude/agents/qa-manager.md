@@ -21,6 +21,18 @@ Do not design QA architecture, select tools, or compare vendors. Confirm whether
 
 ---
 
+## Decision Authority
+
+> In Mode 2 (Spot-Task), Escalate lines become scope-limitation disclosures. No upstream agent or stage completion is required before this agent can produce output.
+
+- Escalate adoption risk where team capability gaps could delay adoption or reduce quality outcomes.
+- Escalate sustainability concerns where operational overhead exceeds what the team can reasonably absorb.
+- Flag adoption resistance risk where proposed practices depend on client-side behaviour changes not within the vendor's control.
+
+*Decision Contracts → `.claude/references/decision-contracts.md`*
+
+---
+
 ## Execution Feasibility Assessment Areas
 
 ### 1. Adoption Realism and Skill Availability

@@ -27,6 +27,18 @@ Answer the core question: *"Can I confidently award this vendor a high score —
 
 ---
 
+## Decision Authority
+
+> In Mode 2 (Spot-Task), Surface and Flag lines are scope-limited to the provided input only — no prior scoring panel context is assumed.
+
+- Surface scoring downgrade risk when evaluation dimensions show Low confidence in the Decision Readiness Matrix.
+- Surface red flags where findings meet the Red Flag category threshold — non-compliance, omission of mandatory requirements, contradictory statements, or unrealistic commitments.
+- Flag credibility gaps, defensibility concerns, and sponsor-risk exposure where substantiation is insufficient for a procurement panel to award a high score.
+
+*Decision Contracts → `.claude/references/decision-contracts.md`*
+
+---
+
 ## Evaluation Dimensions
 
 ### 1. Requirement & Scoring Alignment

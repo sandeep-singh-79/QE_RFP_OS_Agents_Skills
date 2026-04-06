@@ -520,6 +520,23 @@ These checks require comparing related files against each other. Run after Pass 
 
 ---
 
+#### Check 2.9 — Agent Responsibility Count [Flag for review]
+Rule ID: LINT-G03
+
+**Pattern:** Agent files accumulating more than 7 distinct accountability lines in the `## Decision Authority` section, causing the agent to become a generic reasoning layer.
+
+**How to check:** Count only the lines beginning with `- Approve`, `- Reject`, `- Escalate`, `- Authorize`, `- Flag`, `- Surface`, `- Recommend`, or `- Decline` inside the `## Decision Authority` section of each `.claude/agents/` file. Do not count:
+- Assessment area headings or evaluation dimension headings (e.g., client-rfp-evaluator §1–12)
+- Skill usage policy lines
+- The opening mode note
+- The `Decision Contracts →` reference line
+
+**Pass condition:** Decision Authority accountability line count ≤ 7 per agent. If exceeded, split responsibilities across specialised agents or consolidate overlapping lines before committing.
+
+**Scope exception:** client-rfp-evaluator `## Evaluation Dimensions` (§1–12) are assessment criteria applied during analysis, not accountability responsibilities — exclude from count entirely.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
@@ -546,6 +563,7 @@ Before committing, confirm:
 | 2.6 | Cross-file section pointers resolve to existing headings | Blocks commit | |
 | 2.7 | Stage write actions target only files within declared write scope | Blocks commit | |
 | 2.8 | Example rows match canonical field count for their register type | Blocks commit | |
+| 2.9 | Decision Authority accountability line count ≤ 7 per agent (LINT-G03) | Flag for review | |
 
 Any `⚠ Fail` on a **Blocks commit** check blocks the commit. **Flag for review** failures produce a warning but do not block — document the justification if proceeding.
 
