@@ -564,6 +564,28 @@ Rule ID: LINT-G03
 
 ---
 
+#### Check 2.10 — Contract Dependency Integrity [Flag for review]
+**Rule ID:** LINT-A06
+
+**Pattern:** A contract in `.claude/references/decision-contracts.md` with a non-None `Depends On:` field references a dependency contract whose `Allowed Outcomes:` does not include the stated required outcome, or references a later-stage contract as a prerequisite.
+
+**How to check:** For every contract where `Depends On:` is not `None`:
+1. Identify the dependency contract ID and required outcome stated in the `Depends On:` value
+2. Locate the referenced dependency contract in `decision-contracts.md`
+3. Verify the dependency contract's `Allowed Outcomes:` includes the required outcome
+4. Verify the dependency contract belongs to an earlier or equal stage in the workflow
+
+**Key dependency chains to verify at each commit:**
+- TA-04 (`Depends On: TA-01 (Approve outcome required)`) — confirm TA-01 `Allowed Outcomes:` includes `Approve`
+- TR-01 (`Depends On: TA-04 (Authorize outcome required)`) — confirm TA-04 `Allowed Outcomes:` includes `Authorize`
+- TR-03 (`Depends On: TR-01 attempted`) — confirm TR-01 exists and has `Recommend` in `Allowed Outcomes:`
+
+**Pass condition:** Every non-None `Depends On:` field references a contract that (a) exists, (b) can produce the stated required outcome, and (c) belongs to a prior or equal stage. No forward-referencing dependencies.
+
+**Scope:** Applies to `.claude/references/decision-contracts.md` only.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
@@ -592,6 +614,7 @@ Before committing, confirm:
 | 2.7 | Stage write actions target only files within declared write scope | Blocks commit | |
 | 2.8 | Example rows match canonical field count for their register type | Blocks commit | |
 | 2.9 | Decision Authority accountability line count ≤ 7 per agent (LINT-G03) | Flag for review | |
+| 2.10 | Contract Depends On chains reference valid, achievable outcomes (LINT-A06) | Flag for review | |
 
 Any `⚠ Fail` on a **Blocks commit** check blocks the commit. **Flag for review** failures produce a warning but do not block — document the justification if proceeding.
 
@@ -617,3 +640,4 @@ The footnotes below record the files where each check's pattern was first discov
 [^14]: **Check 2.7** — IP-MAN-14 original implementation instructed Stage 9 to add an entry to the Dependency Register in `claude-memory/notes.md`, but only Stages 4, 5, and 6 have write access to that file for dependency logging.
 [^15]: **Check 2.8** — IP-MAN-14 example Dependency Register row had 6 fields (including a separate Impact column) vs the canonical 5-field schema defined in SETUP.md File Templates.
 [^16]: **Check 1.12 / LINT-A05** — Preventive rule. No prior violation file — introduced proactively to enforce `Allowed Outcomes:` completeness in `.claude/references/decision-contracts.md` before any contract is written without bounded outcomes.
+[^17]: **Check 2.10 / LINT-A06** — Preventive rule. No prior violation file — introduced alongside the `Depends On:` field to enforce contract dependency chain integrity. The key enforced chains are TA-04→TA-01 and TR-01→TA-04.

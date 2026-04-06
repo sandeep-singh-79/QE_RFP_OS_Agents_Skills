@@ -139,3 +139,5 @@ When a decision is governed by a contract in `.claude/references/decision-contra
 **Engagement-level overrides:** The conductor may declare a Risk Level override in `plan.md` under `## Contract Risk Overrides`. Overrides take precedence over the contract default for the duration of that engagement. Downgrades (reducing Risk Level below default) require a stated justification in `plan.md`.
 
 **Mode 2 (Spot-Task):** Contract Risk Level is treated as informational only. It qualifies the output with an appropriate disclosure rather than triggering a blocking gate — no upstream stage completion is required.
+
+**Dependency check:** Before executing a contract outcome, verify any `Depends On:` field requirements are met. If the dependency contract has not yet resolved to the required outcome (e.g., TA-01 has not Approved before TA-04 is invoked), raise a HITL at the current contract's Risk Level before proceeding.
