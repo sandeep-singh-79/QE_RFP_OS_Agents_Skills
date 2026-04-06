@@ -335,6 +335,78 @@ Scan particularly in:
 
 ---
 
+#### Check 1.9 — Decision Presence in Agent Responsibility Lines [Flag for review]
+**Rule ID:** LINT-A03
+
+**Pattern:** Agent responsibility lines that describe activity or alignment without specifying a decision outcome — lines that answer "what does this agent do?" but not "what does this agent decide?"
+
+**How to check:** For every `Ensure`, `Confirm`, `Approve`, `Authorize`, `Escalate`, or `Flag` line in `.claude/agents/` instruction blocks (Assessment Sequence sections, Tooling sections, Output Expectations), verify it answers: *"What decision does this agent make — and what happens when the condition is not met?"*
+
+**PASS examples:**
+- `Confirm all layers are addressed before proceeding to tooling validation`
+- `Flag any scalability gap before the architecture is approved for proposal submission`
+- `Escalate where team capability gaps could delay adoption or reduce quality outcomes`
+
+**FAIL examples:**
+- `Ensure architecture completeness` (no decision stated — reads as ongoing monitoring)
+- `Confirm alignment with business objectives` (no failure path — what happens when alignment is absent?)
+- `Confirm that: [bullet list]` with no follow-on line stating what to do when a bullet fails
+
+**Pass condition:** Every agent `Confirm that:` block has an explicit follow-on action (Flag, Escalate, Reject, or gate) stating what the agent does when criteria are not met. Standalone `Ensure X` lines must either be in Operating Stance sections (principle framing) or be refactored to include a decision outcome.
+
+**Exceptions:**
+- Operating Stance sections — two- or three-sentence principle paragraphs that set standards for the agent's mindset rather than discrete instruction checks
+- YAML `description:` field — trigger/routing description, not an instruction
+
+---
+
+#### Check 1.10 — Skill Invocation Traceability [Flag for review]
+**Rule ID:** LINT-A04
+
+**Pattern:** Agent approval or authorization decisions that do not reference the skill or skill output that produced the evidence supporting that decision — "floating authority" with no evidentiary anchor.
+
+**How to check:** For every `Approve`, `Authorize`, or `Reject` line in `.claude/agents/` instruction blocks, check whether the line or its surrounding context references a named skill or skill output as the evidentiary basis for the decision.
+
+**PASS examples:**
+- `Approve architecture readiness after QE Architect Thinking confirms layer completeness`
+- `Authorize design baseline once Review & Challenge Thinking quality gate passes`
+- `Approve delivery readiness based on Estimation & Sizing Thinking output`
+
+**FAIL examples:**
+- `Approve delivery readiness` (no skill reference — decision appears to float without evidence)
+- `Authorize architecture baseline` (no traceable skill invocation)
+
+**Pass condition:** All `Approve` and `Authorize` decisions in agent instruction lines either (a) reference the skill that enables the decision, or (b) appear in a section whose heading names the skill (e.g., `## Tooling Validation — invokes Tooling & Technology Recommendation`).
+
+**Scope exceptions:**
+- Conductor agent: coordinates skill invocations structurally; individual approval lines need not repeat skill names if the Stage procedure already defines the dependency in AGENTS.md
+- `Reject` and `Decline` lines: not required to cite a skill if the rejection criterion is already stated inline
+
+---
+
+#### Check 1.11 — No Silent Authority in Escalations [Flag for review]
+**Rule ID:** LINT-G02
+
+**Pattern:** Escalation or rejection statements in any agent file that do not name the condition, finding, or threshold that triggered the action — authority exercised without stated justification.
+
+**How to check:** For every `Escalate` and `Reject` line in `.claude/agents/` instruction blocks, verify it names the condition or failure that triggers it.
+
+**PASS examples:**
+- `Escalate where team capability gaps could delay adoption or reduce quality outcomes`
+- `Flag any unresolved integration dependency before the architecture is approved`
+- `Escalate where operational sustainability concerns exceed what the team can reasonably absorb`
+
+**FAIL examples:**
+- `Escalate delivery risk` (no trigger — what risk? on what evidence?)
+- `Reject the architecture` (insufficiently specific — what condition triggers rejection?)
+
+**Pass condition:** Every `Escalate` and `Reject` line names the condition, finding category, or threshold that justifies the action. Silent authority — authority exercised without stated justification — is a governance violation under this checklist.
+
+**Scope exceptions:**
+- Scope Boundary Protocol `decline and redirect` lines: these are scope-enforcement responses, not governance escalations; they do not need a named condition beyond the scope violation itself
+
+---
+
 ### Pass 2 — Consistency Check (Cross-File, Reasoning-Based)
 
 These checks require comparing related files against each other. Run after Pass 1 is clean.
@@ -462,6 +534,9 @@ Before committing, confirm:
 | 1.6 | No client-specific names in global OS or cross-engagement memory files | Blocks commit | |
 | 1.7 | No reasoning verbs in agent instruction/FLAG/output lines | Flag for review | |
 | 1.8 | No stage-control or clearance language in skill files | Flag for review | |
+| 1.9 | Every agent `Confirm that:` block has explicit failure-path action (LINT-A03) | Flag for review | |
+| 1.10 | Approval/authorization decisions reference the enabling skill (LINT-A04) | Flag for review | |
+| 1.11 | No escalation or rejection without named trigger condition (LINT-G02) | Flag for review | |
 | 2.1 | Context scope lists every file accessed by stage/skill | Blocks commit | |
 | 2.2 | New/moved files propagated to all reference points | Blocks commit | |
 | 2.3 | Stage ↔ skill handoff file paths align end-to-end | Blocks commit | |
