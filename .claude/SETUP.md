@@ -586,6 +586,59 @@ Rule ID: LINT-G03
 
 ---
 
+#### Check 2.11 — Dependency Cycle Prevention [Flag for review]
+**Rule ID:** LINT-D01
+
+**Pattern:** A `Depends On:` chain in `.claude/references/decision-contracts.md` forms a cycle — following the dependency chain eventually leads back to the originating contract.
+
+**How to check:** For every contract with a non-None `Depends On:` field:
+1. Traverse the chain: contract A → A's `Depends On` → that contract's `Depends On`, and so on
+2. If any contract ID appears twice during traversal, a cycle exists
+
+**Example of a violation:**
+- TR-01 `Depends On: TA-04` and TA-04 `Depends On: TR-01` — both contracts block waiting on each other
+
+**Pass condition:** Every dependency chain terminates at a contract whose `Depends On:` is `None`. No contract ID appears more than once in any single traversal.
+
+**Scope:** Applies to `.claude/references/decision-contracts.md` only. Check at authoring time and whenever an existing `Depends On:` field is modified.
+
+---
+
+#### Check 2.12 — Upstream Outcome State Validation [Flag for review]
+**Rule ID:** LINT-D02
+
+**Pattern:** A decision contract lists a non-None `Depends On:` value but the referenced upstream contract has no recorded outcome at execution time — the downstream decision executes without the upstream gate being resolved.
+
+**How to check:** At agent execution time, before actioning a decision:
+1. Identify the `Depends On:` value for the contract being evaluated
+2. If not `None`, verify the upstream contract has a recorded outcome (Approve / Reject / Escalate / Recommend as appropriate)
+3. If the upstream outcome is absent, **block** the downstream decision
+
+**Pass condition:** Every decision with a non-None `Depends On:` confirms the upstream outcome is recorded before executing.
+- Mode 1: Missing upstream outcome is a **blocking gate** — decision must not proceed
+- Mode 2: Missing upstream outcome is a **scope-limitation disclosure** — agent qualifies output and states what is unresolved
+
+**Scope:** Applies at agent execution time. When reviewing plan.md stage outputs, verify upstream outcomes are logged before downstream stages activate.
+
+---
+
+#### Check 2.13 — Dependency Depth Limit [Flag for review]
+**Rule ID:** LINT-D03
+
+**Pattern:** A dependency chain in `.claude/references/decision-contracts.md` exceeds 3 levels of depth (e.g., A → B → C → D is depth 4 — a violation).
+
+**How to check:** For each contract with a non-None `Depends On:` field, count chain depth starting at 1:
+1. Contract A (depth 1) `Depends On: B`
+2. Contract B (depth 2) `Depends On: C`
+3. Contract C (depth 3) `Depends On: None` ← passes
+4. Contract C (depth 3) `Depends On: D` ← **violation** — chain reaches depth 4
+
+**Pass condition:** No dependency chain exceeds depth 3. If a chain requires depth > 3, the decision model must be restructured (split decisions, consolidate intermediate approvals, or change ownership) before the contract is committed.
+
+**Scope:** Applies to `.claude/references/decision-contracts.md` only.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
@@ -615,6 +668,9 @@ Before committing, confirm:
 | 2.8 | Example rows match canonical field count for their register type | Blocks commit | |
 | 2.9 | Decision Authority accountability line count ≤ 7 per agent (LINT-G03) | Flag for review | |
 | 2.10 | Contract Depends On chains reference valid, achievable outcomes (LINT-A06) | Flag for review | |
+| 2.11 | No dependency cycles in decision contracts (LINT-D01) | Flag for review | |
+| 2.12 | Upstream outcome recorded before downstream decision executes (LINT-D02) | Flag for review | |
+| 2.13 | No dependency chain exceeds depth 3 (LINT-D03) | Flag for review | |
 
 Any `⚠ Fail` on a **Blocks commit** check blocks the commit. **Flag for review** failures produce a warning but do not block — document the justification if proceeding.
 
@@ -641,3 +697,6 @@ The footnotes below record the files where each check's pattern was first discov
 [^15]: **Check 2.8** — IP-MAN-14 example Dependency Register row had 6 fields (including a separate Impact column) vs the canonical 5-field schema defined in SETUP.md File Templates.
 [^16]: **Check 1.12 / LINT-A05** — Preventive rule. No prior violation file — introduced proactively to enforce `Allowed Outcomes:` completeness in `.claude/references/decision-contracts.md` before any contract is written without bounded outcomes.
 [^17]: **Check 2.10 / LINT-A06** — Preventive rule. No prior violation file — introduced alongside the `Depends On:` field to enforce contract dependency chain integrity. The key enforced chains are TA-04→TA-01 and TR-01→TA-04.
+[^18]: **Check 2.11 / LINT-D01** — Preventive rule. No prior violation file — introduced to prevent dependency cycles as the decision graph grows over time. A cycle would cause deadlock where no contract in the cycle can be resolved.
+[^19]: **Check 2.12 / LINT-D02** — Preventive rule. No prior violation file — introduced to close the silent bypass gap: `Depends On:` enforces structural dependencies, but LINT-D02 enforces that the upstream outcome is actually recorded before the downstream decision fires.
+[^20]: **Check 2.13 / LINT-D03** — Preventive rule. No prior violation file — introduced to bound dependency graph depth at 3 levels. Deep chains increase debugging complexity, slow execution, and create fragile workflows. Depth > 3 is a signal that the decision model needs restructuring.

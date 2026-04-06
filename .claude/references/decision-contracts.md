@@ -9,6 +9,11 @@
 > **Risk Level default and override rule:** Each contract carries a default `Risk Level` (High / Medium / Low). This classification drives HITL routing: High → Blocking HITL, Medium → Advisory HITL, Low → no HITL required. The default is set at authoring time.
 >
 > Engagement-level overrides: The conductor may declare an override in `plan.md` under `## Contract Risk Overrides` when engagement context warrants a different classification. Overrides that reduce Risk Level below the default require a stated justification. Overrides that raise Risk Level above the default require no justification.
+>
+> **Dependency graph constraints:** The `Depends On:` fields in this file form a directed acyclic graph (DAG). Three rules govern its integrity:
+> - **No cycles (LINT-D01):** Every chain must terminate at a `Depends On: None` contract. No contract may appear twice in any traversal.
+> - **Upstream outcome required (LINT-D02):** Before a downstream decision executes, the upstream contract's outcome must be recorded. Unresolved upstream outcomes block execution (Mode 1) or trigger a scope-limitation disclosure (Mode 2).
+> - **Max depth 3 (LINT-D03):** No dependency chain may exceed 3 levels. A chain requiring depth > 4 is a signal to restructure the decision model.
 
 ---
 
