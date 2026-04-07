@@ -667,3 +667,39 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026; deferred from pending improvements table
 - **Status:** Deferred
 - **Priority:** P3
+
+### Improvement Proposal: IP-LC-11
+- **Observation:** No mechanism detects or prevents concurrent state updates to the Decision State Register. If two agents (or a human and an agent) write to `plan.md` simultaneously within a single conversation, the second write overwrites the first without either party knowing. The state sync rule (IP-LC-02) requires read-fresh before write, but this only reduces the window — it does not eliminate the risk if two writes are initiated from the same stale read within the same invocation turn.
+- **Root Cause:** The system is designed for sequential single-agent orchestration. The state sync rule is a procedural control, not a structural one. There is no write-lock, version-check-before-write, or conflict detection step that would surface a collision.
+- **Suggested Change:** Add a conflict detection step to the conductor's state write procedure: before committing any state transition to `plan.md`, re-read the Version field for the target contract and verify it matches the Version value read at the start of the turn. If the Version has changed since the initial read, a concurrent update has occurred — raise a Blocking HITL before writing. This is an optimistic concurrency check (read Version → compute new state → re-read Version → compare → write only if unchanged). Also add LINT-L06 to SETUP.md: after any commit, verify no two Decision Log entries for the same contract share the same From State and timestamp — which would indicate a concurrent write collision.
+- **Impact:** Medium — prevents occasional state overwrite in any multi-agent or human+agent concurrent scenario; low implementation complexity
+- **Derived from:** External review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — optimistic concurrency check (5-step State Write Procedure) added to `conductor.md`; LINT-L06 (Check 2.19) added to `SETUP.md` for post-hoc collision detection; sign-off row 2.19 and footnote [^26] added
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-12
+- **Observation:** No protocol exists to resolve conflicting state updates after they have already occurred. If IP-LC-11 detection fails (or was not yet implemented) and two competing state transitions are discovered in the Decision Log for the same contract at the same timestamp or stage boundary, there is no defined procedure for determining which is canonical and repairing the register.
+- **Root Cause:** The Decision Log is append-only and the State Register reflects only the last write. Without a resolution protocol, a discovered conflict requires manual judgment to untangle — with no defined authority, process, or output format.
+- **Suggested Change:** Add a `## State Conflict Resolution Protocol` to `hitl-protocol.md` (alongside the existing Rollback Protocol). The protocol defines: (1) identify conflicting entries — same Contract ID, same or overlapping timestamp, different resulting states; (2) present both entries to the user with full context; (3) user selects the canonical entry; (4) add a corrective Decision Log entry marking the non-canonical entry as `[SUPERSEDED — conflict resolution — see [canonical entry timestamp]]`; (5) State Register is updated to reflect the canonical state. This is always a HITL operation — no automatic resolution.
+- **Impact:** Medium — provides a recovery path for the failure case IP-LC-11 is designed to prevent; without it, discovered conflicts require ad hoc manual repair with no audit trail
+- **Derived from:** External review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — `## State Conflict Resolution Protocol` added to `hitl-protocol.md` with 5-step HITL procedure (detect, surface, resolve, correct with SUPERSEDED marker, confirm); wired to conductor.md State Write Procedure on conflict detection
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-13
+- **Observation:** No rule detects stalled decisions — contracts that have been in `Created` or `Approved` state for an abnormally long time without progressing. In a long-running engagement, a contract can remain `Created` indefinitely without triggering any alert, creating a silent workflow hang where downstream work is implicitly blocked on an unresolved decision.
+- **Root Cause:** The lifecycle model defines states and transitions but has no temporal dimension. There is no timeout rule, no age check, and no instruction to the conductor to flag contracts that have not transitioned within a defined boundary (e.g., two or more stage gates).
+- **Suggested Change:** Add a stalled-decision check to the conductor's Stage Advancement Pre-Gate (Check 3): for every contract in `Created` state, record how many stage gates have passed since the contract was created (inferrable from Decision Log snapshot count). If a contract has been `Created` for more than two stage boundaries without transitioning, flag it as `[STALLED — N stages without transition]` in the HITL message. Add a corresponding advisory check to SETUP.md (LINT-L07, severity: Flag for review): verify that no contract has remained in `Created` state across more than two consecutive stage snapshots in the Decision Log.
+- **Impact:** Medium — prevents long-running workflows from silently hanging on unresolved decisions; surfaces stalls at gate boundaries rather than at engagement close
+- **Derived from:** External review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — Check 3 (stalled decision detection) added to conductor.md Stage Advancement Pre-Gate as advisory check; LINT-L07 (Check 2.20) added to `SETUP.md` for commit-time detection; sign-off row 2.20 and footnote [^27] added
+- **Priority:** P3
+
+### Improvement Proposal: IP-LC-14
+- **Observation:** No mechanism exists to detect abnormal state behavior patterns — such as a contract cycling repeatedly through `Created → Approved → Invalidated → Created` without ever reaching `Executed` or `Closed`, or a contract spending an unusual number of stages in `Escalated` state. These patterns signal systemic workflow dysfunction but are invisible without behavioral analysis.
+- **Root Cause:** Each individual state transition is valid in isolation. The lifecycle model validates transitions one at a time (LINT-L04). No check looks across the full transition history of a contract to detect pathological patterns.
+- **Suggested Change:** Add a Stage 10 health check instruction to the conductor's engagement teardown procedure: before archiving, scan the Decision Log for each contract and flag: (a) any contract with 3+ `Invalidated` transitions (repeated invalidation cycle); (b) any contract that spent more than three stage boundaries in `Escalated` state; (c) any contract that never advanced beyond `Created` (untriggered — already handled by Step 0 teardown, but worth flagging as a pattern). Record flagged patterns in `claude-memory/insights.md` under a `## Decision Health Observations` section for cross-engagement learning.
+- **Impact:** Low — primarily observability and continuous improvement; no immediate delivery risk. Becomes more valuable as engagement count increases.
+- **Derived from:** External review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — Action 9 (Decision health check) added to `stage-10-learning.md` with 3 flag categories (repeated invalidation cycles, stalled escalations, untriggered contracts); results recorded in `claude-memory/insights.md` under `## Decision Health Observations`
+- **Priority:** P3

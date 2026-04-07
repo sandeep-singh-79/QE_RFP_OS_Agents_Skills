@@ -7,7 +7,7 @@
 
 ## Learning Actions
 
-At Stage 10, the conductor performs all eight of the following actions:
+At Stage 10, the conductor performs all nine of the following actions:
 
 ---
 
@@ -42,6 +42,13 @@ Even if Stage 10 is abbreviated or time-constrained, the following two actions a
 7. **Engagement pattern promotion** — identify any finding, behaviour, or pattern from this engagement likely to recur across future bids. Promote to `claude-memory/insights.md` as a named insight with a carry-forward rule. Examples: how clients frame constrained-discovery bids, evidence types consistently missing, common proposal defensibility failures.
 
 8. **Distinguish insights from improvements** — `claude-memory/insights.md` receives recurring engagement *patterns* (how clients behave, how proposals fail, what evidence is typically missing). `claude-memory/improvements.md` receives *system fixes* (schema changes, new workflow checks, new rules). The same observation may generate entries in both files if it is both a pattern worth preserving AND a system gap that needs fixing. Do not conflate the two.
+
+9. **Decision health check** — scan the Decision Log and Decision State Register for abnormal lifecycle patterns. Flag the following for recording in `claude-memory/insights.md` under `## Decision Health Observations`:
+   - (a) Any contract with 3+ `Invalidated` transitions across the engagement (repeated invalidation cycle — signal that the `Re-evaluation Trigger:` or `Invalidated By:` conditions may need redesign)
+   - (b) Any contract that spent more than three stage boundaries in `Escalated` state without reaching `Approved` or `Rejected` (stalled escalation)
+   - (c) Any contract that was `Closed` at teardown via Step 0 (`Untriggered — engagement closed`) without ever advancing beyond `Created` — note: this is expected for some contracts in short engagements, but worth tracking as a cross-engagement pattern to identify contracts that rarely trigger
+
+   If no flags are raised, note in `claude-memory/insights.md`: "No abnormal decision lifecycle patterns observed in this engagement."
 
 ---
 

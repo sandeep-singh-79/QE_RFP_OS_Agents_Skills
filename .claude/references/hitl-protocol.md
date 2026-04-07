@@ -192,3 +192,42 @@ Present the user with:
 
 Do not re-execute any downstream work without explicit user confirmation of the recovery path. Record the confirmed recovery path in the Decision Log as a narrative entry under the target contract.
 
+---
+
+## State Conflict Resolution Protocol
+
+Use this protocol when a concurrent state update is detected — either by the optimistic concurrency check in `conductor.md — ### State Write Procedure`, or when a review of the Decision Log reveals two entries for the same Contract ID with the same or overlapping timestamps and different resulting states.
+
+This is always a HITL operation. No automatic conflict resolution.
+
+### When to invoke
+- The State Write Procedure detects a Version mismatch (pre-write Version ≠ initial read Version)
+- A developer or agent reviewing the Decision Log finds two entries for the same Contract ID with the same `From State` and `Timestamp` (LINT-L06 violation)
+- Any other evidence that two competing state transitions were written without mutual awareness
+
+### Step 1 — Detect
+Identify the conflicting Decision Log entries: same Contract ID, same or overlapping timestamp, different `To State` values. Record both entries' full details (Timestamp, From State, To State, Version, Reason, Updated By).
+
+### Step 2 — Surface
+Present both entries to the user side by side with:
+- Contract ID and Decision name
+- Entry A: Timestamp, From→To, Version, Reason, Updated By
+- Entry B: Timestamp, From→To, Version, Reason, Updated By
+- Current State Register value for this contract
+
+### Step 3 — Resolve
+The user selects which entry is canonical. Do not infer or default — explicit selection is required.
+
+### Step 4 — Correct
+1. Add a corrective Decision Log entry for the non-canonical entry: `[SUPERSEDED — conflict resolution — canonical entry: [timestamp of canonical entry]]`
+2. Update the State Register to reflect the canonical entry's To State and Version
+3. If the canonical state is `Invalidated`, apply the standard cascade procedure (see `## Contract-Driven HITL Routing` above) after correction
+
+### Step 5 — Confirm
+Re-read `plan.md` and verify:
+- The State Register shows the canonical state and correct Version
+- The Decision Log contains both original entries plus the corrective `[SUPERSEDED]` entry
+- No downstream contract is in a state inconsistent with the resolved canonical state
+
+Only after confirmation may the interrupted write (that triggered the conflict detection) be retried.
+
