@@ -577,3 +577,93 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Derived from:** Phase 21 R&C quality gate review, March 30, 2026
 - **Status:** Implemented — `evidence-reconciliation/SKILL.md` § Phased Finding Sets — CONTRADICTED Resolution Criteria (Phase 22)
 - **Priority:** Medium
+
+---
+
+### Improvement Proposal: IP-LC-01
+- **Observation:** Invalidation propagation is declared in the preamble of `decision-contracts.md` and activated via `hitl-protocol.md`, but propagation is executed manually by the conductor. No automated enforcement mechanism exists — a conductor could advance a stage without performing the cascade, leaving downstream contracts in an invalid active state.
+- **Root Cause:** Cascade logic is documented as a human-executed procedure, not a system-enforced rule. LINT-L03 catches incomplete cascades only at review time — it does not prevent the cascade from being skipped entirely before review runs.
+- **Suggested Change:** Add an explicit pre-advancement gate to the conductor's stage transition procedure in `AGENTS.md`: before any stage gate advances, the conductor must confirm all `Approved`/`Executed` contracts have been checked for active `Invalidated By:` conditions, and that all required cascades are complete. Gate must block advancement if any cascade is outstanding.
+- **Impact:** High — downstream execution on an invalidated prerequisites is the primary lifecycle governance failure scenario
+- **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — Stage Advancement Pre-Gate added to `conductor.md`; cascade check and snapshot instruction wired to stage completion gate
+- **Priority:** P1
+
+### Improvement Proposal: IP-LC-02
+- **Observation:** No state synchronization rule exists to ensure all agents read the same version of the Decision State Register when operating in parallel or across multiple invocations. If two agents access `plan.md` simultaneously and one updates a contract state before the other reads it, the second agent may execute on a stale state.
+- **Root Cause:** The system was designed for sequential single-agent orchestration. As parallel Stage execution becomes possible, the current model of "read plan.md Decision State Register at invocation time" creates a potential read-before-update race condition.
+- **Suggested Change:** Add a state synchronization note to the Decision State Register section in SETUP.md plan.md template: "In parallel execution contexts, agents must read the Decision State Register immediately before executing any contract decision — not from a cached copy. If two agents are active simultaneously, the conductor is the sole writer to the State Register; agents read only." Longer term: consider a register lock mechanism or conductor-mediated reads.
+- **Impact:** High — race conditions in parallel workflows would produce inconsistent or conflicting decisions
+- **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — state sync rule (sole writer + read-fresh mandate) added to Decision State Register comment block in `SETUP.md` plan.md template; freshness reminder added to `hitl-protocol.md`
+- **Priority:** P1
+
+### Improvement Proposal: IP-LC-03
+- **Observation:** The Decision State Register tracks current state per contract but does not version-stamp individual state transitions. If a contract is Approved, then Invalidated, then re-Created, then Approved again, the register shows only the current state — the history of how it got there is in the Decision Log but the register itself has no version counter. Debugging "which approval are we currently acting on?" requires Log traversal rather than a simple register read.
+- **Root Cause:** The Decision State Register was designed as a current-state snapshot. History is delegated entirely to the Decision Log. For most engagements this is sufficient, but in long-running or multi-phase engagements the register alone cannot confirm whether a current `Approved` state is the original or a re-approval post-invalidation.
+- **Suggested Change:** Add a `Version` column to the Decision State Register schema (integer, increments by 1 on every state transition, starts at 1 when Created). Add a rule: the Decision Log entry for a state transition must include the version number the register was incremented to. This makes the register and log jointly unambiguous without requiring log traversal to read current version.
+- **Impact:** Medium — significantly improves debugging and audit clarity in multi-cycle engagements
+- **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — `Version` column added to Decision State Register and Decision Log schemas in `SETUP.md`; Version increment rule added to register comment block; Version field added to conductor.md snapshot instruction
+- **Priority:** P2
+- **Observation:** The permitted transitions list in `decision-contracts.md` preamble defines valid state transitions but no lint rule enforces them at runtime. An agent or conductor could write `Closed → Approved` (or any other illegal transition) to the Decision State Register without being caught.
+- **Root Cause:** LINT-L01 validates that state values are canonical. No rule validates that the transition from the prior state to the new state is permitted.
+- **Suggested Change:** Add a transition guardrail check to SETUP.md (LINT-L04): when a state transition is written to the Decision State Register, verify the `From State → To State` pair is in the permitted transitions list. Flag any write that attempts an illegal transition (e.g., `Closed → Approved`, `Executed → Created`, `Approved → Created`). Permitted transitions: Created → Escalated/Approved/Rejected; Escalated → Approved/Rejected; Approved → Executed/Invalidated; Rejected → Created; Executed → Invalidated/Closed; Invalidated → Created/Closed. All others are illegal.
+- **Impact:** Medium — prevents state corruption from authoring errors; low implementation complexity
+- **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — LINT-L04 (Check 2.17) added to `SETUP.md` with permitted transition table; sign-off row 2.17 added; footnote [^24] added
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-05
+- **Observation:** No mechanism exists to snapshot the full Decision State Register at key workflow checkpoints (e.g., end of each stage, before and after any HITL resolution). If a failure or contradiction occurs mid-engagement, the only recovery path is traversing the full Decision Log — which can be long and requires reconstructing state rather than reading it directly.
+- **Root Cause:** The Decision Log is append-only and provides full history. But it does not provide a point-in-time snapshot that can be trivially restored without log replay. The State Register shows current state only.
+- **Suggested Change:** Add a snapshot instruction to the conductor's stage gate procedure: at the end of each stage (or after any HITL resolution), append a dated state snapshot block to the Decision Log — a copy of the full State Register at that moment, labelled `SNAPSHOT — Stage N complete`. This enables point-in-time state retrieval without full log traversal and acts as a recovery checkpoint.
+- **Impact:** Medium — significantly reduces recovery complexity in failure or contradiction scenarios
+- **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026
+- **Status:** Implemented — LINT-L05 (Check 2.18) added to `SETUP.md` enforcing snapshot presence at every stage `Complete` boundary; snapshot instruction added to conductor.md Stage Advancement Pre-Gate (Check 2); sign-off row 2.18 and footnote [^25] added
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-06
+- **Observation:** Previously deferred from GPT-5.4 pending improvements review (April 7, 2026): Decision rollback protocol — a formal procedure to safely recover the system to a prior stable decision state after an execution failure or incorrect approval. Currently, invalidation handles revocation but does not define a structured rollback path or confirm which prior state to restore to.
+- **Root Cause:** Invalidation marks a decision as revoked and signals re-execution is required, but does not define: which prior state is the target, what "safe recovery" means in terms of downstream contract states, or how re-execution is initiated and confirmed.
+- **Suggested Change:** Add a Rollback Protocol section to `hitl-protocol.md` or `decision-contracts.md`: define rollback as "transition to the most recent `Approved` state for which all upstream dependencies were valid at the time of approval." Define rollback trigger conditions, acceptable rollback targets (must reference a Decision Log snapshot), and post-rollback re-execution requirements. Rollback is always a HITL operation — no silent automatic rollback.
+- **Impact:** Medium — provides structured recovery path; reduces manual interpretation under failure conditions
+- **Derived from:** Pending improvements table (GPT-5.4, April 7, 2026)
+- **Status:** Implemented — `## Decision Rollback Protocol` added to `hitl-protocol.md` with 5-step procedure (identify target, Invalidate, cascade, locate snapshot, confirm recovery path with user); rollback declared as mandatory HITL operation
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-07
+- **Observation:** Previously deferred from GPT-5.4 pending improvements review (April 7, 2026): Decision audit trace consolidation — standardize how decisions, dependencies, and outcomes are logged across the Decision Log, Decision State Register, and `claude-memory/decisions.md`. Currently these are three separate artefacts with overlapping but inconsistent purposes.
+- **Root Cause:** `claude-memory/decisions.md` predates the Decision State Register and Decision Log. Its schema is not aligned with the new lifecycle model. An auditor tracing a decision chain must consult three files with different formats.
+- **Suggested Change:** Define the relationship between the three artefacts explicitly: Decision State Register = current state snapshot (plan.md, per-engagement); Decision Log = state transition history (plan.md, per-engagement); `claude-memory/decisions.md` = cross-engagement decision reference (survives teardown). Add a rule: when a contract reaches `Closed`, the conductor writes a summary entry to `claude-memory/decisions.md` with final outcome, date, and contract ID — creating a persistent cross-engagement decision record. Clarify: Log and Register are reset at teardown; decisions.md is not.
+- **Impact:** Medium — eliminates fragmented audit trail; one-page schema alignment
+- **Derived from:** Pending improvements table (GPT-5.4, April 7, 2026)
+- **Status:** Deferred
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-08
+- **Observation:** Previously deferred from GPT-5.4 pending improvements review (April 7, 2026): Assumption registry standardization — system and workflow assumptions are currently embedded in individual agent outputs and skill declarations rather than centralized. When decisions are invalidated due to changed assumptions, there is no single place to check which assumptions are still active.
+- **Root Cause:** The `assumption-dependency-management` skill exists but writes to proposal output, not to a persistent engagement register. No canonical per-engagement assumption registry is created or maintained.
+- **Suggested Change:** Add an `## Assumption Register` section to `plan.md` template (alongside Decision State Register). The conductor populates it as assumptions are declared during Stage 1–4. Each assumption entry: Assumption ID, Statement, Owner, Status (Active / Invalidated), and Linked Contract ID if the assumption underlies a contract. Invalidating an assumption triggers review of all linked contracts' `Re-evaluation Trigger:` fields.
+- **Impact:** Medium — connects assumption changes directly to contract re-evaluation; closes the "changed assumption goes undetected" failure mode
+- **Derived from:** Pending improvements table (GPT-5.4, April 7, 2026)
+- **Status:** Deferred
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-09
+- **Observation:** Previously deferred from GPT-5.4 pending improvements review (April 7, 2026): Decision state consistency validation — no check ensures that the Decision State Register accurately reflects the actual execution state. If an agent executes an action (marking a decision Executed) but the register is not updated, the register and actual state diverge silently.
+- **Root Cause:** LINT-L02 and LINT-L03 detect downstream-upstream violations and incomplete cascades. Neither detects a fundamental mismatch between register state and observable evidence (e.g., proposal section written but contract not marked Executed, or contract marked Executed but no downstream output exists).
+- **Suggested Change:** Add a Stage 8 consistency check instruction to the conductor: before clearance, for each contract in `Approved` or `Executed` state, verify that evidence of the downstream action exists in the proposal output (for Executed contracts) or in the HITL record (for Approved-not-yet-Executed). If register state and output evidence are inconsistent, raise a Governance HITL before Stage 8 clears.
+- **Impact:** Medium — catches silent state corruption at the final governance gate
+- **Derived from:** Pending improvements table (GPT-5.4, April 7, 2026)
+- **Status:** Deferred
+- **Priority:** P2
+
+### Improvement Proposal: IP-LC-10
+- **Observation:** Lifecycle metrics are not captured — there is no record of how long decisions take to move through states (Created → Approved, Approved → Executed) or how frequently contracts are Invalidated vs. closed cleanly. This limits operational insight and cross-engagement learning.
+- **Root Cause:** The Decision Log records transitions but not timestamps at a level of granularity that enables duration analysis. The Timestamp column exists but is free-text — there is no enforced format or instructions to actually populate it.
+- **Suggested Change:** Two changes: (1) enforce ISO 8601 date format (`YYYY-MM-DD`) in the Decision Log `Timestamp` column via LINT-L01 extension or a new check; (2) add a Stage 10 learning instruction to the conductor: on engagement close, calculate and record in `claude-memory/insights.md` any contracts that were Invalidated (noting the trigger condition) and any contracts that took more than two stage gates to reach `Executed`. These patterns are candidates for `Re-evaluation Trigger:` improvements in future contract versions.
+- **Impact:** Low — primarily operational insight and continuous improvement; no immediate delivery risk
+- **Derived from:** GPT-5.4 review of decision lifecycle governance branch, April 7, 2026; deferred from pending improvements table
+- **Status:** Deferred
+- **Priority:** P3

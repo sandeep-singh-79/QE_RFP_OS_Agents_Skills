@@ -132,6 +132,24 @@ The Conductor follows the stage procedure defined in `.claude/references/stage-w
 3. **Never advance to Stage N+1 with a Blocking HITL unresolved**
 4. A stage may not be set to `Complete` unless its checkpoint condition is satisfied
 
+### Stage Advancement Pre-Gate — Decision Lifecycle Checks
+
+Before setting any stage to `Complete` and advancing to Stage N+1, perform these two checks in sequence:
+
+**Check 1 — Invalidation cascade:** For every contract in `Approved` or `Executed` state in the Decision State Register:
+  - Verify no `Invalidated By:` condition for that contract has been met since the last stage gate
+  - If a condition has been met: mark the contract `Invalidated` (increment Version); cascade to all downstream dependents in DAG order (TA-01 → TA-04 → TR-01); add an individual Decision Log entry per cascaded contract including the new Version number; raise a Blocking HITL — do not advance until resolved
+  - If no invalidation condition has been met, proceed to Check 2
+
+**Check 2 — Decision Log snapshot:** After Check 1 passes (or no contracts require cascade), append a snapshot block to the Decision Log before marking the stage `Complete`:
+
+```
+SNAPSHOT — Stage [N] complete — [YYYY-MM-DD]
+[copy full current Decision State Register table here, including Version column]
+```
+
+Only after both checks pass may the stage be set to `Complete` in plan.md. A stage cannot be marked `Complete` without a corresponding snapshot in the Decision Log (LINT-L05).
+
 ### Checkpoint Condition vs. Output Done
 
 A stage's checkpoint condition is a **system assertion** — not just that work was done, but that the output is complete enough for the next stage to safely rely on it. Examples:
