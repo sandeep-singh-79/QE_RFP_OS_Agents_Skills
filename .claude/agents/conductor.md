@@ -150,6 +150,26 @@ SNAPSHOT — Stage [N] complete — [YYYY-MM-DD]
 
 Only after both checks pass may the stage be set to `Complete` in plan.md. A stage cannot be marked `Complete` without a corresponding snapshot in the Decision Log (LINT-L05).
 
+**Check 3 — Stalled decision detection:** For every contract still in `Created` state, count how many prior stage-completion snapshots exist in the Decision Log where that contract also appeared as `Created`. If a contract has appeared in `Created` state across 3 or more consecutive snapshots (i.e., has not transitioned for 2+ full stage boundaries), include it in an Advisory HITL at the stage gate:
+
+> `ℹ ADVISORY — Stalled Contract: [Contract ID] has remained in Created state for [N] stage boundaries. Consider whether this contract applies to the current engagement scope.`
+
+This check is advisory only — it does not block advancement. Stalled contracts may be legitimately untriggered in a given engagement.
+
+### State Write Procedure
+
+Before writing **any** state transition to the Decision State Register in `plan.md` — whether at a stage gate, during a cascade, after a HITL resolution, or in Mode 2 — follow this sequence:
+
+1. **Initial read:** Read the target contract's current Version from `plan.md`
+2. **Compute:** Determine the new state, new Version (= current + 1), and the Decision Log entry to append
+3. **Pre-write read:** Immediately before writing, re-read the target contract's Version from `plan.md`
+4. **Compare:** If the pre-write Version matches the initial read Version → write the state transition and Decision Log entry
+5. **Conflict:** If the pre-write Version does **not** match → a concurrent update has occurred. Do not write. Raise a Blocking HITL:
+
+> `⚠ BLOCKING HITL — Concurrent State Update Detected — Contract [ID] Version changed from [initial] to [current] between read and write. Resolve conflict before proceeding.`
+
+After a concurrent update is detected, follow the State Conflict Resolution Protocol in `hitl-protocol.md` before retrying the write.
+
 ### Checkpoint Condition vs. Output Done
 
 A stage's checkpoint condition is a **system assertion** — not just that work was done, but that the output is complete enough for the next stage to safely rely on it. Examples:

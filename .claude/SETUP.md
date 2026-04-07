@@ -767,6 +767,32 @@ Rule ID: LINT-G03
 
 ---
 
+#### Check 2.19 — Concurrent State Write Collision [Blocks commit]
+**Rule ID:** LINT-L06
+
+**Pattern:** Two Decision Log entries for the same Contract ID share the same `From State` and `Timestamp` — indicating a concurrent write collision that was not caught at runtime by the optimistic concurrency check.
+
+**How to check:** Group all Decision Log entries by Contract ID. Within each group, check for any two entries that share the same `From State` value AND the same `Timestamp` value. Any match is a collision.
+
+**Pass condition:** No two Decision Log entries for the same Contract ID share the same From State and Timestamp.
+
+**Scope:** Applies to `plan.md` Decision Log.
+
+---
+
+#### Check 2.20 — Stalled Decision Detection [Flag for review]
+**Rule ID:** LINT-L07
+
+**Pattern:** A contract has appeared in `Created` state across 3 or more consecutive stage-completion snapshots in the Decision Log — indicating it has not transitioned for 2+ full stage boundaries.
+
+**How to check:** For each contract, examine its State value in consecutive `SNAPSHOT — Stage [N] complete —` blocks in the Decision Log. If a contract shows `Created` in 3 or more consecutive snapshots, flag it.
+
+**Pass condition:** No contract appears in `Created` state in 3 or more consecutive snapshots. If fewer than 3 snapshots exist in the Decision Log, this check passes trivially.
+
+**Scope:** Applies to `plan.md` Decision Log snapshot blocks.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
@@ -804,6 +830,8 @@ Before committing, confirm:
 | 2.16 | Invalidation cascade fully applied — all downstream contracts updated (LINT-L03) | Blocks commit | |
 | 2.17 | All Decision Log transitions use permitted From→To pairs — no illegal transitions (LINT-L04)[^24] | Blocks commit | |
 | 2.18 | Every `Complete` stage has a Decision Log snapshot — no stage completed without snapshot (LINT-L05)[^25] | Blocks commit | |
+| 2.19 | No concurrent write collisions — same Contract ID + From State + Timestamp (LINT-L06)[^26] | Blocks commit | |
+| 2.20 | No contract stalled in Created state for 3+ consecutive snapshots (LINT-L07)[^27] | Flag for review | |
 
 Any `⚠ Fail` on a **Blocks commit** check blocks the commit. **Flag for review** failures produce a warning but do not block — document the justification if proceeding.
 
@@ -838,3 +866,5 @@ The footnotes below record the files where each check's pattern was first discov
 [^23]: **Check 2.16 / LINT-L03** — Preventive rule. No prior violation file — introduced to enforce cascade completeness. Without this check, partial cascades leave the system in an inconsistent state where downstream contracts continue operating on an indirectly invalidated chain.
 [^24]: **Check 2.17 / LINT-L04** — Preventive rule. No prior violation file — introduced to prevent illegal state transitions being written to plan.md. Without this check, a corrupted state write could move a contract to a state it cannot legally reach, breaking lifecycle invariants silently.
 [^25]: **Check 2.18 / LINT-L05** — Preventive rule. No prior violation file — introduced to enforce the snapshot discipline required for rollback and audit traceability. Without this check, stage completion snapshots can be silently skipped, making it impossible to reconstruct lifecycle state at any prior stage boundary.
+[^26]: **Check 2.19 / LINT-L06** — Preventive rule. No prior violation file — introduced to detect concurrent state write collisions that bypassed the optimistic concurrency check in `conductor.md`. Without this check, two competing state transitions for the same contract could coexist in the Decision Log without being surfaced.
+[^27]: **Check 2.20 / LINT-L07** — Preventive rule. No prior violation file — introduced to detect contracts silently stalled in `Created` state without progression. Surfaces engagement scope gaps at commit review time rather than at engagement close.
