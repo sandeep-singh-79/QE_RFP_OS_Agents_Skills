@@ -141,3 +141,54 @@ When a decision is governed by a contract in `.claude/references/decision-contra
 **Mode 2 (Spot-Task):** Contract Risk Level is treated as informational only. It qualifies the output with an appropriate disclosure rather than triggering a blocking gate — no upstream stage completion is required.
 
 **Dependency check:** Before executing a contract outcome, verify any `Depends On:` field requirements are met. If the dependency contract has not yet resolved to the required outcome (e.g., TA-01 has not Approved before TA-04 is invoked), raise a HITL at the current contract's Risk Level before proceeding.
+
+**Invalidation cascade check (Mode 1 — conductor):** Before advancing any stage gate, the conductor must check whether any contract currently in `Approved` or `Executed` state has had its `Invalidated By:` condition met since the last checkpoint. If invalidation is required:
+1. Mark the contract `Invalidated` in the Decision State Register
+2. Cascade automatically to all downstream dependents (e.g., TA-01 → TA-04 → TR-01)
+3. Log each cascaded contract individually in the Decision Log — no bulk entries
+4. Raise a Blocking HITL before continuing stage advancement
+
+In Mode 2, the owning agent must self-declare any invalidation inline and mark downstream contracts as `[INVALIDATED — cascade from {Contract ID}]`.
+
+**Re-evaluation trigger check:** At each Blocking HITL checkpoint and every stage gate, the conductor (Mode 1) or active agent (Mode 2) must review the `Re-evaluation Trigger:` values for all contracts currently in `Approved` or `Executed` state. Confirm with the user whether any trigger condition has been met since the last recorded outcome. If a trigger has fired, the affected contract must be transitioned to `Invalidated` before the gate clears, with cascade applied.
+
+**State Register freshness:** Before writing any state transition, read the current plan.md State Register from file — never write from a cached or in-memory copy. The conductor is the sole writer of the State Register in Mode 1. In Mode 2, the owning agent must re-read plan.md before writing.
+
+---
+
+## Decision Rollback Protocol
+
+Use this protocol when a previously `Approved` or `Executed` decision must be retracted — due to new evidence, a scope change, or a failed execution outcome — and the system needs to return to a prior valid state.
+
+### When to invoke
+Invoke the rollback protocol when:
+- A contract is found to have been `Approved` or `Executed` on the basis of information that has since been shown to be incorrect or superseded
+- A staged output based on an `Executed` contract is rejected by the user and the contract must be re-evaluated
+- An `Executed` contract's downstream effect (e.g., a tooling recommendation, an architecture decision) has been explicitly revoked by the user
+
+**Do not** invoke for routine invalidations triggered by a `Re-evaluation Trigger:` condition — those follow the standard cascade procedure above. Rollback is for deliberate, user-initiated retraction of a prior decision outcome.
+
+### Step 1 — Identify the rollback target
+Confirm with the user which contract is being retracted and the specific outcome being revoked. Record the Contract ID, the current State, the current Version number, and the Decision Log entry timestamp that recorded the outcome being rolled back.
+
+### Step 2 — Transition to Invalidated
+Transition the target contract to `Invalidated` (increment Version). Add a Decision Log entry with:
+- From State: current state (typically `Approved` or `Executed`)
+- To State: `Invalidated`
+- Version: incremented
+- Reason: `Rollback — [brief reason confirmed with user]`
+
+### Step 3 — Apply downstream cascade
+Apply the standard invalidation cascade: identify all contracts that depend (directly or transitively) on the rolled-back contract via their `Depends On:` field. Transition each to `Invalidated` or `Created` as appropriate (use `Created` when the dependent contract will need to be re-evaluated from scratch). Add individual Decision Log entries per cascaded contract. Raise a Blocking HITL.
+
+### Step 4 — Identify the rollback target version
+Using the Decision Log snapshot blocks (written at each stage `Complete` boundary), identify the most recent snapshot in which the target contract was in a valid prior state (typically `Created` or a prior `Approved`). State the snapshot Stage and date explicitly in the HITL message to the user.
+
+### Step 5 — Confirm recovery path with user
+Present the user with:
+1. Which contract(s) are now `Invalidated`
+2. Which snapshot version represents the rollback target
+3. Which downstream work (stages, outputs) may need to be reworked
+
+Do not re-execute any downstream work without explicit user confirmation of the recovery path. Record the confirmed recovery path in the Decision Log as a narrative entry under the target contract.
+

@@ -123,6 +123,38 @@ Initial sections on first creation:
 
 | Contract ID | Default Risk Level | Override Level | Justification |
 |---|---|---|---|
+
+## Decision State Register
+> Runtime state of all active contracts for this engagement.
+> State must be one of: Created / Escalated / Approved / Rejected / Executed / Invalidated / Closed
+> When plan.md is absent (early stages or Mode 2), agents declare state inline in output and mark it [UNREGISTERED — not recorded in plan.md].
+> Version starts at 1 when state is first set to `Created`; increments by 1 on every subsequent state transition. Never reset.
+> The conductor is the sole writer of this register during active workflow. Always read the current file before writing — do not write from a cached copy.
+
+| Contract ID | Decision | State | Version | Last Updated | Updated By | Notes |
+|---|---|---|---|---|---|---|
+| TA-01 | Architecture Readiness Gate | Created | | | | |
+| TA-02 | Scalability Gap Flag | Created | | | | |
+| TA-03 | Integration Dependency Flag | Created | | | | |
+| TA-04 | Tooling Validation Authorization | Created | | | | |
+| QM-01 | Adoption Risk Escalation | Created | | | | |
+| QM-02 | Sustainability Escalation | Created | | | | |
+| QM-03 | Adoption Resistance Flag | Created | | | | |
+| CE-01 | Scoring Risk Surface | Created | | | | |
+| CE-02 | Red Flag Surface | Created | | | | |
+| PM-01 | Plan Feasibility Flag | Created | | | | |
+| PM-02 | Client Dependency Escalation | Created | | | | |
+| TR-01 | Tooling Recommendation Handback | Created | | | | |
+| TR-02 | Scope Protection Decline | Created | | | | |
+| TR-03 | Capability Clarification Escalation | Created | | | | |
+
+## Decision Log
+> Append-only record of all state transitions and invalidation events for this engagement.
+> Each cascade invalidation must have its own individual entry — no bulk entries.
+> Snapshot discipline: a full State Register snapshot must be appended to this log at every stage `Complete` boundary (LINT-L05). Never mark a stage Complete without the corresponding snapshot.
+
+| Timestamp | Contract ID | From State | To State | Version | Reason | Updated By |
+|---|---|---|---|---|---|---|
 ```
 
 Update `Current Stage` in the header and the corresponding row in Stage Status after each stage completes.
@@ -135,6 +167,9 @@ Run this procedure when an engagement is complete, before beginning a new engage
 
 ### Purpose
 Prevent prior engagement findings, decisions, and notes from contaminating a new engagement's memory and analysis.
+
+### Step 0 — Close untriggered contracts (before archiving)
+Before archiving, transition all contracts still in `Created` state in the Decision State Register to `Closed` with reason `Untriggered — engagement closed`. Add an individual entry to the Decision Log for each. This ensures the archive contains a complete and honest record — no contract is left in an ambiguous open state.
 
 ### Step 1 — Archive (before clearing)
 Create an archive folder at `archive/[client-name]-[date]/` and copy the following files into it:
@@ -639,6 +674,99 @@ Rule ID: LINT-G03
 
 ---
 
+#### Check 2.14 — Decision State Value Validation [Flag for review]
+**Rule ID:** LINT-L01
+
+**Pattern:** A `State:` value recorded in the `## Decision State Register` in `plan.md` is not one of the six canonical lifecycle states.
+
+**Valid values:** `Created` / `Escalated` / `Approved` / `Rejected` / `Executed` / `Invalidated` / `Closed`
+
+**How to check:** At each HITL checkpoint and stage gate, scan the Decision State Register. Flag any State value that does not exactly match one of the six canonical values. A blank State cell is treated as `Created` (not yet formally recorded).
+
+**Pass condition:** Every State cell in the Decision State Register contains exactly one canonical value or is blank.
+
+**Scope:** Applies to `plan.md` Decision State Register only.
+
+---
+
+#### Check 2.15 — Invalidated Upstream Blocks Downstream [Blocks commit]
+**Rule ID:** LINT-L02
+
+**Pattern:** A contract whose `Depends On:` references an upstream contract currently in `Invalidated` state holds a State value of `Approved`, `Executed`, or `Escalated` — meaning it is proceeding on a revoked upstream approval.
+
+**How to check:** For every contract with a non-None `Depends On:` value:
+1. Look up the upstream contract's current State in the Decision State Register
+2. If upstream State = `Invalidated`, the downstream contract must be `Invalidated`, `Created`, or `Closed`
+3. If downstream is `Approved`, `Executed`, or `Escalated` while upstream is `Invalidated` — violation
+
+**Key chains to check:**
+- TA-04 depends on TA-01 — if TA-01 = `Invalidated`, TA-04 must not be `Approved` / `Executed`
+- TR-01 depends on TA-04 — if TA-04 = `Invalidated`, TR-01 must not be `Approved` / `Executed`
+
+**Pass condition:** No contract with an `Invalidated` upstream holds an active-forward state (`Approved` / `Executed` / `Escalated`).
+
+**Severity:** Blocks commit when found in a `plan.md` being committed. Flag for review when found during stage review.
+
+**Scope:** Applies to `plan.md` Decision State Register only.
+
+---
+
+#### Check 2.16 — Invalidation Cascade Completeness [Blocks commit]
+**Rule ID:** LINT-L03
+
+**Pattern:** A contract is marked `Invalidated` but one or more downstream contracts whose `Depends On:` chain passes through it still holds state `Approved` or `Executed` — the cascade was not fully applied.
+
+**How to check:** When any contract is marked `Invalidated`:
+1. Identify all contracts that depend (directly or transitively) on the invalidated contract
+2. Verify each downstream contract is also `Invalidated`, `Created`, or `Closed`
+3. Verify the Decision Log contains an individual entry per cascaded contract (no bulk entries)
+
+**Cascade chains to validate:**
+- TA-01 invalidated → TA-04 must be `Invalidated`/`Created` → TR-01 must be `Invalidated`/`Created`
+- TA-04 invalidated → TR-01 must be `Invalidated`/`Created`
+
+**Pass condition:** Every downstream contract in an invalidation cascade has been transitioned to `Invalidated` or `Created`. Decision Log contains a separate entry per cascaded contract.
+
+**Scope:** Applies to `plan.md` Decision State Register and Decision Log.
+
+---
+
+#### Check 2.17 — Illegal State Transition [Blocks commit]
+**Rule ID:** LINT-L04
+
+**Pattern:** A Decision Log entry records a From State → To State pair that is not on the permitted transition list, or the current State in the State Register is unreachable from the prior state in the permitted transitions.
+
+**How to check:** For every Decision Log entry where a state transition occurred, and for every current State in the State Register, verify the From→To pair is in the permitted transitions table:
+
+| From State | Permitted To States |
+|---|---|
+| Created | Escalated, Approved, Rejected |
+| Escalated | Approved, Rejected |
+| Approved | Executed, Invalidated |
+| Rejected | Created |
+| Executed | Invalidated, Closed |
+| Invalidated | Created, Closed |
+| Closed | (terminal — no transitions permitted) |
+
+**Pass condition:** Every From→To pair recorded in the Decision Log is in the permitted transitions table above. No contract in the State Register holds a State that is unreachable from the prior recorded State via the permitted list.
+
+**Scope:** Applies to `plan.md` Decision State Register and Decision Log.
+
+---
+
+#### Check 2.18 — Stage Completion Snapshot Enforcement [Blocks commit]
+**Rule ID:** LINT-L05
+
+**Pattern:** A stage is marked `Complete` in plan.md Stage Status, but the Decision Log has no corresponding `SNAPSHOT — Stage [N] complete —` block for that stage.
+
+**How to check:** For every stage marked `Complete` in the plan.md Stage Status table, verify the Decision Log contains a snapshot block beginning with `SNAPSHOT — Stage [N] complete —` that includes a full copy of the Decision State Register (with Version column) at that point.
+
+**Pass condition:** Every `Complete` stage in plan.md has a corresponding snapshot block in the Decision Log. If no stages are marked `Complete`, this check passes trivially.
+
+**Scope:** Applies to `plan.md` Decision Log and Stage Status table.
+
+---
+
 ### Checklist Summary Sign-Off
 
 Before committing, confirm:
@@ -671,6 +799,11 @@ Before committing, confirm:
 | 2.11 | No dependency cycles in decision contracts (LINT-D01) | Flag for review | |
 | 2.12 | Upstream outcome recorded before downstream decision executes (LINT-D02) | Flag for review | |
 | 2.13 | No dependency chain exceeds depth 3 (LINT-D03) | Flag for review | |
+| 2.14 | Decision State values are one of 6 canonical states (LINT-L01) | Flag for review | |
+| 2.15 | No Approved/Executed contract has an Invalidated upstream (LINT-L02) | Blocks commit | |
+| 2.16 | Invalidation cascade fully applied — all downstream contracts updated (LINT-L03) | Blocks commit | |
+| 2.17 | All Decision Log transitions use permitted From→To pairs — no illegal transitions (LINT-L04)[^24] | Blocks commit | |
+| 2.18 | Every `Complete` stage has a Decision Log snapshot — no stage completed without snapshot (LINT-L05)[^25] | Blocks commit | |
 
 Any `⚠ Fail` on a **Blocks commit** check blocks the commit. **Flag for review** failures produce a warning but do not block — document the justification if proceeding.
 
@@ -700,3 +833,8 @@ The footnotes below record the files where each check's pattern was first discov
 [^18]: **Check 2.11 / LINT-D01** — Preventive rule. No prior violation file — introduced to prevent dependency cycles as the decision graph grows over time. A cycle would cause deadlock where no contract in the cycle can be resolved.
 [^19]: **Check 2.12 / LINT-D02** — Preventive rule. No prior violation file — introduced to close the silent bypass gap: `Depends On:` enforces structural dependencies, but LINT-D02 enforces that the upstream outcome is actually recorded before the downstream decision fires.
 [^20]: **Check 2.13 / LINT-D03** — Preventive rule. No prior violation file — introduced to bound dependency graph depth at 3 levels. Deep chains increase debugging complexity, slow execution, and create fragile workflows. Depth > 3 is a signal that the decision model needs restructuring.
+[^21]: **Check 2.14 / LINT-L01** — Preventive rule. No prior violation file — introduced to enforce canonical state values in the Decision State Register. Prevents free-text state entries that cannot be validated by LINT-L02 or LINT-L03.
+[^22]: **Check 2.15 / LINT-L02** — Preventive rule. No prior violation file — introduced to prevent decisions from proceeding on a revoked upstream approval. Operates at runtime state level (plan.md State Register). Complementary to LINT-D02 (Check 2.12), which operates at schema level (decision-contracts.md `Depends On:` field): LINT-D02 ensures the upstream outcome was recorded; LINT-L02 ensures the upstream has not since been Invalidated. Both must pass for a downstream decision to proceed safely.
+[^23]: **Check 2.16 / LINT-L03** — Preventive rule. No prior violation file — introduced to enforce cascade completeness. Without this check, partial cascades leave the system in an inconsistent state where downstream contracts continue operating on an indirectly invalidated chain.
+[^24]: **Check 2.17 / LINT-L04** — Preventive rule. No prior violation file — introduced to prevent illegal state transitions being written to plan.md. Without this check, a corrupted state write could move a contract to a state it cannot legally reach, breaking lifecycle invariants silently.
+[^25]: **Check 2.18 / LINT-L05** — Preventive rule. No prior violation file — introduced to enforce the snapshot discipline required for rollback and audit traceability. Without this check, stage completion snapshots can be silently skipped, making it impossible to reconstruct lifecycle state at any prior stage boundary.
