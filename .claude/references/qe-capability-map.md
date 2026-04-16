@@ -122,3 +122,21 @@ Leveraging AI and GenAI capabilities to enhance QE delivery velocity, coverage, 
 | `Present` | Evidence in `claude-memory/memory.md` clearly confirms this capability is addressed |
 | `Partial` | Some evidence exists but coverage is incomplete or surface-level only |
 | `Missing` | No evidence in `claude-memory/memory.md` supports this capability being addressed |
+
+---
+
+## Value Framing Guidance
+
+> **Usage:** These are archetype prompts for the `Expected Benefit` column in the capability coverage table. They are framing anchors — not client-facing outputs. Override with client-specific evidence when available. Do not present archetypes as measured outcomes. Apply `[ILLUSTRATIVE]` prefix when using an archetype without supporting client evidence.
+
+| Domain | Benefit Archetype |
+|---|---|
+| **QE Strategy** | Clear quality governance reduces rework and improves predictability of delivery outcomes |
+| **Shift-left Testing** | Earlier defect detection lowers the cost of fixes and reduces downstream rework effort |
+| **Automation Strategy** | Repeatable automated regression increases release confidence and reduces manual test cycle time |
+| **CI/CD Integration** | Continuous quality gates prevent defective builds from reaching production |
+| **Test Data Management** | Reliable, safe test data improves test repeatability and reduces environment-related test failures |
+| **Environment Strategy** | Stable, parity test environments reduce false failures and support reliable parallel execution |
+| **Observability** | Production and test visibility accelerates issue detection and reduces mean time to resolution |
+| **Non-functional Testing** | Early NFR validation reduces performance, security, and compliance risk at release |
+| **AI-Assisted Quality Engineering** | AI acceleration reduces test maintenance burden and expands exploratory and regression coverage |

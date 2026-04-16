@@ -564,7 +564,7 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Observation:** The Cross-Reference Update Rule in `AGENTS.md` (Post-Output Evidence Re-Entry Protocol) mandates "All cross-references in `claude-memory/notes.md` that cite superseded findings MUST be updated" but provides no search strategy. For a 150+ finding engagement, this is operationally intractable without a defined approach — practitioners have no guidance on how to discover all affected references.
 - **Root Cause:** Phase 21 Commit A added the Cross-Reference Update Rule but focused on what must be done, not how to discover affected references at scale. Discovery mechanism was implicit.
 - **Suggested Change:** Add an operational note to the Cross-Reference Update Rule: "To identify all cross-references to a superseded finding, search `claude-memory/notes.md` for the superseded Finding ID (e.g., `F-12`). If more than 20 references are found, raise a HITL checkpoint before bulk-updating — confirm scope of change with user before proceeding. Document all updated references in the Re-Entry Impact Assessment."
-- **Impact:** Medium — without a search strategy, operators may miss references, leaving stale Finding IDs in notes.md that mispoint to superseded findings
+- **Impact:** Medium — without a search strategy, operators may miss references, leaving stale Finding IDs in `claude-memory/notes.md` that mispoint to superseded findings
 - **Derived from:** Phase 21 R&C quality gate review, March 30, 2026
 - **Status:** Implemented — `AGENTS.md` § Cross-Reference Update Rule — Discovery Mechanism (Phase 22)
 - **Priority:** Medium
@@ -702,4 +702,37 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Impact:** Low — primarily observability and continuous improvement; no immediate delivery risk. Becomes more valuable as engagement count increases.
 - **Derived from:** External review of decision lifecycle governance branch, April 7, 2026
 - **Status:** Implemented — Action 9 (Decision health check) added to `stage-10-learning.md` with 3 flag categories (repeated invalidation cycles, stalled escalations, untriggered contracts); results recorded in `claude-memory/insights.md` under `## Decision Health Observations`
+- **Priority:** P3
+
+---
+
+### Improvement Proposal: IP-CC-01
+- **Observation:** The capability coverage table (Stage 3.5) captures `Status` and `Recommendation` for each of the 9 QE domains but provides no business value framing. A procurement stakeholder reviewing the Maturity Model (Section 6) can see that CI/CD Integration is `Missing` and the recommendation is to introduce quality gates — but cannot see what business outcome that delivers for the client. The proposal answers "what should we implement?" but not "what will it do for you?" The Towards Shift table in Section 10 and outcome-risk-framing at Stage 7 address risk and delivery consequences but neither is tied to the capability coverage layer. Section 6 Part B (Expected Client Outcomes sub-table) is absent from the proposal structure entirely.
+- **Root Cause:** The capability coverage skill was designed as an analysis tool, not a value articulation tool. The proposal output structure (stage-9-output-structure.md) had no mechanism for surfacing capability-level business outcomes to the client.
+- **Suggested Change:** (1) Add `Expected Benefit` column to the Stage 3.5 capability coverage table (analyst working layer) with a sourcing guard: each entry must be evidence-based (Finding ID), declared as `[ASSUMPTION: ...]`, or labelled `[ILLUSTRATIVE]` — no fabrication. (2) Add per-domain benefit archetypes to `qe-capability-map.md` as prompts for the Expected Benefit column. (3) Add `## Expected Client Outcomes` instruction to Stage 4 — the Test Architect synthesises 3–7 client-facing outcome statements from capability gaps + architecture design and writes them to `claude-memory/notes.md`. (4) Add Section 6 Part B to `stage-9-output-structure.md` — a "Business Outcome | Driven By | Phase" sub-table rendered immediately after the maturity matrix, sourced from `## Expected Client Outcomes` in `claude-memory/notes.md`. Minimum 3; maximum 7; declare shortfall explicitly if fewer than 3 available. Anti-fabrication guard applies throughout.
+- **Impact:** High — directly addresses proposal competitiveness gap: stakeholders can now see what capability investments deliver, not just what capabilities are missing
+- **Derived from:** GPT-5.4 review of main branch, April 16, 2026 (IMP-07 + IMP-08 merged); confirmed as genuine gap by independent evaluation
+- **Status:** Implemented — `Expected Benefit` column added to `capability-coverage/SKILL.md`; archetypes added to `qe-capability-map.md`; Stage 4 `## Expected Client Outcomes` instruction added to `stage-workflow.md`; Section 6 Part B added to `stage-9-output-structure.md`; Stage 3.5 output description updated in `stage-workflow.md` and `AGENTS.md`
+- **Priority:** P1
+
+---
+
+### Improvement Proposal: IP-CC-02
+- **Observation:** The tooling-technology-recommendation skill covers AI tools (Applitools, Mabl, WebMCP, browser-agent) in the Illustrative Tool Categories table, and Domain 9 (AI-Assisted Quality Engineering) is a first-class capability domain evaluated at Stage 3.5. However, there is no governance-level guidance on *when* AI capabilities should be recommended vs. withheld. A system without this guidance could recommend AI tooling for an engagement where foundational automation does not yet exist, or position self-healing automation before a stable test suite is in place — both defensibility failures in procurement evaluation.
+- **Root Cause:** The tooling recommendation skill is sequenced after architecture (correct) but has no readiness precondition for AI capability specifically. The capability coverage assessment determines whether Domain 9 is Present/Partial/Missing but does not feed a "recommend or hold" decision for tooling. This gap is governance, not capability.
+- **Suggested Change:** Add an `## AI Capability Recommendation Guidance` section to the tooling-technology-recommendation skill with: (1) "Recommend when" conditions (large regression suite, high UI velocity, exploratory gaps, high triage volume); (2) "Do not recommend when" conditions (no foundational automation, small/stable suite, compliance constraints, client exclusion, Domain 9 = Missing); (3) "Always declare" requirements (AI tooling classified as `client-dependent` or `to-be-validated`, activation conditional on Domain 9 maturity, no AI recommendation substitutes for missing foundational tooling). Advisory only — no new HALT or blocking gate. Also add AI cross-cutting annotation instruction to capability-coverage skill: when Domain 9 = Present or Partial, annotate the Recommendation column of other applicable domains with a one-sentence AI enablement note.
+- **Impact:** Medium — prevents common defensibility failure of recommending AI tooling without readiness conditions; improves consistency of AI capability positioning across engagements
+- **Derived from:** GPT-5.4 review of main branch, April 16, 2026 (IMP-09 + IMP-10 merged); confirmed as genuine governance gap
+- **Status:** Implemented — `## AI Capability Recommendation Guidance` section added to `tooling-technology-recommendation/SKILL.md`; AI cross-cutting annotation instruction added to `capability-coverage/SKILL.md` Output Format section
+- **Priority:** P2
+
+---
+
+### Improvement Proposal: IP-CC-03
+- **Observation:** There is no mechanism to track capability coverage completeness across multiple RFP engagements. After each engagement, Stage 10 promotes insights to `claude-memory/insights.md` and logs improvement proposals — but neither file captures which capability domains were consistently `Missing` or `Partial` across engagements. Without longitudinal data, it is impossible to detect patterns like "CI/CD Integration is always Missing in client discovery" or "Observability is consistently Partial — our solution may need a stronger default approach."
+- **Root Cause:** The current learning system (Stage 10, `claude-memory/improvements.md`, `claude-memory/insights.md`) operates at the engagement level. No cross-engagement aggregation schema or capability-domain frequency tracker exists.
+- **Suggested Change:** After a minimum of 3 completed engagements, add a `## Cross-RFP Capability Coverage` section to `claude-memory/insights.md`. At Stage 10, the conductor appends a one-row summary per engagement: engagement name + 9 domain statuses (P/Pa/M) + date. After 3+ rows, surface patterns: which domains are consistently Missing (candidates for default solution pillar), which are consistently Present (not worth over-emphasising in proposals), which vary (engagement-context dependent). Use patterns to improve Stage 4 default architecture emphasis and Stage 3.5 depth criteria calibration.
+- **Impact:** Low now — no longitudinal data exists. Medium-term value increases as engagement count grows.
+- **Derived from:** GPT-5.4 review of main branch, April 16, 2026 (IMP-20); confirmed as genuine learning gap with deferred timing
+- **Status:** Deferred — no longitudinal engagement data exists yet to populate this schema. Revisit after 3+ completed engagements.
 - **Priority:** P3

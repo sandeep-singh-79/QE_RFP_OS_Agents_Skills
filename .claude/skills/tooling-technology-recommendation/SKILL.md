@@ -102,6 +102,31 @@ Assumptions:
 
 ---
 
+## AI Capability Recommendation Guidance
+
+This guidance applies when Domain 9 (AI-Assisted Quality Engineering) capabilities are being considered for inclusion in tooling recommendations. It is advisory — it does not override the Invocation Check gate.
+
+**Recommend AI capabilities when:**
+- The regression suite is large and maintenance burden is high (self-healing automation value applies)
+- UI change velocity is high (self-healing and visual validation reduce brittle test maintenance)
+- Exploratory coverage gaps exist that manual testing cannot close cost-effectively (AI-driven exploration applies)
+- Test generation volume is high and requirements are machine-readable (GenAI test generation applies)
+- Defect triage and root cause analysis are consuming significant analyst time (intelligent defect analysis applies)
+
+**Do not recommend AI capabilities when:**
+- Automation fundamentals are not yet in place (no CI/CD, no existing automation framework, no test pyramid) — AI accelerates an existing capability; it cannot substitute for foundational capability that does not yet exist
+- The test suite is small and stable — ROI from self-healing or AI generation is insufficient to offset tooling and adoption overhead
+- Compliance or contractual constraints prohibit AI-generated test artifacts or AI-assisted decision-making in the client environment
+- The client has explicitly excluded AI tooling from scope
+- Domain 9 status in the capability coverage assessment is `Missing` — do not position AI tooling when there is no evidence of AI QE readiness
+
+**Always declare:**
+- AI tooling recommendations are `client-dependent` or `to-be-validated` in the assumption classification (not `confirmed` unless client has an existing AI QE tool already in use)
+- AI capability recommendations are conditional on Domain 9 capability maturity progressing to at least `Partial` by Phase 1 — do not schedule Tier 1 AI capability activation before Phase 1 unless Domain 9 evidence supports earlier readiness
+- The AI recommendation must not substitute for or skip foundational tooling in the same capability category (e.g., recommending only self-healing automation without a stable base automation framework is not defensible)
+
+---
+
 ## Illustrative Tool Categories
 
 Reference as examples only — never as mandates. Verify current ecosystem fit before including in a client-facing submission, as tool landscapes evolve.
