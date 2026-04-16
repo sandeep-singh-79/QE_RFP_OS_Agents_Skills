@@ -769,3 +769,14 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Derived from:** GPT-5.4 review of IP-CC-01 output, April 16, 2026; scoped to writing pattern only (rejecting the proposed multi-column expansion)
 - **Status:** Implemented — hybrid narrative pattern and evidence type declaration requirement added to `capability-coverage/SKILL.md` Expected Benefit sourcing rules
 - **Priority:** P2
+
+---
+
+### Improvement Proposal: IP-CC-07
+- **Observation:** The system articulates expected business benefits at proposal time (Stage 3.5 → Stage 4 → Stage 9 Section 6) but has no mechanism to compare proposed benefits against actual delivery outcomes after engagement completion. If automation savings are claimed but the test suite never stabilises, the claimed benefit was unrealistic — and this gap is invisible to the system. Over multiple engagements, unchecked value drift erodes proposal credibility.
+- **Root Cause:** The system operates at proposal scope. Stage 10 captures system-level learnings and improvement proposals but does not receive delivery outcome data. No delivery feedback loop exists to validate whether proposed benefits were realised.
+- **Suggested Change:** Define a future `Post-Engagement Review` capability — distinct from Stage 10 system learning — that: (1) accepts delivery outcome data (benefit realised / partially realised / not realised, with metric evidence where available); (2) compares proposed `Expected Benefit` statements from Section 6 Part B against actual outcomes; (3) identifies benefit variance per capability domain; (4) feeds variance patterns into `claude-memory/insights.md` to calibrate future benefit framing (e.g., "automation effort reduction claims consistently overstated for greenfield engagements"). Activation trigger: at least one completed engagement with measurable delivery outcome data available.
+- **Impact:** Low now — no delivery outcome data exists. High long-term: closes the feedback loop between proposal claims and delivery reality, directly improving proposal credibility and estimation accuracy over time.
+- **Derived from:** GPT-5.4 residual review of IP-CC-01/04/05/06 output, April 16, 2026; evaluated independently and separated from IP-CC-03 (which covers cross-RFP capability coverage patterns, not benefit variance)
+- **Status:** Deferred — requires delivery feedback loop and at least one completed engagement with measurable outcome data. Revisit after delivery outcome data is available.
+- **Priority:** P3
