@@ -391,7 +391,7 @@
 - **Suggested Change:** Add a conditional rule to Section 11: "For `transformation_partnership` and `managed_service` engagement types with `application_count > 3`, produce a `### Delivery Risk Ownership` subsection after the RACI table. Name the QA Lead as the single delivery risk visibility owner. List 4 monitoring responsibilities: (1) continuous monitoring of workstream readiness signals; (2) early identification of schedule or dependency risks; (3) escalation of cross-workstream delivery risks; (4) reporting of release readiness status to the steering committee."
 - **Impact:** Medium — addresses a specific procurement governance expectation. Low effort, high signal for evaluators applying a single-point accountability rubric.
 - **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 third-pass review, March 23, 2026
-- **Status:** Pending
+- **Status:** Deferred — no multi-workstream engagement active. Revisit when next `transformation_partnership` or `managed_service` engagement with `application_count > 3` is in scope.
 - **Priority:** Medium
 
 ---
@@ -402,7 +402,7 @@
 - **Suggested Change:** To the Parallel Execution Assurance sub-section rule in `stage-9-output-structure.md` §8, add: "When engagement has 3+ concurrent workstreams (Tranche-based or simultaneous Tier A workstreams), include an environment capacity planning note: (1) concurrent test cycle execution assumes sufficient environment capacity; (2) environment capacity validated during Phase 0; (3) where contention occurs, sequencing coordinated through governance framework to protect tranche milestones."
 - **Impact:** Low-Medium — genuine multi-workstream constraint; currently partially covered by Phase 0 exit criteria but not named as a capacity constraint pattern.
 - **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 third-pass review, March 23, 2026
-- **Status:** Pending
+- **Status:** Deferred — no multi-workstream engagement active. Revisit when 3+ concurrent Tier A workstreams sharing test environments are in scope.
 - **Priority:** Low
 
 ---
@@ -413,7 +413,7 @@
 - **Suggested Change:** Refine the Phase 0 exit criteria coverage baseline condition (in `stage-9-output-structure.md` and `AGENTS.md` Stage 6) from: "Automation coverage baseline established" to: "Automation coverage baseline established — documenting automation coverage % per workstream, critical path coverage completeness (pass/fail), and regression suite readiness level (ready / conditional / not ready)."
 - **Impact:** Low — the substance is already present; this is a precision improvement that makes condition 4 verifiable rather than aspirational.
 - **Derived from:** Manulife 7-workstream proposal — ChatGPT 5.4 third-pass review, March 23, 2026
-- **Status:** Pending
+- **Status:** Deferred — precision improvement to IP-MAN-04 exit criteria. Revisit when Phase 0 coverage baseline condition is exercised on a live engagement and verified as insufficiently specific in practice.
 - **Priority:** Low
 
 ---
