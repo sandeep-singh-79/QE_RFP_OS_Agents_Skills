@@ -53,9 +53,9 @@ Apply these rules when authoring or modifying any agent file. They prevent scope
 | `review-challenge-thinking` | Mandatory pre-output gate for all client-facing deliverables |
 | `domain-context-adaptation` | Only when client domain is explicitly confirmed |
 | `tooling-technology-recommendation` | Only after architecture + capabilities are defined |
-| `evidence-extraction` | Stage 1 — extract and normalize evidence from artifacts |
-| `capability-coverage` | Stage 3.5 — evaluate QE capability coverage against baseline |
-| `evidence-reconciliation` | Stage 8 — reconcile all findings before output generation |
+| `evidence-extraction` | Stage 1 — Evidence Extraction |
+| `capability-coverage` | Stage 3.5 — Capability Coverage Check |
+| `evidence-reconciliation` | Stage 8 — Governance Validation |
 | `question-capability-mapping` | Optional — when RFP questions exist and capability coverage is complete; invoked by Test Architect before Solution Design |
 | `pert-estimation` | Sub-skill for test case sizing and PERT effort calculation. Invoked only by `estimation-sizing-thinking` — not loaded independently. |
 | `kpi-baseline` | Invoke for KPI targets and success metrics. Valid callers: Test Architect (Stage 4), Stage 9 conductor (Section 13), `estimation-sizing-thinking` (co-scoped sizing). Non-orchestrating. |
@@ -124,7 +124,7 @@ Every agent must, after completing its analysis:
 
 ### Context Loading Priority, Summarization, Compaction & Cross-Agent Flags
 
-> **Full protocol:** Load `.claude/references/memory-protocol.md` for: context loading priority order, context summarization rules (when memory.md grows beyond ~200 lines), notes.md stage-based compaction schedule (including Never-Compact sections), compaction rules, and cross-agent flag format (`CAF-[n]`).
+> **Full protocol:** Load `.claude/references/memory-protocol.md` for: context loading priority order, context summarization rules (when `claude-memory/memory.md` grows beyond ~200 lines), `claude-memory/notes.md` stage-based compaction schedule (including Never-Compact sections), compaction rules, and cross-agent flag format (`CAF-[n]`).
 
 Context compaction is Conductor-managed at stage boundaries only — see `agents/conductor.md — ## Context Compaction Trigger` for the pre-compaction checklist and safe compaction points.
 
@@ -248,7 +248,7 @@ Stages 0–3 are conductor-managed. Agent analysis begins at Stage 4.
 | Stage 1 — Evidence Extraction | Conductor (using `evidence-extraction` skill) |
 | Stage 2 — Memory Initialization | Conductor |
 | Stage 3 — Gap Coverage Enforcement | Conductor |
-| Stage 3.5 — Capability Coverage | Test Architect (Capability Coverage skill) |
+| Stage 3.5 — Capability Coverage Check | Test Architect (Capability Coverage skill) |
 | Stage 4 — Solution Design | Test Architect |
 | Stage 5 — Architecture Validation | QA Manager |
 | Stage 6 — Delivery Validation | Project Manager |
@@ -362,7 +362,7 @@ The conductor manages Stages 0–3 and oversees Stage 7 pre-processing, Stage 8 
   Purpose:    Evaluate QE capability coverage against the baseline — independent of what was raised in artifacts
   Action:     Compare `claude-memory/memory.md` findings against all nine QE capability domains in `qe-capability-map.md`
   Checkpoint: All nine domains assessed; Missing and Partial domains documented; no `Missing` domain without a declared remediation path advances without HITL
-  Output:     Capability coverage table — Capability / Status / Recommendation
+  Output:     Capability coverage table — Capability / Status / Evidence / Recommendation / Expected Benefit
 
   **Blocking HITL condition — Stage 3.5:**
   After producing the capability coverage table, the capability-coverage skill applies its HALT Protocol (see `.claude/skills/capability-coverage/SKILL.md` — `## HALT Protocol` for the authoritative procedure, response options, and gate logic). Stage 4 may not begin until every `Missing` domain has a declared remediation or human HITL confirmation. The absence of evidence is acceptable; the absence of acknowledgement is not.
@@ -606,7 +606,7 @@ Every workflow stage includes a mandatory review checkpoint. The system must con
 | 1 — Evidence Extraction | All artifacts have extraction status | Artifacts stuck in Pending Review |
 | 2 — Memory Initialization | Minimum context available for downstream agents | Memory files empty or uninitialized |
 | 3 — Gap Coverage Enforcement | All High-confidence findings accounted for | Findings neither addressed nor acknowledged |
-| 3.5 — Capability Coverage | All nine QE capability domains assessed; every `Missing` domain has a declared remediation or human HITL confirmation | Missing domains not documented OR any `Missing` domain has no declared remediation path |
+| 3.5 — Capability Coverage | All nine QE capability domains assessed; every `Missing` domain has a declared remediation or human HITL confirmation; `## Expected Client Outcomes` written to `claude-memory/notes.md` at Stage 4 (consumed by §6 Part B) | Missing domains not documented OR any `Missing` domain has no declared remediation path |
 | 4 — Solution Design | Architecture layer completeness confirmed | Missing layers not identified |
 | 5 — Architecture Validation | Adoption risks classified and surfaced | Feasibility not assessed |
 | 6 — Delivery Validation | All delivery dependencies identified | Dependencies unclassified |

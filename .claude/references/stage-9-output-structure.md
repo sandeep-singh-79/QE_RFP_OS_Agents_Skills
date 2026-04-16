@@ -1,6 +1,6 @@
-# Stage 9 — Proposal Output Structure
+# Stage 9 — Output Generation
 
-> **Used by:** Conductor at Stage 9 — Output Generation.
+> Proposal Output Structure — canonical 19-section order and per-section content rules.
 > Load this file when generating proposal output. It defines the canonical section order and per-section content rules for all QA transformation proposal outputs.
 
 ---
@@ -96,10 +96,29 @@ Two-column table: (1) Confirmed in Discovery (with Stage 1 evidence source refer
 - If the Technology Inventory is empty (flagged at Stage 1 as no tools identified), render Column 1 as empty with the note: "No tools confirmed in artifacts — all to be confirmed in Phase 0."
 
 ### Section 6 — Maturity Model
-Produces a per-domain capability maturity matrix. Suppressed only when `engagement_type = qa_audit`.
+Produces a per-domain capability maturity matrix followed by a client-facing outcome sub-table. Suppressed only when `engagement_type = qa_audit`.
+
+**Part A — Capability Maturity Matrix:**
 - Mapping: `Absent` → Foundational; `Partial` → Transitioning; `Present (basic)` → Efficient; `Present (advanced)` → Optimized
 - Matrix format: QE Domain | Current State | Target by Phase 2 | Target by Phase 4
 - Source: Stage 3.5 capability coverage output — one row per QE capability domain assessed.
+
+**Part B — Expected Client Outcomes:**
+Render immediately after the maturity matrix as a separate sub-table. Source: `## Expected Client Outcomes` written to `claude-memory/notes.md` at Stage 4.
+
+- Format: `Business Outcome | Driven By | Phase`
+- Minimum 3 rows; maximum 7 rows.
+- If `## Expected Client Outcomes` is absent from `claude-memory/notes.md` (e.g., Stage 4 not yet run), render Part B with a single row: "Client outcomes to be confirmed following architecture design in Phase 0." Do not fabricate outcomes.
+- Disclosure rule: if fewer than 3 outcomes are available with supporting evidence, declare: "Fewer than 3 client outcomes confirmed — remaining outcomes to be scoped in Phase 0." Do not pad to reach the minimum.
+- Anti-fabrication guard: Each outcome must be traceable to a Stage 4 architecture pillar reference or a Stage 3.5 capability finding. Do not invent percentages, financial figures, or benchmark claims. Quantified outcomes must carry a sourced Finding ID or be prefixed `[ASSUMPTION: ...]` or `[ILLUSTRATIVE]`.
+
+Example Part B rows:
+```
+| Business Outcome                                    | Driven By                              | Phase   |
+| Reduced defect escape to production                 | CI/CD Quality Gates pillar             | Phase 1 |
+| Faster regression cycle with maintained confidence  | Automation Strategy + CI/CD pillar     | Phase 2 |
+| Improved production issue detection and response    | Observability pillar                   | Phase 2 |
+```
 
 ### Section 7 — QE Architecture / Pillars
 Always-on. The primary architecture section rendering the Test Architect's Stage 4 output.

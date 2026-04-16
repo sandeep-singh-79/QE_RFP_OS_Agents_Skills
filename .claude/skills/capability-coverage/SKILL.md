@@ -91,24 +91,37 @@ The output of this skill must be a structured table for each capability domain:
 ```
 ### Capability Coverage Assessment
 
-| Capability | Status | Evidence | Recommendation |
-|---|---|---|---|
-| QE Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| Shift-left Testing | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| Automation Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| CI/CD Integration | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| Test Data Management | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| Environment Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| Observability | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| Non-functional Testing | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
-| AI-Assisted Quality Engineering | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] |
+| Capability | Status | Evidence | Recommendation | Expected Benefit |
+|---|---|---|---|---|
+| QE Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| Shift-left Testing | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| Automation Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| CI/CD Integration | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| Test Data Management | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| Environment Strategy | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| Observability | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| Non-functional Testing | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
+| AI-Assisted Quality Engineering | Present / Partial / Missing | [Finding IDs or "None"] | [Recommendation or "No action required"] | [Benefit or "Maintained"] |
 ```
 
 Example row:
 
 ```
-| CI/CD Integration | Missing | None | Introduce pipeline quality gate validation at build and release stages. |
+| CI/CD Integration | Missing | None | Introduce pipeline quality gate validation at build and release stages. | Prevents defective releases from reaching production; reduces production incident rate. |
 ```
+
+**Expected Benefit column — framing and sourcing rules:**
+
+The `Expected Benefit` column captures the business or operational value to the **client** of addressing the capability gap (or maintaining a capability already present). Frame in terms of client outcomes — not tools, not effort, not delivery mechanics.
+
+Every entry must be one of:
+- **Evidence-based** — cite a Finding ID from `claude-memory/memory.md` that confirms the client outcome (e.g., "client confirmed production defect rate is a top risk — F[n]")
+- **Declared assumption** — prefix with `[ASSUMPTION: ...]` and state the basis (e.g., "[ASSUMPTION: based on CI/CD gap — pipeline defects typically escape to production without a quality gate]")
+- **Illustrative** — prefix with `[ILLUSTRATIVE]` for qualitative archetypes drawn from `qe-capability-map.md` Value Framing Guidance when no client-specific evidence is available
+
+**Anti-fabrication guard:** Do not invent percentages, dollar amounts, benchmark figures, or industry statistics for the Expected Benefit column. Invented figures may not be presented as client-specific. If quantification is needed, it must be sourced, declared as an assumption with a stated basis, or labelled `[ILLUSTRATIVE EXAMPLE — not based on confirmed client data]`.
+
+**AI cross-cutting annotation:** When Domain 9 (AI-Assisted Quality Engineering) status is `Present` or `Partial`, consider annotating the Recommendation column of other applicable domains with a one-sentence note where AI enablement could accelerate coverage (e.g., "AI-assisted test generation could supplement manual exploratory coverage — see Domain 9"). Keep annotations to one sentence. Do not add AI annotations when Domain 9 status is `Missing`.
 
 ---
 

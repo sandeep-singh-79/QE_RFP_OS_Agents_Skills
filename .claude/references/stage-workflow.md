@@ -18,7 +18,7 @@ Stages 0–3 are conductor-managed. Agent analysis begins at Stage 4.
 | Stage 1 — Evidence Extraction | Conductor (using `evidence-extraction` skill) |
 | Stage 2 — Memory Initialization | Conductor |
 | Stage 3 — Gap Coverage Enforcement | Conductor |
-| Stage 3.5 — Capability Coverage | Test Architect (Capability Coverage skill) |
+| Stage 3.5 — Capability Coverage Check | Test Architect (Capability Coverage skill) |
 | Stage 4 — Solution Design | Test Architect |
 | Stage 5 — Architecture Validation | QA Manager |
 | Stage 6 — Delivery Validation | Project Manager |
@@ -131,7 +131,7 @@ Summary:
   Purpose:    Evaluate QE capability coverage against the baseline — independent of what was raised in artifacts
   Action:     Compare `claude-memory/memory.md` findings against all nine QE capability domains in `qe-capability-map.md`
   Checkpoint: All nine domains assessed; Missing and Partial domains documented; no `Missing` domain without a declared remediation path advances without HITL
-  Output:     Capability coverage table — Capability / Status / Recommendation
+  Output:     Capability coverage table — Capability / Status / Evidence / Recommendation / Expected Benefit
 
   **Blocking HITL condition — Stage 3.5:**
   After producing the capability coverage table, the capability-coverage skill applies its HALT Protocol (see `.claude/skills/capability-coverage/SKILL.md` — `## HALT Protocol` for the authoritative procedure, response options, and gate logic). Stage 4 may not begin until every `Missing` domain has a declared remediation or human HITL confirmation. The absence of evidence is acceptable; the absence of acknowledgement is not.
@@ -147,6 +147,24 @@ Summary:
   Output:     Architecture findings, layer gaps, tooling readiness
   **Estimation boundary:** Any sizing produced at Stage 4 by the Test Architect is directional and architecture-context only — it is NOT a deliverable estimate. The Stage 6 Project Manager estimate (Estimation & Sizing Thinking) is the authoritative sizing for all proposal submissions and supersedes Stage 4 directional sizing.
   **Output staging:** Append Stage 4 output to `outputs/staged-proposal.md` under `## Stage 4 — Solution Design`. Create the file with the header defined in `.claude/SETUP.md` if it does not exist.
+
+  **Expected Client Outcomes — mandatory at Stage 4:**
+  After defining architecture pillars, the Test Architect must synthesise 3–7 Expected Client Outcomes and write them to `claude-memory/notes.md` under `## Expected Client Outcomes`. These are business-outcome statements from the client's perspective — not capability labels, not tool names, not architecture pillar names.
+
+  Format:
+  ```
+  ## Expected Client Outcomes
+  | Business Outcome | Driven By | Phase |
+  |---|---|---|
+  | [outcome statement] | [architecture pillar + capability domain] | [Phase N] |
+  ```
+
+  Rules:
+  - Minimum 3 outcomes; maximum 7. If fewer than 3 can be supported by evidence, declare: "Fewer than 3 client outcomes identified — remaining outcomes to be confirmed in Phase 0." Do not fabricate outcomes.
+  - Each outcome must be traceable to at least one architecture pillar OR at least one capability coverage finding (Missing/Partial domain addressed by the solution).
+  - Outcomes are client-facing statements of value (e.g., "Reduced defect escape to production", "Faster release cycle with maintained quality confidence") — not internal architecture descriptions.
+  - Anti-fabrication guard: Do not invent percentages, dollar figures, or benchmark claims. Quantified outcomes require a sourced Finding ID or must be prefixed `[ASSUMPTION: ...]` or `[ILLUSTRATIVE]`.
+  - This section is consumed by Stage 9 Section 6 Part B — do not omit.
 
   **AI Capability Tier Classification — mandatory at Stage 4:**
   Classify each proposed AI/GenAI capability as `Tier 1` (LLM-prompt-based / SaaS / IDE extension — no specialist ML infrastructure; Phase 2-viable; OC-1 does **not** apply) or `Tier 2` (predictive models requiring training data / specialist ML resourcing / ML infrastructure; Phase 3–4; OC-1 **applies**). Unclassified AI capabilities must not be assigned a phase. Full classification table and examples: see `## AI Capability Tier Classification` in `.claude/references/stage-4-classifications.md`.
