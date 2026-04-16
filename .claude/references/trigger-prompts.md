@@ -245,7 +245,7 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 ### evidence-extraction
 
 **Trigger prompts**
-1. "We've registered the RFP and two supporting documents in the artifact index. Extract all findings now — I want `memory.md` populated before we start any agent work." *(Stage 1: explicitly invoking evidence extraction before agent analysis begins)*
+1. "We've registered the RFP and two supporting documents in the artifact index. Extract all findings now — I want `claude-memory/memory.md` populated before we start any agent work." *(Stage 1: explicitly invoking evidence extraction before agent analysis begins)*
 2. "Run Stage 1 on this document. Pull out every requirement, gap, risk, and constraint you can find and format them as findings with confidence levels." *(Direct invocation of the extraction stage)*
 3. "Before we move to solution design, make sure we've extracted everything from the RFP. I don't want any gaps silently dropped when we get to Stage 3." *(Pre-Stage 3 extraction confirmation request)*
 
@@ -254,7 +254,7 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 2. "Summarise the key requirements from this RFP." *(Summarisation — this is an agent-level output task that occurs after extraction, not extraction itself)*
 3. "What QA gaps does the client have?" *(Gap analysis — this is the work of the Test Architect using extracted findings; the extraction skill itself does not perform gap analysis)*
 
-**Why the distinction matters:** Evidence extraction is a mechanical, structured process — classify, format, and store findings with source and confidence. Interpretation, framing, and gap analysis are downstream agent responsibilities. The skill populates `memory.md`; it does not draw conclusions.
+**Why the distinction matters:** Evidence extraction is a mechanical, structured process — classify, format, and store findings with source and confidence. Interpretation, framing, and gap analysis are downstream agent responsibilities. The skill populates `claude-memory/memory.md`; it does not draw conclusions.
 
 ---
 
@@ -280,13 +280,13 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 ### evidence-reconciliation
 
 **Trigger prompts**
-1. "Before we generate the final output, run evidence reconciliation. I want confirmation that every High-confidence finding in `memory.md` is either addressed in the solution or explicitly called out as out of scope." *(Stage 8 governance check — explicit invocation before output)*
+1. "Before we generate the final output, run evidence reconciliation. I want confirmation that every High-confidence finding in `claude-memory/memory.md` is either addressed in the solution or explicitly called out as out of scope." *(Stage 8 governance check — explicit invocation before output)*
 2. "We're about to submit. Check that nothing has been dropped — every finding we extracted should map to something in the output or be acknowledged as unresolved." *(Pre-submission quality check; maps to evidence reconciliation's core purpose)*
 3. "Produce the reconciliation report — I want to see which findings are addressed, which are out of scope with stated rationale, and which are unresolved." *(Request for the canonical reconciliation output)*
 
 **Non-trigger prompts**
 1. "Review this proposal section for quality." *(Proposal quality review — Review & Challenge Thinking; evidence reconciliation checks finding coverage, not prose quality or argument strength)*
-2. "Have we missed anything important?" *(Too vague — this could invoke any number of checking processes. Evidence reconciliation is specifically about `memory.md` finding resolution, not general completeness sensing)*
+2. "Have we missed anything important?" *(Too vague — this could invoke any number of checking processes. Evidence reconciliation is specifically about `claude-memory/memory.md` finding resolution, not general completeness sensing)*
 3. "Run the quality gate." *(Quality gate = Review & Challenge Thinking skill at Stage 9; evidence reconciliation is a Stage 8 governance action that precedes the quality gate)*
 
 **Why the distinction matters:** Evidence reconciliation is a traceability enforcement step — it checks the resolution status of every High-confidence finding against the solution output. It does not assess prose quality, challenge argument strength, or simulate a client evaluator. Those are the jobs of Review & Challenge Thinking and the Client Evaluator agent.
