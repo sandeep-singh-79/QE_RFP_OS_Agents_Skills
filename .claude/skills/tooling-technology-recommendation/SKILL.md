@@ -106,18 +106,35 @@ Assumptions:
 
 This guidance applies when Domain 9 (AI-Assisted Quality Engineering) capabilities are being considered for inclusion in tooling recommendations. It is advisory — it does not override the Invocation Check gate.
 
+**Sub-capability readiness model — apply per capability, not as a blanket rule:**
+
+| AI Sub-capability | Foundational Automation Required? | Earliest Phase | Positioning Note |
+|---|---|---|---|
+| **AI/GenAI Test Generation** | No — can bootstrap from day one | Phase 1 | Position as test creation accelerator from requirements/user stories; does not require an existing suite |
+| **Self-Healing Automation** | Yes — requires an existing automated suite to maintain | Phase 2+ | Requires scripts to heal; do not position before a stable base suite exists |
+| **AI-Driven Exploratory Testing** | No — operates against the live application | Phase 1 | Applicable regardless of automation maturity; complements manual testing |
+| **Intelligent Defect Analysis** | No — works from any defect data source (manual or automated) | Phase 1 | Can be applied to manual defect triage; does not depend on automation coverage |
+
 **Recommend AI capabilities when:**
-- The regression suite is large and maintenance burden is high (self-healing automation value applies)
-- UI change velocity is high (self-healing and visual validation reduce brittle test maintenance)
-- Exploratory coverage gaps exist that manual testing cannot close cost-effectively (AI-driven exploration applies)
-- Test generation volume is high and requirements are machine-readable (GenAI test generation applies)
-- Defect triage and root cause analysis are consuming significant analyst time (intelligent defect analysis applies)
+- Test creation volume is high and requirements are expressed in a machine-readable form (GenAI test generation applies from Phase 1)
+- Exploratory coverage gaps exist that structured manual testing cannot close cost-effectively (AI-driven exploration applies regardless of automation maturity)
+- Defect triage and root cause analysis are consuming significant analyst time (intelligent defect analysis applies even in largely manual environments)
+- The regression suite is large and experiencing high maintenance burden from UI change (self-healing applies — requires base suite)
+- The engagement is greenfield and the client wants to accelerate test framework creation — position AI/GenAI test generation as the bootstrap mechanism, not as a late-stage accelerator
 
 **Do not recommend AI capabilities when:**
-- Automation fundamentals are not yet in place (no CI/CD, no existing automation framework, no test pyramid) — AI accelerates an existing capability; it cannot substitute for foundational capability that does not yet exist
-- The test suite is small and stable — ROI from self-healing or AI generation is insufficient to offset tooling and adoption overhead
-- Compliance or contractual constraints prohibit AI-generated test artifacts or AI-assisted decision-making in the client environment
-- The client has explicitly excluded AI tooling from scope
+
+Apply these conditions per sub-capability, not as a blanket gate:
+- **Self-Healing Automation** — do not recommend when no baseline automation suite exists; self-healing requires scripts to maintain. Do not position this as a substitute for building the initial framework.
+- **Any AI sub-capability** — do not recommend when compliance or contractual constraints prohibit AI-generated test artifacts or AI-assisted decision-making in the client environment
+- **Any AI sub-capability** — do not recommend when the client has explicitly excluded AI tooling from scope
+- **Any AI sub-capability** — do not recommend when Domain 9 status in the capability coverage assessment is `Missing` and no evidence of AI QE readiness exists (e.g., no AI tooling in use, no stated AI strategy) — in this case, position Domain 9 as an opportunity to introduce, not assume it is ready to activate
+
+**Always declare:**
+- AI tooling recommendations are `client-dependent` or `to-be-validated` in the assumption classification (not `confirmed` unless the client already has an active AI QE tool)
+- Self-Healing Automation activation is conditional on Phase 1 base suite completion — do not schedule Tier 1 self-healing before a stable suite is confirmed
+- AI/GenAI Test Generation and AI-Driven Exploratory Testing may be positioned from Phase 1 without requiring prior automation maturity
+- The AI recommendation must not substitute for foundational tooling in the same category where that foundational capability is explicitly required (e.g., don't recommend self-healing automation as a replacement for a base Playwright/Cypress framework)
 - Domain 9 status in the capability coverage assessment is `Missing` — do not position AI tooling when there is no evidence of AI QE readiness
 
 **Always declare:**

@@ -264,13 +264,16 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 1. "Stage 3 is done. Now run Stage 3.5 — I want to know which of the nine QE capability domains are addressed, which are partially addressed, and which have no evidence at all." *(Direct invocation of the capability coverage stage)*
 2. "Before solution design, check the capability coverage across all domains — don't just look at what the RFP mentioned. I want to know if there are gaps the client hasn't explicitly raised." *(Explicit request for baseline-driven coverage rather than artifact-driven gap coverage alone)*
 3. "Give me a capability coverage table: for each of the nine QE domains, tell me the status — Present, Partial, or Missing — and what we should recommend." *(Request for the canonical Stage 3.5 output structure)*
+4. "For each capability domain, I also want to know what expected business benefit the client gets from addressing it — not just what we'd recommend." *(Activates the Expected Benefit column — skill must populate it with evidence-based, [ASSUMPTION], or [ILLUSTRATIVE] framing; no fabricated percentages or benchmarks)*
+5. "The client has AI-assisted QE listed as Present. Does that affect the recommendations for other domains?" *(Tests AI cross-cutting annotation rule — when Domain 9 = Present, skill should annotate applicable sibling domains with one-sentence AI enablement note)*
 
 **Non-trigger prompts**
 1. "What QA capabilities should we include in our proposal?" *(Content generation — the coverage check assesses existing evidence against a baseline; it does not generate proposal content from scratch)*
-2. "What capabilities does the client have?" *(This rephrases the question as client-side assessment — capability coverage compares client evidence in `memory.md` against the capability baseline; it does not assess what the client currently has in the abstract, and it does not generate content about what the solution should cover)*
-3. "Review the architecture section for completeness." *(Architecture review — Test Architect with QE Architect Thinking; capability coverage operates on `memory.md` findings, not on a draft proposal text)*
+2. "What capabilities does the client have?" *(This rephrases the question as client-side assessment — capability coverage compares client evidence in `claude-memory/memory.md` against the capability baseline; it does not assess what the client currently has in the abstract, and it does not generate content about what the solution should cover)*
+3. "Review the architecture section for completeness." *(Architecture review — Test Architect with QE Architect Thinking; capability coverage operates on `claude-memory/memory.md` findings, not on a draft proposal text)*
+4. "What's the ROI of introducing CI/CD quality gates?" *(ROI quantification — the Expected Benefit column provides qualitative framing only, sourced from evidence or declared as [ASSUMPTION]/[ILLUSTRATIVE]; the skill must not invent percentages or financial figures in response to this prompt)*
 
-**Why the distinction matters:** Capability coverage runs against the evidence baseline in `memory.md` and `qe-capability-map.md` — it does not read proposal text. It is a pre-Stage 4 completeness gate, not a proposal review or architecture critique.
+**Why the distinction matters:** Capability coverage runs against the evidence baseline in `claude-memory/memory.md` and `qe-capability-map.md` — it does not read proposal text. It is a pre-Stage 4 completeness gate, not a proposal review or architecture critique. The Expected Benefit column frames value to the client but is governed by the same anti-fabrication rules as all other output.
 
 ---
 
@@ -384,13 +387,15 @@ These prompts test the workspace-wide rules defined in `copilot-instructions.md`
 1. "The Test Architect has signed off the architecture. The capabilities we need are: UI automation, API testing, CI/CD integration via Azure DevOps, and a release-level dashboard. The client is already on Azure. What tooling options should we illustrate in the proposal?"
 2. "We need to validate that the tooling narrative in Section 3 holds up. Given the defined automation execution and reporting capability requirements, are the tools we've referenced appropriate, and are there any gaps or lock-in risks we should flag?"
 3. "The client's technical team has confirmed they're a Jira/GitHub shop. Based on that and the integration capabilities we've specified, what are the most defensible tooling options to reference for CI/CD orchestration and test management?"
+4. "The client has no existing automation at all — greenfield. Can we still recommend AI-assisted testing tools as part of the proposal?" *(Tests AI recommendation guidance: answer is sub-capability dependent — AI/GenAI test generation and AI-driven exploratory testing are viable from Phase 1 without prior automation; self-healing requires a base suite first; the skill must differentiate, not apply a blanket hold)*
+5. "The client has Domain 9 as Missing in the capability coverage. Can we still include AI tooling in Section 9?" *(Tests Domain 9 = Missing condition — skill should advise positioning AI as an opportunity to introduce rather than activating immediately; must declare client-dependent assumption; must not present AI tooling as a committed delivery mechanism when readiness is unconfirmed)*
 
 **Non-trigger prompts**
 1. "What's the best automation tool for web applications generally?" *(No capability requirements defined — will HALT and redirect to Test Architect to define capability requirements first)*
 2. "We haven't defined the architecture yet but the client is asking about tools. Can you just give us something to work with?" *(Capability inputs missing — return to Test Architect first; do not guess)*
 3. "Should we use cloud or on-prem test infrastructure?" *(Infrastructure decision — architecture and client context question, not tooling recommendation)*
 
-**Why the distinction matters:** This agent requires confirmed capability requirements as a mandatory input. Without them it cannot run — it must redirect to the Test Architect to complete architecture definition before any tooling discussion begins.
+**Why the distinction matters:** This agent requires confirmed capability requirements as a mandatory input. Without them it cannot run — it must redirect to the Test Architect to complete architecture definition before any tooling discussion begins. For AI sub-capabilities, the skill must apply per-sub-capability readiness conditions — not a blanket "AI requires mature automation" gate. AI/GenAI test generation and AI-driven exploratory testing are valid greenfield recommendations; self-healing is not.
 
 ---
 
