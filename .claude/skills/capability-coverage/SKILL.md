@@ -107,19 +107,57 @@ The output of this skill must be a structured table for each capability domain:
 Example row:
 
 ```
-| CI/CD Integration | Missing | None | Introduce pipeline quality gate validation at build and release stages. | Prevents defective releases from reaching production; reduces production incident rate. |
+| CI/CD Integration | Missing | None | Introduce pipeline quality gate validation at build and release stages. | RISK_REDUCTION — [ILLUSTRATIVE] Prevents defective releases from reaching production; reduces production incident rate. |
 ```
 
 **Expected Benefit column — framing and sourcing rules:**
 
 The `Expected Benefit` column captures the business or operational value to the **client** of addressing the capability gap (or maintaining a capability already present). Frame in terms of client outcomes — not tools, not effort, not delivery mechanics.
 
-Every entry must be one of:
-- **Evidence-based** — cite a Finding ID from `claude-memory/memory.md` that confirms the client outcome (e.g., "client confirmed production defect rate is a top risk — F[n]")
-- **Declared assumption** — prefix with `[ASSUMPTION: ...]` and state the basis (e.g., "[ASSUMPTION: based on CI/CD gap — pipeline defects typically escape to production without a quality gate]")
+**Step 1 — Select a Benefit Category.** Prefix every `Expected Benefit` entry with one category from the approved list below. The category classifies the type of value and must be chosen before writing the benefit statement.
+
+| Approved Benefit Categories |
+|---|
+| `EFFORT_REDUCTION` |
+| `TIME_REDUCTION` |
+| `COST_REDUCTION` |
+| `RISK_REDUCTION` |
+| `QUALITY_IMPROVEMENT` |
+| `DELIVERY_PREDICTABILITY` |
+| `COMPLIANCE_ASSURANCE` |
+| `PRODUCTIVITY_IMPROVEMENT` |
+| `SCALABILITY_ENABLEMENT` |
+
+Format: `CATEGORY — [benefit statement]`
+Example: `RISK_REDUCTION — Prevents defective releases from reaching production; reduces production incident rate.`
+
+Only one category per row. If two categories genuinely apply, favour the primary business driver.
+
+**Step 2 — Apply sourcing rules.** Every entry must be one of:
+- **Evidence-based** — cite a Finding ID from `claude-memory/memory.md` that confirms the client outcome (e.g., "RISK_REDUCTION — client confirmed production defect rate is a top risk — F[n]")
+- **Declared assumption** — prefix with `[ASSUMPTION: ...]` and state the basis (e.g., "RISK_REDUCTION — [ASSUMPTION: based on CI/CD gap — pipeline defects typically escape to production without a quality gate]")
 - **Illustrative** — prefix with `[ILLUSTRATIVE]` for qualitative archetypes drawn from `qe-capability-map.md` Value Framing Guidance when no client-specific evidence is available
 
-**Anti-fabrication guard:** Do not invent percentages, dollar amounts, benchmark figures, or industry statistics for the Expected Benefit column. Invented figures may not be presented as client-specific. If quantification is needed, it must be sourced, declared as an assumption with a stated basis, or labelled `[ILLUSTRATIVE EXAMPLE — not based on confirmed client data]`.
+**Anti-fabrication guard — quantification trigger rule:** Do not include any number, percentage, dollar amount, benchmark figure, or range in the `Expected Benefit` column unless at least one of the following measurable bases exists:
+
+1. An industry benchmark explicitly cited by source
+2. A client-provided baseline metric (e.g., from RFP artifacts — reference Finding ID)
+3. Historical delivery data confirmed in evidence
+4. A measurable operational metric stated by the client
+
+If none of these exist: use a qualitative outcome statement only. A labelled assumption (`[ASSUMPTION: ~50% effort reduction]`) does **not** satisfy this rule — it is still a fabricated number. Qualitative framing (`reduced manual regression effort per release cycle`) is always safer than an unsourced range.
+
+**When quantification is permitted — hybrid narrative pattern:** When a measurable basis exists, structure the benefit statement as:
+
+> *[Industry benchmark or evidence basis]. Based on [client context from Finding ID or declared assumption], this capability is expected to [operational impact — qualitative where specific data is unavailable].*
+
+Example: *"Industry benchmarks indicate automated regression testing reduces manual regression effort by 50–80% (source: [benchmark name]). Based on the client's stated pre-release regression cycle, this is expected to reduce testing execution time by approximately one to two days per release."*
+
+Use ranges, not point estimates. Declare the evidence type alongside any figure: `Industry Benchmark | Client Baseline | Historical Delivery Data | Assumption-Based Estimate`.
+
+**LINT-VALUE-01 (instruction):** Before including any figure in `Expected Benefit`, verify: (a) evidence type is declared, (b) stated as a range not a single value, (c) sourced to a Finding ID, benchmark citation, or explicit `[ASSUMPTION]` with basis. If any check fails, remove the figure and revert to qualitative framing.
+
+**LINT-VALUE-02 (instruction):** Every `Expected Benefit` entry must begin with one of the nine approved Benefit Categories above. If the benefit statement does not start with a category prefix, it is incomplete.
 
 **AI cross-cutting annotation:** When Domain 9 (AI-Assisted Quality Engineering) status is `Present` or `Partial`, consider annotating the Recommendation column of other applicable domains with a one-sentence note where AI enablement could accelerate coverage (e.g., "AI-assisted test generation could supplement manual exploratory coverage — see Domain 9"). Keep annotations to one sentence. Do not add AI annotations when Domain 9 status is `Missing`.
 

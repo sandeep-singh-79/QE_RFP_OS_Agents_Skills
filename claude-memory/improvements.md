@@ -736,3 +736,36 @@ Gaps GAP-8 through GAP-12, identified during Phase 20 (Manulife vendor questionn
 - **Derived from:** GPT-5.4 review of main branch, April 16, 2026 (IMP-20); confirmed as genuine learning gap with deferred timing
 - **Status:** Deferred — no longitudinal engagement data exists yet to populate this schema. Revisit after 3+ completed engagements.
 - **Priority:** P3
+
+---
+
+### Improvement Proposal: IP-CC-04
+- **Observation:** The `Expected Benefit` column introduced in IP-CC-01 uses free-text framing. Across multiple RFP engagements, this produces inconsistent benefit statements that are difficult to compare, aggregate, or audit. A reviewer comparing two proposals cannot tell whether "reduces production incident cost" and "lower release risk" refer to the same value category.
+- **Root Cause:** No controlled vocabulary for benefit classification was defined when the `Expected Benefit` column was introduced. IP-CC-01 established sourcing rules (evidence / assumption / illustrative) but not category consistency.
+- **Suggested Change:** Introduce a mandatory Benefit Category prefix on every `Expected Benefit` entry, selected from an approved list of 9 categories: `EFFORT_REDUCTION`, `TIME_REDUCTION`, `COST_REDUCTION`, `RISK_REDUCTION`, `QUALITY_IMPROVEMENT`, `DELIVERY_PREDICTABILITY`, `COMPLIANCE_ASSURANCE`, `PRODUCTIVITY_IMPROVEMENT`, `SCALABILITY_ENABLEMENT`. Format: `CATEGORY — [benefit statement]`. Add LINT-VALUE-02 instruction to `capability-coverage/SKILL.md`: every `Expected Benefit` entry must begin with an approved category prefix.
+- **Impact:** Medium — enables consistency and comparability across engagements; prepares the ground for cross-RFP capability value analysis (IP-CC-03)
+- **Derived from:** GPT-5.4 review of IP-CC-01 output, April 16, 2026; evaluated and scoped by independent review (cell prefix over new column)
+- **Status:** Implemented — approved category list and prefix rule added to `capability-coverage/SKILL.md` Expected Benefit sourcing rules; LINT-VALUE-02 instruction added; example row updated
+- **Priority:** P1
+
+---
+
+### Improvement Proposal: IP-CC-05
+- **Observation:** The anti-fabrication guard introduced in IP-CC-01 blocks invented figures but does not block *labelled fabrication* — a declared assumption such as `[ASSUMPTION: ~50% effort reduction]` passes the guard even though the underlying number has no evidential basis. This creates a credibility risk: a number carries authority even when labelled as an assumption, and procurement evaluators may treat declared assumptions as soft commitments.
+- **Root Cause:** The sourcing guard distinguishes evidence vs. assumption vs. illustrative framing, but does not distinguish *quantified* from *qualitative* outputs. Any tier can currently include a number. The guard controls attribution, not quantity type.
+- **Suggested Change:** Add an explicit Quantification Trigger Rule to the `Expected Benefit` sourcing rules in `capability-coverage/SKILL.md`: quantification (any number, percentage, range, or dollar figure) is permitted only when at least one of the following bases exists: (1) industry benchmark cited by source, (2) client-provided baseline metric (Finding ID), (3) historical delivery data confirmed in evidence, (4) measurable operational metric stated by client. If none exist, use qualitative framing only — even within `[ASSUMPTION]` or `[ILLUSTRATIVE]` entries. Add LINT-VALUE-01 instruction: before including any figure, verify evidence type is declared, value is a range not a point estimate, and source is traceable.
+- **Impact:** High — closes a real loophole in the current anti-fabrication guard; prevents labelled number fabrication from passing quality review
+- **Derived from:** GPT-5.4 review of IP-CC-01 output, April 16, 2026; identified as genuine gap by independent evaluation
+- **Status:** Implemented — Quantification Trigger Rule added to `capability-coverage/SKILL.md`; LINT-VALUE-01 instruction added
+- **Priority:** P1
+
+---
+
+### Improvement Proposal: IP-CC-06
+- **Observation:** When quantification is legitimately triggered (IP-CC-05 conditions met), the `Expected Benefit` column has no writing pattern to follow. Without a pattern, quantified entries vary in how they connect evidence to context to outcome — reducing comparability and increasing the risk of unsourced-feeling claims even when a valid basis exists.
+- **Root Cause:** IP-CC-01 established sourcing tiers and IP-CC-05 establishes when numbers are permitted, but neither defines *how* a quantified benefit statement should be constructed when the trigger is satisfied.
+- **Suggested Change:** Add a Hybrid Quantification narrative pattern to the `Expected Benefit` sourcing rules: `[Evidence basis (range)] + [client context (Finding ID or declared assumption)] + [expected operational impact (qualitative where specific data is unavailable)]`. Require: ranges not point estimates; explicit evidence type declaration (`Industry Benchmark | Client Baseline | Historical Delivery Data | Assumption-Based Estimate`). Provide a worked example in the skill. Implemented as a writing guide — no new output columns.
+- **Impact:** Medium — ensures that when quantification is used, it reads as defensible and structured rather than arbitrary; improves proposal credibility under evaluator scrutiny
+- **Derived from:** GPT-5.4 review of IP-CC-01 output, April 16, 2026; scoped to writing pattern only (rejecting the proposed multi-column expansion)
+- **Status:** Implemented — hybrid narrative pattern and evidence type declaration requirement added to `capability-coverage/SKILL.md` Expected Benefit sourcing rules
+- **Priority:** P2
