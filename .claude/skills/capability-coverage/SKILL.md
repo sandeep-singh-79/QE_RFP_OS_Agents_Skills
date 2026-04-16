@@ -159,6 +159,8 @@ Use ranges, not point estimates. Declare the evidence type alongside any figure:
 
 **LINT-VALUE-02 (instruction):** Every `Expected Benefit` entry must begin with one of the nine approved Benefit Categories above. If the benefit statement does not start with a category prefix, it is incomplete.
 
+**Confidence level rule:** Confidence is inferred from the sourcing tier and evidence type — not expressed as a separate field. Evidence-based entries (Finding ID) carry highest confidence; `[ASSUMPTION]` entries carry medium confidence proportional to basis strength; `[ILLUSTRATIVE]` entries carry lowest confidence by definition. Do not introduce separate `HIGH / MEDIUM / LOW` labels for value statements — this duplicates the sourcing tier signal and creates ambiguity about which confidence indicator governs.
+
 **AI cross-cutting annotation:** When Domain 9 (AI-Assisted Quality Engineering) status is `Present` or `Partial`, consider annotating the Recommendation column of other applicable domains with a one-sentence note where AI enablement could accelerate coverage (e.g., "AI-assisted test generation could supplement manual exploratory coverage — see Domain 9"). Keep annotations to one sentence. Do not add AI annotations when Domain 9 status is `Missing`.
 
 ---
